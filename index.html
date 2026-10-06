@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Globe Market</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -17,27 +16,13 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:var(--text)}
-
-/* ============ HERO / GLOBE ============ */
-#globeWrap{position:fixed;inset:0;z-index:50;background:#000;transition:all .45s cubic-bezier(.34,1.56,.64,1)}
-#globeWrap.mini{inset:auto;top:calc(56px + env(safe-area-inset-top,0px));right:12px;width:60px;height:60px;border-radius:50%;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.35);z-index:40;pointer-events:auto;cursor:pointer}
-#globeCanvas{width:100%;height:100%;display:block;touch-action:none}
-#heroHeader{position:absolute;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;display:flex;align-items:center;justify-content:space-between;z-index:5;transition:opacity .3s}
-#globeWrap.mini #heroHeader, #globeWrap.mini #heroHint{opacity:0;pointer-events:none}
-.glass{background:rgba(20,20,25,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.hbtn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
-.hbtn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#heroTitle{color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;gap:7px;letter-spacing:.2px}
-#heroHint{position:absolute;bottom:calc(96px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:rgba(255,255,255,.75);font-size:13px;z-index:5;animation:pulse 2s infinite;transition:opacity .3s}
-@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text)}
 
 /* ============ APP LAYOUT ============ */
-#app{position:fixed;inset:0;background:var(--bg);transform:translateY(100%);transition:transform .4s ease-in-out;z-index:30;display:flex;flex-direction:column}
-#app.open{transform:translateY(0)}
-#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:12px;background:rgba(255,255,255,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.05);position:relative;z-index:10}
-#appHeader .hbtn{background:var(--input)}
-#appHeader .hbtn svg{stroke:var(--text)}
+#app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
+#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:10px;background:rgba(255,255,255,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.05);position:relative;z-index:10}
+#appHeader .hbtn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;background:var(--input)}
+#appHeader .hbtn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:6px}
 #main{flex:1;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
 
@@ -51,6 +36,20 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .searchbox svg{width:17px;height:17px;stroke:var(--text2);fill:none;stroke-width:2}
 .searchbox input{border:none;outline:none;background:none;flex:1;font-size:15px;font-family:inherit;color:var(--text)}
 .searchbox input::placeholder{color:var(--hint)}
+
+/* ============ PARTNERS (баннер партнёров) ============ */
+#partnersSec{margin-bottom:16px}
+#partnersSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+#partnersRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+#partnersRow::-webkit-scrollbar{display:none}
+.pCard{flex:0 0 auto;width:150px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow);cursor:pointer;transform:translateY(0);transition:transform .2s}
+.pCard:active{transform:translateY(2px)}
+.pImg{width:100%;height:100px;object-fit:cover;display:block;background:var(--input)}
+.pImgPh{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
+.pBody{padding:8px 10px 10px}
+.pName{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pDesc{font-size:10.5px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pTag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#0A84FF;background:rgba(10,132,255,.1);padding:3px 8px;border-radius:8px;margin-top:7px}
 
 /* ============ STORIES ============ */
 #storiesRow{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none}
@@ -98,7 +97,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .tab.on{color:var(--accent)}
 .tab .badge{position:absolute;top:6px;right:calc(50% - 18px);background:#FF2D55;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
 
-/* ============ PRODUCT SHEET ============ */
+/* ============ SHEETS ============ */
 .sheet{position:fixed;inset:0;z-index:90;visibility:hidden}
 .sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .3s}
 .sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:#fff;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .35s ease-in-out;display:flex;flex-direction:column}
@@ -124,6 +123,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cta button{flex:1;height:48px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
 .btnMain{background:var(--accent);color:#fff;border:none}
 .btnOut{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+
+/* partner sheet */
+.ptImg{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
+.ptPh{width:100%;aspect-ratio:16/10;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
+.ptTitle{font-size:19px;font-weight:800;margin-top:14px}
+.ptDesc{font-size:14px;line-height:1.55;color:#3a3a3c;margin-top:8px;white-space:pre-wrap}
 
 /* ============ STORY VIEWER ============ */
 #storyViewer{position:fixed;inset:0;z-index:100;background:#000;display:none;flex-direction:column}
@@ -211,35 +216,18 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 </head>
 <body>
 
-<!-- ===================== HERO ===================== -->
-<div id="globeWrap">
-  <div id="heroHeader">
-    <button class="hbtn glass" onclick="openMenuSheet()">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
-    </button>
-    <div id="heroTitle">🌍 Globe Market</div>
-    <div style="display:flex;gap:8px">
-      <button class="hbtn glass" onclick="openNotifSheet()">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-      </button>
-      <button class="hbtn glass" onclick="openCatalog();switchTab('profile')">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </button>
-    </div>
-  </div>
-  <canvas id="globeCanvas"></canvas>
-  <div id="heroHint" onclick="openCatalog()" style="pointer-events:auto">Коснитесь планеты, чтобы открыть каталог ✨</div>
-</div>
-
 <!-- ===================== APP ===================== -->
 <div id="app">
   <div id="appHeader">
     <div id="brand">🌍 <span>Globe Market</span></div>
     <div style="flex:1"></div>
-    <button class="hbtn" id="adminHeadBtn" style="display:none;background:#fff;border:1.5px solid var(--border)" onclick="openCatalog();switchTab('admin')" title="Панель админа">
+    <button class="hbtn" id="adminHeadBtn" style="display:none;background:#fff;border:1.5px solid var(--border)" onclick="switchTab('admin')" title="Панель админа">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
-    <button class="hbtn" onclick="openNotifSheet()">
+    <button class="hbtn" onclick="openMenuSheet()" title="Меню">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    </button>
+    <button class="hbtn" onclick="openNotifSheet()" title="Уведомления">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
     </button>
   </div>
@@ -253,6 +241,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
           <input id="searchInput" placeholder="Поиск товаров..." oninput="renderGrid()">
         </div>
       </div>
+      <div id="partnersSec"></div>
       <div id="storiesRow"></div>
       <div id="bannerBox"></div>
       <div id="chips"></div>
@@ -305,11 +294,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="screen" id="scr-admin">
       <div class="secTitle">⚙️ Панель админа</div>
       <div class="adminNav">
-        <div class="chip on" data-a="add" onclick="adminTab(this)">➕ Добавить</div>
-        <div class="chip" data-a="list" onclick="adminTab(this)">📦 Мои товары</div>
-        <div class="chip" data-a="reqs" onclick="adminTab(this)">📢 Заявки</div>
-        <div class="chip" data-a="stats" onclick="adminTab(this)">📊 Статистика</div>
-        <div class="chip" data-a="settings" onclick="adminTab(this)">⚙️ Настройки</div>
+        <div class="chip on" data-a="add" onclick="admTab(this)">➕ Добавить</div>
+        <div class="chip" data-a="partners" onclick="admTab(this)">🤝 Партнёры</div>
+        <div class="chip" data-a="list" onclick="admTab(this)">📦 Товары</div>
+        <div class="chip" data-a="reqs" onclick="admTab(this)">📢 Заявки</div>
+        <div class="chip" data-a="stats" onclick="admTab(this)">📊 Статистика</div>
+        <div class="chip" data-a="settings" onclick="admTab(this)">⚙️ Настройки</div>
       </div>
 
       <div id="adm-add">
@@ -324,8 +314,20 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
             <select id="fCategory"></select>
           </div>
           <div class="field"><label>Описание</label><textarea id="fDesc" placeholder="Состояние, комплектация..."></textarea></div>
-          <button class="submitBtn" onclick="publishProduct()">🚀 Опубликовать</button>
+          <button class="submitBtn" onclick="publishProduct()">🚀 Опубликовать (видят все)</button>
         </div>
+      </div>
+
+      <div id="adm-partners" style="display:none">
+        <div class="aCard">
+          <div class="sub" style="margin-bottom:10px">Партнёры отображаются баннером на главной — их видят все пользователи.</div>
+          <div class="field"><label>Логотип / фото партнёра</label><div class="photoPicker" id="prPhotos"></div></div>
+          <div class="field"><label>Название партнёра</label><input id="prTitle" placeholder="Kafe Nuroniy"></div>
+          <div class="field"><label>Описание (что предлагает)</label><textarea id="prDesc" placeholder="Скидка 10% для клиентов Globe Market"></textarea></div>
+          <div class="field"><label>Ссылка (Telegram / Instagram / сайт)</label><input id="prLink" placeholder="https://t.me/..."></div>
+          <button class="submitBtn" onclick="publishPartner()">🤝 Опубликовать партнёра</button>
+        </div>
+        <div id="prList"></div>
       </div>
 
       <div id="adm-list" style="display:none"></div>
@@ -363,7 +365,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span>Профиль</span>
     </div>
-    <div class="tab" id="adminTab" data-scr="admin" onclick="switchTab('admin')" style="display:none">
+    <div class="tab" id="adminTabBtn" data-scr="admin" onclick="switchTab('admin')" style="display:none">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Админ</span>
     </div>
@@ -376,6 +378,15 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div class="panel" id="productPanel">
     <div class="grab"></div>
     <div class="sheetScroll" id="productBody"></div>
+  </div>
+</div>
+
+<!-- ===================== PARTNER SHEET ===================== -->
+<div class="sheet" id="partnerSheet">
+  <div class="backdrop" onclick="closeSheet('partnerSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="partnerBody"></div>
   </div>
 </div>
 
@@ -436,20 +447,25 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 <script>
 /* ================================================================
    GLOBE MARKET — Telegram Mini App
-   Товары публикует ТОЛЬКО админ. Пользователи смотрят, добавляют
-   Stories, избранное и заявки на рекламу.
-   Хранение: IndexedDB + localStorage. Деплой: GitHub Pages.
+   Главная: каталог + баннер партнёров. Товары и партнёров публикует
+   ТОЛЬКО админ — они сохраняются в облаке (Supabase, бесплатный)
+   и мгновенно видны ВСЕМ пользователям. Личные Stories — локально.
+   Хостинг: GitHub Pages. Бэкенд-серверов и кредитов Base44 нет.
 ================================================================ */
 
 /* ---------- НАСТРОЙКИ ВЛАДЕЛЬЦА ---------- */
-const BOT_TOKEN   = "8667764468:AAHB-99kEw-ONhIVjlWSlERg3BOKhdU61Gc";          // токен бота @Global_mrkt_bot (уведомления о заявках идут напрямую в Telegram API)
+const BOT_TOKEN   = "8667764468:AAHB-99kEw-ONhIVjlWSlERg3BOKhdU61Gc";  // токен бота @Global_mrkt_bot
 const OWNER_TG_ID = 8396883978;        // ← TG ID владельца (админа)
 const BOT_USERNAME = "Global_mrkt_bot"; // бот проекта
+
+/* ---------- ОБЛАЧНАЯ БАЗА (Supabase, бесплатно) ---------- */
+const SB_URL = "https://lgviecqwdxazastenhgt.supabase.co";
+const SB_KEY = "sb_publishable__zxoIvV9suhyR7BgboVJwg_MectzLZn"; // публичный ключ: читать каталог/партнёров, слать заявки
 
 /* ---------- TELEGRAM ---------- */
 const tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
-try{ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }catch(e){}
+try{ tg.setHeaderColor('#F5F5F7'); tg.setBackgroundColor('#F5F5F7'); }catch(e){}
 const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
 const isAdmin = tgUser ? (tgUser.id === OWNER_TG_ID) : false;
 const haptic = (s)=>{ try{ tg.HapticFeedback.impactOccurred(s||'light'); }catch(e){} };
@@ -461,233 +477,31 @@ function toast(msg){
 }
 
 /* ================================================================
-   THREE.JS — 3D ГЛОБУС
+   ХЕЛПЕРЫ
 ================================================================ */
-let renderer, scene, camera, earthGroup, earth, clouds, moon, moonPivot;
-let rotVel = 0.0022, rotBase = 0.0022, rotBoost = 0;  // планета вращается сама, заметно, без участия пользователя
-let cameraTargetZ = 2.6, zoomFromZ = 5, zoomStart = 0;
-let dragOn = false, dragMoved = false, lastX = 0, lastY = 0;
-let resizeRaf = null;
-
-// На узких (телефонных) экранах угол обзора камеры по горизонтали сильно
-// уже, чем на широких браузерных — без поправки планета вылезает за край
-// и смотрится "зумленной". Отодвигаем камеру пропорционально узости экрана.
-function computeTargetZ(aspect){
-  const base = 2.6;
-  if(aspect >= 1) return base;                        // десктоп / ландшафт — как было
-  // портрет (телефон): точный расчёт по формуле перспективной камеры —
-  // дистанция, при которой сфера радиуса 1 помещается по УЗКОЙ (горизонтальной)
-  // стороне экрана с запасом по краям, а не вылезает "зумленной" на весь экран
-  const halfV = (45 * Math.PI/180) / 2;               // половина вертикального FOV камеры
-  const halfH = Math.atan(Math.tan(halfV) * aspect);  // половина горизонтального FOV на этом экране
-  const margin = 1.18;                                // запас по краям (чем больше — тем компактнее планета)
-  return Math.min(1 / Math.sin(halfH / margin), 6.8);
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtPrice(v){
+  if(!v && v!==0) return 'Договорная';
+  return new Intl.NumberFormat('ru-RU').format(v) + ' сум';
+}
+function timeAgo(ts){
+  const m = Math.floor((Date.now()-ts)/60000);
+  if(m<1) return 'только что';
+  if(m<60) return m + ' мин назад';
+  const h = Math.floor(m/60);
+  if(h<24) return h + ' ч назад';
+  return Math.floor(h/24) + ' дн назад';
 }
 
-function initGlobe(){
-  const canvas = document.getElementById('globeCanvas');
-  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));   // меньше нагрузки на телефонах — меньше дёрганья
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  cameraTargetZ = computeTargetZ(innerWidth / innerHeight);
-  zoomFromZ = cameraTargetZ + 2.4;   // zoom-in стартует издалека
-  camera.position.z = zoomFromZ;
-  zoomStart = performance.now();
+/* ---------- localStorage ---------- */
+const LS = {
+  get:(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+  set:(k,v)=>localStorage.setItem(k, JSON.stringify(v))
+};
 
-  const loader = new THREE.TextureLoader();
-  loader.setCrossOrigin('anonymous');
-
-  earthGroup = new THREE.Group();
-  scene.add(earthGroup);
-
-  // Земля
-  const tex = {
-    map:      loader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg'),
-    specular: loader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg'),
-    night:    loader.load('https://threejs.org/examples/textures/planets/earth_lights_2048.png'),
-  };
-  earth = new THREE.Mesh(
-    new THREE.SphereGeometry(1, 64, 64),
-    new THREE.MeshPhongMaterial({
-      map: tex.map,
-      specularMap: tex.specular,
-      specular: new THREE.Color(0x333333),
-      shininess: 12,
-      emissiveMap: tex.night,
-      emissive: new THREE.Color(0x47507a),
-      emissiveIntensity: 0.9
-    })
-  );
-  earthGroup.add(earth);
-
-  // Облака — отдельный слой, вращается в обратную сторону
-  clouds = new THREE.Mesh(
-    new THREE.SphereGeometry(1.012, 64, 64),
-    new THREE.MeshLambertMaterial({
-      map: loader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png'),
-      transparent: true, opacity: 0.85, depthWrite: false
-    })
-  );
-  earthGroup.add(clouds);
-
-  // Свет
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(5, 2, 3);
-  scene.add(sun);
-  scene.add(new THREE.AmbientLight(0x556699, 0.45));
-
-  // Звёзды — 2000 частиц
-  const starGeo = new THREE.BufferGeometry();
-  const pos = new Float32Array(2000*3);
-  for(let i=0;i<2000;i++){
-    const r = 12 + Math.random()*20, th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
-    pos[i*3]   = r*Math.sin(ph)*Math.cos(th);
-    pos[i*3+1] = r*Math.sin(ph)*Math.sin(th);
-    pos[i*3+2] = r*Math.cos(ph);
-  }
-  starGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.07, sizeAttenuation:true}));
-  scene.add(stars);
-
-  // Атмосфера — синее свечение (sprite с radial gradient)
-  const glowCanvas = document.createElement('canvas'); glowCanvas.width = glowCanvas.height = 256;
-  const g = glowCanvas.getContext('2d');
-  const grad = g.createRadialGradient(128,128,60,128,128,128);
-  grad.addColorStop(0,'rgba(80,140,255,0.55)');
-  grad.addColorStop(0.35,'rgba(60,110,255,0.22)');
-  grad.addColorStop(1,'rgba(40,90,255,0)');
-  g.fillStyle = grad; g.fillRect(0,0,256,256);
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: new THREE.CanvasTexture(glowCanvas), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
-  }));
-  glow.scale.set(3.1,3.1,1);
-  earthGroup.add(glow);
-
-  // Луна — серый шарик, орбитирует в правом верхнем углу
-  moon = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 32, 32),
-    new THREE.MeshStandardMaterial({color:0xbfbfbf, roughness:0.9})
-  );
-  moonPivot = new THREE.Group();
-  const mpos = new THREE.Vector3(2.2, 1.3, 1.2);
-  moon.position.copy(mpos);
-  moonPivot.add(moon); scene.add(moonPivot);
-
-  resizeGlobe();
-  const debouncedResize = ()=>{
-    if(resizeRaf) return;
-    resizeRaf = requestAnimationFrame(()=>{ resizeRaf = null; resizeGlobe(); });
-  };
-  window.addEventListener('resize', debouncedResize);
-  window.addEventListener('orientationchange', debouncedResize);
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', debouncedResize);
-
-  // Управление
-  const wrap = document.getElementById('globeWrap');
-  canvas.addEventListener('pointerdown', e=>{
-    dragOn=true; dragMoved=false; lastX=e.clientX; lastY=e.clientY;
-    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
-  });
-  canvas.addEventListener('touchmove', e=>{ if(dragOn) e.preventDefault(); }, {passive:false});
-  window.addEventListener('pointermove', e=>{
-    if(!dragOn) return;
-    const dx = e.clientX-lastX, dy = e.clientY-lastY;
-    if(Math.abs(dx)+Math.abs(dy) > 4) dragMoved = true;
-    earthGroup.rotation.y += dx*0.005;
-    camera.position.y = Math.max(-1.2, Math.min(1.2, camera.position.y - dy*0.004));
-    lastX = e.clientX; lastY = e.clientY;
-  });
-  window.addEventListener('pointerup', ()=>{ dragOn=false; });
-  canvas.addEventListener('click', ()=>{
-    if(dragMoved) return;
-    rotBoost = 0.05;                 // резкое ускорение
-    haptic('medium');
-    setTimeout(openCatalog, 320);
-  });
-  wrap.addEventListener('click', (e)=>{               // клик по мини-глобусу
-    if(e.target.closest('#heroHeader') || e.target.closest('#heroHint')) return;
-    if(wrap.classList.contains('mini')){ haptic('light'); toggleHero(); }
-  });
-
-  // Жест "скролл/свайп вниз" — альтернатива тапу: планета ускоряет вращение
-  // и пользователь сам оказывается в маркетплейсе, без лишнего нажатия
-  let openedByGesture = false;
-  function gestureOpen(){
-    if(openedByGesture || opened) return;
-    openedByGesture = true;
-    rotBoost = 0.08;
-    haptic('medium');
-    setTimeout(openCatalog, 280);
-  }
-  let touchStartX = 0, touchStartY = 0, touchStartT = 0;
-  canvas.addEventListener('touchstart', e=>{
-    if(wrap.classList.contains('mini') || !e.touches[0]) return;
-    touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartT = performance.now();
-  }, {passive:true});
-  canvas.addEventListener('touchend', e=>{
-    if(wrap.classList.contains('mini') || !e.changedTouches[0]) return;
-    const dx = touchStartX - e.changedTouches[0].clientX;
-    const dy = touchStartY - e.changedTouches[0].clientY;   // > 0 — палец идёт вверх = жест "скролл вниз"
-    const dt = performance.now() - touchStartT;
-    if(dy > 55 && Math.abs(dy) > Math.abs(dx)*1.4 && dt < 800) gestureOpen();
-  }, {passive:true});
-  wrap.addEventListener('wheel', e=>{
-    if(wrap.classList.contains('mini')) return;
-    if(e.deltaY > 0) gestureOpen();
-  }, {passive:true});
-
-  animate();
-}
-
-function resizeGlobe(){
-  const wrap = document.getElementById('globeWrap');
-  const mini = wrap.classList.contains('mini');
-  // ВАЖНО: во время CSS-анимации перехода мини↔полный экран реальный размер
-  // обёртки меняется плавно (0.45с) — берём его напрямую, а не innerWidth/innerHeight,
-  // иначе буфер рендера рассинхронизируется с CSS-размером и картинка "плывёт"/искажается
-  const rect = wrap.getBoundingClientRect();
-  const w = mini ? 60 : Math.max(1, Math.round(rect.width));
-  const h = mini ? 60 : Math.max(1, Math.round(rect.height));
-  renderer.setSize(w, h, false);
-  camera.aspect = w/h;
-  if(mini){
-    camera.position.y = 0; camera.fov = 50;
-  } else {
-    camera.fov = 45;
-    cameraTargetZ = computeTargetZ(w/h);              // пересчитать при повороте экрана / изменении размера
-    if(!zoomStart) camera.position.z = cameraTargetZ; // уже не в анимации зума — применяем сразу
-  }
-  camera.updateProjectionMatrix();
-}
-
-function animate(){
-  requestAnimationFrame(animate);
-  const now = performance.now();
-
-  // zoom-in при первом открытии: z 5 → 2.5 за 2 сек
-  if(zoomStart){
-    const p = Math.min(1, (now - zoomStart)/2000);
-    const e = 1 - Math.pow(1-p, 3);
-    camera.position.z = zoomFromZ + (cameraTargetZ - zoomFromZ)*e;
-    if(p >= 1) zoomStart = 0;
-  }
-
-  // вращение: базовое + буст с плавным затуханием
-  if(rotBoost > 0.0005){ rotBoost *= 0.94; } else { rotBoost = 0; }
-  rotVel = rotBase + rotBoost;
-  earth.rotation.y  += rotVel;
-  clouds.rotation.y -= rotVel*0.55;   // облака чуть медленнее, в обратную сторону
-  moonPivot.rotation.y += 0.0016;
-
-  renderer.render(scene, camera);
-}
-
-/* ================================================================
-   БАЗА ДАННЫХ — IndexedDB + localStorage
-================================================================ */
+/* ---------- IndexedDB (личные Stories) ---------- */
 const DB_NAME = 'MarketAppDB', DB_VER = 1;
 let db = null;
-
 function openDB(){
   return new Promise((res, rej)=>{
     const rq = indexedDB.open(DB_NAME, DB_VER);
@@ -715,20 +529,8 @@ function dbDel(store, id){ return new Promise(res=>{
   rq.onsuccess = ()=>res(true); rq.onerror=()=>res(false);
 });}
 
-const LS = {
-  get:(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
-  set:(k,v)=>localStorage.setItem(k, JSON.stringify(v))
-};
-
-/* ================================================================
-   ДЕМО-ДАННЫЕ
-================================================================ */
 const CATEGORIES = ['Электроника','Одежда','Транспорт','Недвижимость','Услуги','Другое'];
 const uid = ()=> 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const pic = (s)=>`https://picsum.photos/seed/${s}/600/600`;
-
-// Маркетплейс стартует полностью пустым — товары добавляет только админ через панель (сохраняются локально).
-const DEMO_PRODUCTS = [];
 
 function avatarUrl(u){
   if(u && u.photo_url) return u.photo_url;
@@ -736,66 +538,133 @@ function avatarUrl(u){
   return 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=' + encodeURIComponent(n);
 }
 
-async function seed(){
-  // Маркетплейс и ленту Stories больше НЕ заполняем демо-данными —
-  // всё добавляет только админ через панель, и всё сохраняется локально.
-  // Кружок "Моя" (свой профиль) показывается всем автоматически и без истории —
-  // это уже реализовано в renderStories() ниже, отдельных демо-пользователей не нужно.
-  await migrateRemoveOldDemoData();
-  await purgeExpiredStories();
-}
-
-// Разово чистим демо-товары/демо-истории, которые могли остаться в локальной базе
-// с более ранней версии сайта (у них были id d1..d5 и s1..s3) — чтобы маркет стал пустым и у тех,
-// кто уже открывал сайт раньше. Выполняется один раз на устройство.
-async function migrateRemoveOldDemoData(){
-  if(LS.get('migrated_clear_demo_v1', false)) return;
-  for(const id of ['d1','d2','d3','d4','d5']){ try{ await dbDel('listings', id); }catch(e){} }
-  for(const id of ['s1','s2','s3']){ try{ await dbDel('stories', id); }catch(e){} }
-  LS.set('migrated_clear_demo_v1', true);
-}
-
-async function purgeExpiredStories(){
-  const s = await dbAll('stories');
-  const now = Date.now();
-  for(const st of s) if(st.expiresAt && st.expiresAt < now) await dbDel('stories', st.id);
+/* ---------- Сжатие фото (чтобы облако не разбухало) ---------- */
+function readAsDataURL(file){ return new Promise(res=>{
+  const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(file);
+});}
+async function compressImage(file, maxDim=1000, q=0.72){
+  const url = await readAsDataURL(file);
+  if(!file.type.startsWith('image/') || file.type==='image/gif') return url;
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=>{
+      let w = img.width, h = img.height;
+      const k = Math.min(1, maxDim/Math.max(w,h));
+      w = Math.max(1, Math.round(w*k)); h = Math.max(1, Math.round(h*k));
+      const c = document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = ()=>res(url);
+    img.src = url;
+  });
 }
 
 /* ================================================================
-   РОЛИ И НАВИГАЦИЯ
+   ОБЛАКО (Supabase REST)
+================================================================ */
+async function sbGet(path){
+  const r = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY }
+  });
+  if(!r.ok) throw new Error('cloud ' + r.status);
+  return r.json();
+}
+async function sbInsert(table, row){
+  const r = await fetch(SB_URL + '/rest/v1/' + table, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(row)
+  });
+  if(!r.ok) throw new Error('cloud ' + r.status);
+  return true;
+}
+async function sbRpc(fn, args){
+  const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(args)
+  });
+  if(!r.ok){
+    let msg = 'cloud ' + r.status;
+    try{ msg = (await r.json()).message || msg; }catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+const adminApi = (action, payload)=> sbRpc('admin_api', { action, payload: payload||{}, init_data: tg.initData || '' });
+const userApi  = (action, payload)=> sbRpc('user_api',  { action, payload: payload||{}, init_data: tg.initData || '' });
+
+/* ---------- Кэш каталога и партнёров ---------- */
+let cloudListings = LS.get('cloud_listings', []);
+let cloudPartners = LS.get('cloud_partners', []);
+
+function mapListing(r){
+  return {
+    id: r.id, title: r.title, price: Number(r.price)||0,
+    category: r.category, district: r.city, desc: r.description, contact: r.contact,
+    photos: Array.isArray(r.photos)? r.photos : [],
+    isTop: !!r.is_top, views: r.views||0,
+    createdAt: Date.parse(r.created_at)||0
+  };
+}
+
+async function loadCloud(){
+  renderGrid(); renderPartners();      // мгновенно из кэша
+  try{
+    const rows = await sbGet('listings?select=*&order=is_top.desc,created_at.desc');
+    cloudListings = rows.map(mapListing);
+    LS.set('cloud_listings', cloudListings);
+  }catch(e){ console.warn('listings cloud fail', e); }
+  try{
+    const pr = await sbGet('partners?select=*&order=created_at.desc');
+    cloudPartners = pr || [];
+    LS.set('cloud_partners', cloudPartners);
+  }catch(e){ console.warn('partners cloud fail', e); }
+  renderGrid(); renderPartners();
+}
+
+/* ---------- Разовая миграция локальных товаров админа в облако ---------- */
+async function migrateLocalToCloud(){
+  if(!isAdmin) return;
+  if(LS.get('mig_cloud_v1', false)) return;
+  try{
+    const loc = (await dbAll('listings')).filter(p=>p.id && String(p.id).startsWith('id_'));
+    for(const p of loc){
+      try{
+        await adminApi('upsert_listing', {
+          id:'', title:p.title||'', description:p.desc||'', price:Number(p.price)||0,
+          currency:'UZS', category:p.category||'Другое', city:p.district||'',
+          contact:(LS.get('shop_settings',{}).tg)||('@'+BOT_USERNAME),
+          photos:(p.photos||[]), status:'active', is_top:!!p.isTop
+        });
+      }catch(e){ console.warn('mig listing fail', e); }
+      await dbDel('listings', p.id);
+    }
+    const lreqs = (await dbAll('ad_requests'));
+    for(const r of lreqs){
+      try{
+        await sbInsert('ad_requests', {
+          name:r.userName||'', username:r.username||'', contact:r.username?('@'+r.username):'',
+          message:r.description||'', tariff:r.tariff||'', link:r.link||'',
+          user_id:r.userId?String(r.userId):'0', status:r.status||'wait'
+        });
+      }catch(e){ console.warn('mig req fail', e); }
+      await dbDel('ad_requests', r.id);
+    }
+    LS.set('mig_cloud_v1', true);
+  }catch(e){ console.warn('migration skipped', e); }
+}
+
+/* ================================================================
+   НАВИГАЦИЯ
 ================================================================ */
 if(isAdmin){
-  document.getElementById('adminTab').style.display = 'flex';
+  document.getElementById('adminTabBtn').style.display = 'flex';
   document.getElementById('adminHeadBtn').style.display = 'flex';
 }
 
-let opened = false;
-function openCatalog(){
-  if(opened) return;
-  opened = true;
-  toggleHero();
-  document.getElementById('app').classList.add('open');
-}
-function toggleHero(){
-  const wrap = document.getElementById('globeWrap');
-  const miniNext = !wrap.classList.contains('mini');
-  wrap.classList.toggle('mini', miniNext);
-  if(miniNext){
-    setTimeout(resizeGlobe, 60);     // сжатие в кружок — конечный размер маленький, одного ресайза достаточно
-  } else {
-    // разворачивание в полный экран — обёртка растёт по CSS 0.45с;
-    // ресайзим рендер КАЖДЫЙ кадр синхронно с этим ростом, иначе буфер рендера
-    // не совпадает с текущим CSS-размером и планета выглядит искажённой/"фальшивой"
-    const start = performance.now();
-    (function tick(){
-      resizeGlobe();
-      if(performance.now() - start < 480) requestAnimationFrame(tick);
-    })();
-  }
-}
-
 function switchTab(name){
-  openCatalog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('scr-'+name).classList.add('active');
   document.querySelectorAll('#tabbar .tab').forEach(t=>t.classList.toggle('on', t.dataset.scr===name));
@@ -804,6 +673,49 @@ function switchTab(name){
   if(name==='favorites') renderFav();
   if(name==='profile') renderProfile();
   if(name==='admin') renderAdmin();
+}
+
+/* ================================================================
+   ГЛАВНАЯ: ПАРТНЁРЫ (баннер)
+================================================================ */
+function partnerInitials(t){
+  return (t||'?').trim().slice(0,2).toUpperCase();
+}
+function renderPartners(){
+  const sec = document.getElementById('partnersSec');
+  if(!cloudPartners.length){ sec.innerHTML=''; return; }
+  const cards = cloudPartners.map((p,i)=>{
+    const img = p.image_url
+      ? `<img class="pImg" src="${esc(p.image_url)}" loading="lazy" alt="">`
+      : `<div class="pImgPh">${esc(partnerInitials(p.title))}</div>`;
+    return `<div class="pCard" style="animation:cardUp .4s ease ${i*60}ms forwards;opacity:0" onclick="openPartner('${p.id}')">
+      ${img}
+      <div class="pBody">
+        <div class="pName">${esc(p.title)}</div>
+        <div class="pDesc">${esc(p.description||'Партнёр Globe Market')}</div>
+        <div class="pTag">🤝 Партнёр</div>
+      </div>
+    </div>`;
+  }).join('');
+  sec.innerHTML = `<div class="secTitle">🤝 Наши партнёры</div><div id="partnersRow">${cards}</div>`;
+}
+function openPartner(id){
+  const p = cloudPartners.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('partnerBody').innerHTML = `
+    <div style="height:8px"></div>
+    ${p.image_url
+      ? `<img class="ptImg" src="${esc(p.image_url)}" alt="">`
+      : `<div class="ptPh">${esc(partnerInitials(p.title))}</div>`}
+    <div class="ptTitle">${esc(p.title)}</div>
+    <div class="pTag" style="margin-top:8px">🤝 Партнёр Globe Market</div>
+    <div class="ptDesc">${esc(p.description||'')}</div>
+    ${p.link ? `<div class="cta"><button class="btnMain" onclick="openPartnerLink('${esc(p.link)}')">Открыть 🔗</button></div>` : ''}`;
+  openSheet('partnerSheet'); haptic('light');
+}
+function openPartnerLink(url){
+  if(url.startsWith('https://t.me/')) tg.openTelegramLink(url);
+  else tg.openLink(url);
 }
 
 /* ================================================================
@@ -817,9 +729,8 @@ function renderChips(){
 }
 function setCat(c){ activeCat = c; renderChips(); renderGrid(); haptic('light'); }
 
-async function visibleProducts(){
-  let list = await dbAll('listings');
-  list.sort((a,b)=> (b.isTop-a.isTop) || (b.createdAt-a.createdAt));
+function visibleProducts(){
+  let list = [...cloudListings].sort((a,b)=> (b.isTop-a.isTop) || (b.createdAt-a.createdAt));
   const q = (document.getElementById('searchInput').value||'').toLowerCase().trim();
   return list.filter(p=>{
     if(activeCat !== 'Все' && p.category !== activeCat) return false;
@@ -831,11 +742,11 @@ async function visibleProducts(){
 function cardHTML(p, showFavBtn=true){
   const favs = LS.get('favorites', []);
   const on = favs.includes(p.id);
+  const img0 = p.photos[0] || 'https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=400&name=%F0%9F%93%A6';
   return `<div class="card" onclick="openProduct('${p.id}')">
     <div class="cardImgWrap">
-      <img src="${p.photos[0]}" loading="lazy" alt="">
+      <img src="${esc(img0)}" loading="lazy" alt="">
       ${p.isTop?'<div class="topBadge">🏆 ТОП</div>':''}
-      ${p.isAd?'<div class="adBadge">Реклама</div>':''}
       ${showFavBtn?`<div class="favHeart ${on?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </div>`:''}
@@ -856,29 +767,24 @@ function renderBanner(){
   const s = LS.get('shop_settings', {});
   const box = document.getElementById('bannerBox');
   if(s.banner && s.bannerLink){
-    box.innerHTML = `<a href="${s.bannerLink}" target="_blank" rel="noopener" style="display:block;margin-bottom:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)"><img src="${s.banner}" style="width:100%;display:block;object-fit:cover;max-height:140px"></a>`;
+    box.innerHTML = `<a href="${esc(s.bannerLink)}" target="_blank" rel="noopener" style="display:block;margin-bottom:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)"><img src="${esc(s.banner)}" style="width:100%;display:block;object-fit:cover;max-height:140px"></a>`;
   } else box.innerHTML = '';
 }
-async function renderGrid(){
+function renderGrid(){
   renderBanner();
-  showSkeletons();
-  const list = await visibleProducts();
+  if(!cloudListings.length && !LS.get('cloud_loaded_once', false)){ showSkeletons(); }
+  const list = visibleProducts();
   const grid = document.getElementById('grid');
   if(!list.length){
     grid.innerHTML = `<div class="empty">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-      <h3>Ничего не найдено</h3><p>Попробуйте другую категорию или запрос</p></div>`;
+      <h3>${cloudListings.length? 'Ничего не найдено' : 'Каталог пока пуст'}</h3>
+      <p>${cloudListings.length? 'Попробуйте другую категорию или запрос' : 'Админ скоро добавит товары'}</p></div>`;
     return;
   }
   grid.innerHTML = list.map((p,i)=>
     cardHTML(p).replace('class="card"', `class="card" style="animation-delay:${i*50}ms"`)
   ).join('');
-}
-
-const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function fmtPrice(v){
-  if(!v && v!==0) return 'Договорная';
-  return new Intl.NumberFormat('ru-RU').format(v) + ' сум';
 }
 
 /* ---------- ИЗБРАННОЕ ---------- */
@@ -893,10 +799,9 @@ function toggleFav(id){
   const b = document.getElementById('favBadge');
   b.style.display = f.length? 'flex':'none'; b.textContent = f.length;
 }
-async function renderFav(){
+function renderFav(){
   const favs = LS.get('favorites', []);
-  const all = await dbAll('listings');
-  const list = all.filter(p=>favs.includes(p.id));
+  const list = cloudListings.filter(p=>favs.includes(p.id));
   const g = document.getElementById('favGrid');
   g.innerHTML = list.length ? list.map(p=>cardHTML(p)).join('')
    : `<div class="empty" style="grid-column:1/-1">
@@ -906,22 +811,26 @@ async function renderFav(){
 
 /* ---------- КАРТОЧКА ТОВАРА (sheet) ---------- */
 let currentPhotos = [], currentPhotoIdx = 0;
-async function openProduct(id){
-  const p = (await dbAll('listings')).find(x=>x.id===id);
+function findProduct(id){ return cloudListings.find(x=>x.id===id); }
+function openProduct(id){
+  const p = findProduct(id);
   if(!p) return;
-  p.views = (p.views||0)+1; await dbPut('listings', p);
-  const settings = LS.get('shop_settings', {});
-  currentPhotos = p.photos; currentPhotoIdx = 0;
+  // счётчик просмотров в облаке (не ждём ответа)
+  p.views = (p.views||0)+1;
+  LS.set('cloud_listings', cloudListings);
+  sbRpc('bump_views', { p_id: id }).catch(()=>{});
+  currentPhotos = p.photos.length? p.photos : ['https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=600&name=%F0%9F%93%A6'];
+  currentPhotoIdx = 0;
   document.getElementById('productBody').innerHTML = `
     <div class="gallery" id="pGallery">
-      <img id="pMainImg" src="${p.photos[0]}">
-      <div class="galDots" id="pDots">${p.photos.map((_,i)=>`<div class="galDot ${i===0?'on':''}"></div>`).join('')}</div>
+      <img id="pMainImg" src="${esc(currentPhotos[0])}">
+      ${currentPhotos.length>1?`<div class="galDots" id="pDots">${currentPhotos.map((_,i)=>`<div class="galDot ${i===0?'on':''}"></div>`).join('')}</div>`:''}
     </div>
     <div class="pTitle">${esc(p.title)}</div>
     <div class="pPrice">${fmtPrice(p.price)}</div>
     <div class="pRow"><span>Категория</span><span>${esc(p.category||'—')}</span></div>
     <div class="pRow"><span>Район</span><span>${esc(p.district||'—')}</span></div>
-    <div class="pRow"><span>Просмотров</span><span>👁 ${p.views||1}</span></div>
+    <div class="pRow"><span>Просмотров</span><span>👁 ${p.views}</span></div>
     <div class="pDesc">${esc(p.desc||'')}</div>
     <div class="cta">
       <button class="btnMain" onclick="contactSeller('tg')">✈️ Написать в Telegram</button>
@@ -939,7 +848,7 @@ function galleryNav(d){
 }
 function contactSeller(kind){
   const s = LS.get('shop_settings', {});
-  const tgNick = s.tg || '@Global_mrkt_bot';
+  const tgNick = s.tg || ('@'+BOT_USERNAME);
   const igNick = s.ig || '';
   if(kind==='tg'){
     const url = tgNick.startsWith('@') ? 'https://t.me/'+tgNick.slice(1) : (tgNick.startsWith('http')?tgNick:'https://t.me/'+tgNick);
@@ -953,15 +862,12 @@ function openSheet(id){ document.getElementById(id).classList.add('open'); }
 function closeSheet(id){ document.getElementById(id).classList.remove('open'); }
 
 /* ================================================================
-   STORIES
+   STORIES (личные, локально)
 ================================================================ */
-function timeAgo(ts){
-  const m = Math.floor((Date.now()-ts)/60000);
-  if(m<1) return 'только что';
-  if(m<60) return m + ' мин назад';
-  const h = Math.floor(m/60);
-  if(h<24) return h + ' ч назад';
-  return Math.floor(h/24) + ' дн назад';
+async function purgeExpiredStories(){
+  const s = await dbAll('stories');
+  const now = Date.now();
+  for(const st of s) if(st.expiresAt && st.expiresAt < now) await dbDel('stories', st.id);
 }
 
 async function renderStories(){
@@ -974,7 +880,6 @@ async function renderStories(){
     return Math.max(...gb.map(x=>x.createdAt)) - Math.max(...ga.map(x=>x.createdAt));
   });
 
-  // актуальный список групп для просмотрщика
   svGroups = ids.map(id=>({ userId:id, items: groups[id] }));
 
   let html = `<div class="storyAvatar" id="myStoryAdd" onclick="openComposer()">
@@ -985,13 +890,12 @@ async function renderStories(){
     const g = groups[idS];
     const s0 = g[0];
     const unseen = g.some(st=>!viewed.includes(st.id));
-    html += `<div class="storyAvatar" onclick='openStoryGroup(${idS})'>
+    html += `<div class="storyAvatar" onclick='openStoryGroup("${idS}")'>
       <div class="storyRing ${unseen?'':'viewed'}"><img class="storyImg" src="${s0.userAvatar}" alt=""></div>
       <div class="storyName">${esc((s0.userName||'User').slice(0,8))}</div></div>`;
   }
   document.getElementById('storiesRow').innerHTML = html;
 
-  // своя история: превью со счётчиком просмотров
   if(tgUser){
     const mine = groups[String(tgUser.id)] || groups[tgUser.id];
     if(mine){
@@ -1039,14 +943,12 @@ async function showStoryItem(){
   media.insertBefore(el, media.firstChild);
   if(isVideo) el.play().catch(()=>{});
 
-  // просмотры (только свои)
   const viewsEl = document.getElementById('storyViews');
   if(tgUser && String(s.userId)===String(tgUser.id)){
     viewsEl.style.display = 'flex';
     viewsEl.textContent = '👁 ' + (s.views?s.views.length:0);
   } else viewsEl.style.display = 'none';
 
-  // отметить просмотренной
   if(!s.views || !s.views.includes(tgUser?tgUser.id:0)){
     s.views = [...(s.views||[]), tgUser?tgUser.id:0];
     await dbPut('stories', s);
@@ -1181,20 +1083,27 @@ async function sendAdRequest(){
   const link = document.getElementById('adLink').value.trim();
   if(!desc){ toast('Опишите, что рекламируем'); return; }
   const me = tgUser || {id:0, first_name:'Гость', username:'unknown'};
-  const req = { id: uid(), userId: me.id, userName: me.first_name||'Гость',
-    username: me.username||'', tariff: pickedTariff, description: desc, link,
-    status: 'wait', createdAt: Date.now() };
-  await dbPut('ad_requests', req);
+  // 1) сохраняем заявку в облако (админ увидит её в панели)
+  try{
+    await sbInsert('ad_requests', {
+      name: me.first_name||'Гость', username: me.username||'',
+      contact: me.username?('@'+me.username):'', message: desc,
+      tariff: pickedTariff, link: link,
+      user_id: me.id?String(me.id):'0', status: 'wait'
+    });
+  }catch(e){ console.warn('ad req cloud fail', e); }
   document.getElementById('adDesc').value = ''; document.getElementById('adLink').value = '';
 
-  // уведомление владельцу напрямую через Telegram API (без серверов, чистый GitHub)
+  // 2) уведомляем владельца напрямую через Telegram API (без серверов)
+  const text = '📢 <b>Новая заявка на рекламу!</b>\n\n'
+    + '👤 От: ' + (me.first_name||'Гость') + (me.username? ' (@'+me.username+')' : '') + '\n'
+    + '🚀 Тариф: <b>' + pickedTariff + '</b>\n'
+    + '📝 Что рекламируем: ' + desc + '\n'
+    + '🔗 Ссылка: ' + (link||'—');
   try{
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}}/sendMessage`, {
+    await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        chat_id: OWNER_TG_ID, parse_mode:'HTML',
-        text: `📢 <b>Новая заявка на рекламу!</b>\n\n👤 От: ${req.userName}}${req.username?` (@${req.username}})`:''}}\n🚀 Тариф: <b>${req.tariff}}</b>\n📝 Что рекламируем: ${desc}}\n🔗 Ссылка: ${link||'—'}}`
-      })
+      body: JSON.stringify({ chat_id: OWNER_TG_ID, parse_mode:'HTML', text })
     });
   }catch(e){ console.warn('notify fail', e); }
   renderMyAdReqs();
@@ -1204,40 +1113,44 @@ async function sendAdRequest(){
 async function renderMyAdReqs(){
   const box = document.getElementById('myAdReqs');
   if(!box) return;
-  const reqs = (await dbAll('ad_requests'))
-    .filter(r=> tgUser && String(r.userId)===String(tgUser.id))
-    .sort((a,b)=>b.createdAt-a.createdAt);
+  let reqs = [];
+  if(tgUser){
+    try{
+      const r = await userApi('my_requests');
+      reqs = (r.data||[]).map(x=>({ tariff:x.tariff||'', status:x.status||'wait', createdAt:Date.parse(x.created_at)||0 }));
+    }catch(e){ return; }
+  }
   if(!reqs.length){ box.innerHTML=''; return; }
   const stMap = {wait:['st-wait','🟡 На рассмотрении'], ok:['st-ok','🟢 Активна'], no:['st-no','🔴 Отклонена']};
   box.innerHTML = reqs.map(r=>
     `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
       <span>${esc(r.tariff)}</span>
-      <span class="reqStatus ${stMap[r.status][0]}">${stMap[r.status][1]}</span></div>`).join('');
+      <span class="reqStatus ${(stMap[r.status]||stMap.wait)[0]}">${(stMap[r.status]||stMap.wait)[1]}</span></div>`).join('');
 }
 
 /* ================================================================
-   АДМИН-ПАНЕЛЬ (только OWNER_TG_ID)
+   АДМИН-ПАНЕЛЬ (только OWNER_TG_ID, публикация в облако)
 ================================================================ */
 let adminPhotos = [];
-function adminTab(el){
+function admTab(el){
   document.querySelectorAll('.adminNav .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
-  const map = {add:'adm-add', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
+  const map = {add:'adm-add', partners:'adm-partners', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
   Object.values(map).forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(map[el.dataset.a]).style.display='block';
+  if(el.dataset.a==='partners') renderAdminPartners();
   if(el.dataset.a==='list') renderAdminList();
   if(el.dataset.a==='reqs') renderAdminReqs();
   if(el.dataset.a==='stats') renderStats();
   haptic('light');
 }
 function renderAdmin(){
-  // категории в селект
   const sel = document.getElementById('fCategory');
   sel.innerHTML = CATEGORIES.map(c=>`<option>${c}</option>`).join('');
-  // фотопикер
   adminPhotos = [];
   document.getElementById('admPhotos').innerHTML = pickerSlot('pickAdminPhoto()');
-  // настройки
+  partnerPhoto = null;
+  document.getElementById('prPhotos').innerHTML = pickerSlot('pickPartnerPhoto()');
   const s = LS.get('shop_settings', {});
   document.getElementById('setTg').value = s.tg||'';
   document.getElementById('setIg').value = s.ig||'';
@@ -1245,22 +1158,18 @@ function renderAdmin(){
   document.getElementById('setDesc').value = s.desc||'';
   document.getElementById('setBannerLink').value = s.bannerLink||'';
   document.getElementById('setBanner').innerHTML = s.banner
-    ? `<div class="photoSlot"><img src="${s.banner}"><button class="rm" onclick="clearBanner()">✕</button></div>`
+    ? `<div class="photoSlot"><img src="${esc(s.banner)}"><button class="rm" onclick="clearBanner()">✕</button></div>`
     : pickerSlot('pickBanner()');
 }
 function pickAdminPhoto(){
   const f = document.getElementById('hiddenFile');
-  f.onchange = ()=>{
+  f.onchange = async ()=>{
     const file = f.files[0]; if(!file) return;
     if(adminPhotos.length >= 5){ toast('Максимум 5 фото'); return; }
-    const fr = new FileReader();
-    fr.onload = ()=>{
-      adminPhotos.push(fr.result);
-      document.getElementById('admPhotos').innerHTML =
-        adminPhotos.map((p,i)=>`<div class="photoSlot"><img src="${p}"><button class="rm" onclick="rmAdminPhoto(${i})">✕</button></div>`).join('')
-        + (adminPhotos.length<5 ? pickerSlot('pickAdminPhoto()') : '');
-    };
-    fr.readAsDataURL(file); f.value='';
+    const data = await compressImage(file, 1000, 0.72);
+    adminPhotos.push(data);
+    renderAdminPhotoPicker();
+    f.value='';
   };
   f.click();
 }
@@ -1270,80 +1179,175 @@ function renderAdminPhotoPicker(){
     adminPhotos.map((p,i)=>`<div class="photoSlot"><img src="${p}"><button class="rm" onclick="rmAdminPhoto(${i})">✕</button></div>`).join('')
     + (adminPhotos.length<5 ? pickerSlot('pickAdminPhoto()') : '');
 }
+
+/* ---------- Публикация товара в облако ---------- */
 async function publishProduct(){
   const title = document.getElementById('fTitle').value.trim();
   const price = parseInt(document.getElementById('fPrice').value) || 0;
   if(!title){ toast('Введите название'); return; }
   if(!adminPhotos.length){ toast('Добавьте хотя бы одно фото'); return; }
-  const p = {
-    id: uid(), title, price,
-    category: document.getElementById('fCategory').value,
-    district: document.getElementById('fDistrict').value.trim(),
-    desc: document.getElementById('fDesc').value.trim(),
-    photos: adminPhotos, isTop:false, isAd:false, views:0, createdAt: Date.now()
-  };
-  await dbPut('listings', p);
-  document.getElementById('fTitle').value = '';
-  document.getElementById('fPrice').value = '';
-  document.getElementById('fDistrict').value = '';
-  document.getElementById('fDesc').value = '';
-  renderAdmin();
-  renderGrid();
-  toast('Товар опубликован 🚀'); haptic('medium');
+  const s = LS.get('shop_settings', {});
+  const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
+  try{
+    await adminApi('upsert_listing', {
+      id:'', title, description: document.getElementById('fDesc').value.trim(),
+      price, currency:'UZS', category: document.getElementById('fCategory').value,
+      city: document.getElementById('fDistrict').value.trim(),
+      contact: s.tg || ('@'+BOT_USERNAME),
+      photos: adminPhotos, status:'active', is_top:false
+    });
+    document.getElementById('fTitle').value = '';
+    document.getElementById('fPrice').value = '';
+    document.getElementById('fDistrict').value = '';
+    document.getElementById('fDesc').value = '';
+    adminPhotos = []; renderAdminPhotoPicker();
+    await loadCloud();
+    toast('Товар опубликован — его видят все 🚀'); haptic('medium');
+  }catch(e){
+    toast('Не удалось опубликовать: ' + e.message);
+  }
+  if(btn){ btn.textContent='🚀 Опубликовать (видят все)'; }
 }
+
 async function renderAdminList(){
-  const list = (await dbAll('listings')).sort((a,b)=>b.createdAt-a.createdAt);
   const box = document.getElementById('adm-list');
+  box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
+  let list = [];
+  try{ const r = await adminApi('all_listings'); list = r.data||[]; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
   box.innerHTML = list.length ? list.map(p=>`
     <div class="aCard">
       <div style="display:flex;gap:12px">
-        <img src="${p.photos[0]}" style="width:58px;height:58px;border-radius:12px;object-fit:cover">
+        <img src="${esc((p.photos||[])[0]||'')}" style="width:58px;height:58px;border-radius:12px;object-fit:cover;background:var(--input)">
         <div style="flex:1">
           <h4>${esc(p.title)}</h4>
-          <div class="sub">${fmtPrice(p.price)} · 👁 ${p.views||0} · 🤍 ${favCount(p.id)}</div>
+          <div class="sub">${fmtPrice(p.price)} · 👁 ${p.views||0}</div>
         </div>
       </div>
       <div class="aRow">
-        <button class="aBtn gold ${p.isTop?'primary':''}" onclick="toggleTop('${p.id}')">🏆 ${p.isTop?'Снять ТОП':'ТОП'}</button>
-        <button class="aBtn" onclick="editProduct('${p.id}')">✏️ Редактировать</button>
+        <button class="aBtn gold ${p.is_top?'primary':''}" onclick="toggleTop('${p.id}', ${p.is_top})">🏆 ${p.is_top?'Снять ТОП':'ТОП'}</button>
+        <button class="aBtn" onclick="editProduct('${p.id}')">✏️ Изменить</button>
         <button class="aBtn danger" onclick="deleteProduct('${p.id}')">🗑 Удалить</button>
       </div>
     </div>`).join('')
   : `<div class="empty"><h3>Товаров пока нет</h3><p>Добавьте первый товар во вкладке «➕ Добавить»</p></div>`;
 }
-function favCount(id){ return LS.get('favorites',[]).includes(id)?1:0; }
-async function toggleTop(id){
-  const p = (await dbAll('listings')).find(x=>x.id===id);
-  if(!p) return;
-  p.isTop = !p.isTop; await dbPut('listings', p);
-  renderAdminList(); renderGrid(); haptic('light');
+async function toggleTop(id, cur){
+  try{
+    await adminApi('upsert_listing', { id, is_top: !cur });
+    await loadCloud(); renderAdminList();
+    toast(!cur? 'Товар в ТОПе 🏆' : 'ТОП снят'); haptic('light');
+  }catch(e){ toast('Ошибка: ' + e.message); }
 }
 async function deleteProduct(id){
   if(!confirm('Удалить этот товар?')) return;
-  await dbDel('listings', id);
-  renderAdminList(); renderGrid(); toast('Товар удалён');
+  try{
+    await adminApi('delete_listing', { id });
+    await loadCloud(); renderAdminList();
+    toast('Товар удалён');
+  }catch(e){ toast('Ошибка: ' + e.message); }
 }
 async function editProduct(id){
-  const p = (await dbAll('listings')).find(x=>x.id===id);
+  try{ var r = await adminApi('all_listings'); }catch(e){ toast('Ошибка загрузки'); return; }
+  const p = (r.data||[]).find(x=>x.id===id);
   if(!p) return;
   const nt = prompt('Название товара:', p.title); if(nt===null) return;
   const np = prompt('Цена (сум):', p.price); if(np===null) return;
-  const nd = prompt('Описание:', p.desc||''); if(nd===null) return;
-  p.title = nt.trim(); p.price = parseInt(np)||0; p.desc = nd.trim();
-  await dbPut('listings', p);
-  renderAdminList(); renderGrid(); toast('Сохранено ✅');
+  const nd = prompt('Описание:', p.description||''); if(nd===null) return;
+  const ncity = prompt('Район / город:', p.city||''); if(ncity===null) return;
+  try{
+    await adminApi('upsert_listing', { id, title:nt.trim(), price:parseInt(np)||0, description:nd.trim(), city:ncity.trim() });
+    await loadCloud(); renderAdminList();
+    toast('Сохранено ✅');
+  }catch(e){ toast('Ошибка: ' + e.message); }
 }
+
+/* ---------- ПАРТНЁРЫ (админ) ---------- */
+let partnerPhoto = null;
+function pickPartnerPhoto(){
+  const f = document.getElementById('hiddenFile');
+  f.onchange = async ()=>{
+    const file = f.files[0]; if(!file) return;
+    partnerPhoto = await compressImage(file, 900, 0.72);
+    document.getElementById('prPhotos').innerHTML =
+      `<div class="photoSlot"><img src="${partnerPhoto}"><button class="rm" onclick="clearPartnerPhoto()">✕</button></div>`;
+    f.value='';
+  };
+  f.click();
+}
+function clearPartnerPhoto(){
+  partnerPhoto = null;
+  document.getElementById('prPhotos').innerHTML = pickerSlot('pickPartnerPhoto()');
+}
+async function publishPartner(){
+  const title = document.getElementById('prTitle').value.trim();
+  if(!title){ toast('Введите название партнёра'); return; }
+  const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
+  try{
+    await adminApi('upsert_partner', {
+      id:'', title,
+      image_url: partnerPhoto || null,
+      link: document.getElementById('prLink').value.trim(),
+      description: document.getElementById('prDesc').value.trim(),
+      status:'active'
+    });
+    document.getElementById('prTitle').value = '';
+    document.getElementById('prLink').value = '';
+    document.getElementById('prDesc').value = '';
+    clearPartnerPhoto();
+    await loadCloud(); renderAdminPartners();
+    toast('Партнёр опубликован — его видят все 🤝'); haptic('medium');
+  }catch(e){ toast('Не удалось опубликовать: ' + e.message); }
+  if(btn){ btn.textContent='🤝 Опубликовать партнёра'; }
+}
+async function renderAdminPartners(){
+  const box = document.getElementById('prList');
+  box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
+  let list = [];
+  try{ const r = await adminApi('all_partners'); list = r.data||[]; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
+  box.innerHTML = list.length ? list.map(p=>`
+    <div class="aCard">
+      <div style="display:flex;gap:12px;align-items:center">
+        ${p.image_url
+          ? `<img src="${esc(p.image_url)}" style="width:58px;height:58px;border-radius:12px;object-fit:cover">`
+          : `<div style="width:58px;height:58px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:800">${esc(partnerInitials(p.title))}</div>`}
+        <div style="flex:1">
+          <h4>${esc(p.title)}</h4>
+          <div class="sub">${esc((p.description||'').slice(0,40))}</div>
+          ${p.link?`<div class="sub" style="color:var(--accent);word-break:break-all">${esc(p.link)}</div>`:''}
+        </div>
+      </div>
+      <div class="aRow">
+        <button class="aBtn danger" onclick="deletePartner('${p.id}')">🗑 Удалить</button>
+      </div>
+    </div>`).join('')
+  : `<div class="empty"><h3>Партнёров пока нет</h3><p>Добавьте первого партнёра в форме выше</p></div>`;
+}
+async function deletePartner(id){
+  if(!confirm('Удалить партнёра?')) return;
+  try{
+    await adminApi('delete_partner', { id });
+    await loadCloud(); renderAdminPartners();
+    toast('Партнёр удалён');
+  }catch(e){ toast('Ошибка: ' + e.message); }
+}
+
+/* ---------- Заявки (из облака) ---------- */
 async function renderAdminReqs(){
-  const reqs = (await dbAll('ad_requests')).sort((a,b)=>b.createdAt-a.createdAt);
   const box = document.getElementById('adm-reqs');
+  box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
+  let reqs = [];
+  try{ const r = await adminApi('list_ads'); reqs = r.data||[]; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
   const stMap = {wait:['st-wait','🟡 На рассмотрении'], ok:['st-ok','🟢 Активна'], no:['st-no','🔴 Отклонена']};
   box.innerHTML = reqs.length ? reqs.map(r=>`
     <div class="aCard">
-      <h4>${esc(r.tariff)}</h4>
-      <div class="sub">${esc(r.userName)} (@${esc(r.username)}) · ${timeAgo(r.createdAt)}</div>
-      <div style="font-size:13.5px;margin-top:8px">${esc(r.description)}</div>
+      <h4>${esc(r.tariff||'Заявка')}</h4>
+      <div class="sub">${esc(r.name||'Гость')}${r.username?` (@${esc(r.username)})`:''} · ${timeAgo(Date.parse(r.created_at)||0)}</div>
+      <div style="font-size:13.5px;margin-top:8px">${esc(r.message||'')}</div>
       ${r.link?`<div style="font-size:12.5px;margin-top:4px;color:var(--accent);word-break:break-all">${esc(r.link)}</div>`:''}
-      <div style="margin-top:8px"><span class="reqStatus ${stMap[r.status][0]}">${stMap[r.status][1]}</span></div>
+      <div style="margin-top:8px"><span class="reqStatus ${(stMap[r.status]||stMap.wait)[0]}">${(stMap[r.status]||stMap.wait)[1]}</span></div>
       <div class="aRow">
         <button class="aBtn primary" onclick="setReq('${r.id}','ok')">✅ Одобрить</button>
         <button class="aBtn danger" onclick="setReq('${r.id}','no')">❌ Отклонить</button>
@@ -1352,41 +1356,44 @@ async function renderAdminReqs(){
   : `<div class="empty"><h3>Заявок пока нет</h3><p>Новые заявки на рекламу появятся здесь</p></div>`;
 }
 async function setReq(id, status){
-  const r = (await dbAll('ad_requests')).find(x=>x.id===id);
-  if(!r) return;
-  r.status = status; await dbPut('ad_requests', r);
+  try{ await adminApi('set_ad_status', { id, status }); }
+  catch(e){ toast('Ошибка: ' + e.message); return; }
   // уведомить клиента о решении напрямую через Telegram API
-  if(String(r.userId) !== '0'){
+  let r = null;
+  try{ const res = await adminApi('list_ads'); r = (res.data||[]).find(x=>x.id===id); }catch(e){}
+  if(r && r.user_id && String(r.user_id) !== '0'){
     const statusText = status==='ok'
       ? '🟢 Ваша реклама одобрена в Globe Market! С вами свяжутся для деталей.'
       : '🔴 К сожалению, заявка на рекламу в Globe Market отклонена.';
     try{
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}}/sendMessage`, {
+      await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ chat_id: String(r.userId), text: statusText })
+        body: JSON.stringify({ chat_id: String(r.user_id), text: statusText })
       });
     }catch(e){ console.warn('status notify fail', e); }
   }
-  renderAdminReqs(); haptic('light');
+  renderAdminReqs();
+  toast(status==='ok'? 'Одобрено ✅' : 'Отклонено');
 }
+
+/* ---------- Статистика ---------- */
 async function renderStats(){
-  const users = await dbAll('users');
-  const list = await dbAll('listings');
-  const reqs = await dbAll('ad_requests');
-  const stories = await dbAll('stories');
-  const views = list.reduce((a,p)=>a+(p.views||0),0);
-  const newReqs = reqs.filter(r=>r.status==='wait').length;
-  const stats = [
-    ['📦','Активных товаров', list.length],
-    ['👥','Пользователей', Math.max(users.length, list.length?list.length:0)],
-    ['👁','Просмотров всего', views],
-    ['🤍','В избранном', LS.get('favorites',[]).length],
-    ['📢','Новых заявок', newReqs],
-    ['📸','Историй', stories.length]
-  ];
-  document.getElementById('statGrid').innerHTML = stats.map(s=>
-    `<div class="statCard"><div class="num">${s[2]}</div><div class="lbl">${s[0]} ${s[1]}</div></div>`).join('');
+  const box = document.getElementById('statGrid');
+  box.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Загружаю...</p></div>';
+  let listings=[], ads=[], partners=[];
+  try{ listings = (await adminApi('all_listings')).data||[]; }catch(e){}
+  try{ ads = (await adminApi('list_ads')).data||[]; }catch(e){}
+  try{ partners = (await adminApi('all_partners')).data||[]; }catch(e){}
+  const views = listings.reduce((a,p)=>a+(p.views||0),0);
+  const newAds = ads.filter(r=>r.status==='wait').length;
+  box.innerHTML = `
+    <div class="statCard"><div class="num">${listings.length}</div><div class="lbl">📦 товаров в каталоге</div></div>
+    <div class="statCard"><div class="num">${views}</div><div class="lbl">👁 просмотров товаров</div></div>
+    <div class="statCard"><div class="num">${partners.length}</div><div class="lbl">🤝 партнёров</div></div>
+    <div class="statCard"><div class="num">${newAds}</div><div class="lbl">📢 новых заявок</div></div>`;
 }
+
+/* ---------- Настройки (локальные) ---------- */
 function pickBanner(){
   const f = document.getElementById('hiddenFile');
   f.onchange = ()=>{
@@ -1428,13 +1435,19 @@ function pullToRefresh(){
     if(dy > 70 && main.scrollTop <= 0){ pulling = true; }
   }, {passive:true});
   main.addEventListener('touchend', async ()=>{
-    if(pulling){ pulling = false; haptic('medium'); await purgeExpiredStories(); renderStories(); renderGrid(); toast('Лента обновлена 🔄'); }
+    if(pulling){
+      pulling = false; haptic('medium');
+      await purgeExpiredStories();
+      await loadCloud();
+      renderStories();
+      toast('Лента обновлена 🔄');
+    }
     startY = null;
   });
 }
 
 /* ================================================================
-   МЕНЮ И УВЕДОМЛЕНИЯ (боковые шторки хедера)
+   МЕНЮ И УВЕДОМЛЕНИЯ
 ================================================================ */
 function openMenuSheet(){
   const s = LS.get('shop_settings', {});
@@ -1462,10 +1475,12 @@ function openMenuSheet(){
 async function openNotifSheet(){
   const items = [];
   if(tgUser){
-    const reqs = (await dbAll('ad_requests')).filter(r=>String(r.userId)===String(tgUser.id));
-    const stMap = {wait:'🟡 Заявка на рассмотрении', ok:'🟢 Реклама одобрена', no:'🔴 Заявка отклонена'};
-    reqs.sort((a,b)=>b.createdAt-a.createdAt).forEach(r=>
-      items.push({icon:'📢', text:`${stMap[r.status]} — ${r.tariff}`, time:timeAgo(r.createdAt)}));
+    try{
+      const r = await userApi('my_requests');
+      const stMap = {wait:'🟡 Заявка на рассмотрении', ok:'🟢 Реклама одобрена', no:'🔴 Заявка отклонена'};
+      (r.data||[]).forEach(rr=>
+        items.push({icon:'📢', text:`${stMap[rr.status]||stMap.wait} — ${rr.tariff||''}`, time:timeAgo(Date.parse(rr.created_at)||0)}));
+    }catch(e){}
   }
   const stories = (await dbAll('stories')).filter(s=>!s.expiresAt || s.expiresAt>Date.now());
   const viewed = LS.get('viewed_stories', []);
@@ -1486,24 +1501,20 @@ async function openNotifSheet(){
 /* ================================================================
    СТАРТ
 ================================================================ */
-function globeFailed(){
-  // Если WebGL/Three.js недоступны — показываем статичную "планету" и всё равно открываем каталог
-  document.getElementById('globeWrap').insertAdjacentHTML('beforeend',
-    '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;cursor:pointer" onclick="openCatalog()">🌍</div>');
-  document.getElementById('heroHint').textContent = 'Нажмите, чтобы открыть каталог ✨';
-  document.getElementById('heroHint').onclick = ()=>openCatalog();
-}
 (async function start(){
-  try{ initGlobe(); }catch(e){ console.warn('globe failed:', e); globeFailed(); }
   await openDB();
-  await seed();
+  await purgeExpiredStories();
+  await migrateLocalToCloud();
   renderChips();
-  renderGrid();
   renderStories();
+  renderPartners();
+  showSkeletons();
   pullToRefresh();
   const f = LS.get('favorites', []);
   const b = document.getElementById('favBadge');
   b.style.display = f.length?'flex':'none'; b.textContent = f.length;
+  await loadCloud();
+  LS.set('cloud_loaded_once', true);
 })();
 </script>
 </body>
