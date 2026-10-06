@@ -640,7 +640,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.2.4';
+const APP_VERSION = 'v2.2.5';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -714,12 +714,13 @@ async function loadCloudStories(){
     // ВАЖНО: "views" (кто посмотрел) не читается публичным ключом — это приватные
     // данные, доступные только автору через серверную функцию get_story_viewers().
     // Поэтому запрашиваем явный список колонок без views.
-    const rows = await sbGet('stories?select=id,user_id,user_name,user_avatar,media_type,media_data,caption,created_at&order=created_at.asc');
+    const rows = await sbGet('stories?select=id,user_id,user_name,user_avatar,media_type,media_data,caption,created_at,duration_sec&order=created_at.asc');
     const prevById = {}; cloudStories.forEach(s=>{ prevById[s.id] = s; });
     cloudStories = rows.map(r=>({
       id:r.id, userId:String(r.user_id||'0'), userName:r.user_name||'Гость',
       userAvatar:r.user_avatar || 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=G',
       mediaType:r.media_type||'image', mediaData:r.media_data||'', caption:r.caption||'',
+      durSec: r.duration_sec||0,
       views: (prevById[r.id] && prevById[r.id].views) || [], // подтягивается отдельно для своих историй
       createdAt:Date.parse(r.created_at)||0
     })).filter(s => (Date.now() - s.createdAt) < 24*3600*1000);
@@ -1154,7 +1155,8 @@ async function showStoryItem(){
   const viewed = LS.get('viewed_stories', []);
   if(!viewed.includes(s.id)){ viewed.push(s.id); LS.set('viewed_stories', viewed); renderStories(); }
 
-  let svDurMs = STORY_MS, svStarted = false;
+  let svDurMs = isVideo && s.durSec ? Math.max(STORY_MS, s.durSec*1000) : STORY_MS;
+  let svStarted = false;
   const beginTimer = ()=>{
     if(svStarted) return;
     svStarted = true;
@@ -1168,13 +1170,12 @@ async function showStoryItem(){
     svTimer = requestAnimationFrame(step);
   };
   if(isVideo){
-    // длительность известна только после loadedmetadata — раньше читали NaN и рвали видео на 5 сек
-    el.preload = 'metadata';
+    // длительность берём из базы (сохранена при публикации), т.к. metadata с телефона
+    // может догружаться дольше минуты (оглавление mp4 в конце файла) и рвать видео на 5 сек
+    beginTimer();
     el.addEventListener('loadedmetadata', ()=>{
-      svDurMs = Math.max(STORY_MS, (el.duration||5)*1000); // можно и продлить, если таймер уже идёт
-      beginTimer();
+      if(el.duration && el.duration > 0) svDurMs = Math.max(STORY_MS, el.duration*1000);
     });
-    setTimeout(beginTimer, 2500); // страховка: если метаданные не пришли, всё равно показываем
     el.play().catch(()=>{});
   } else beginTimer();
 }
@@ -1213,9 +1214,9 @@ function toggleMute(){
 })();
 
 /* ---------- Добавление истории ---------- */
-let storyFileData = null, storyFileType = 'image', storyFile = null;
+let storyFileData = null, storyFileType = 'image', storyFile = null, storyFileDur = null;
 function openComposer(){
-  storyFileData = null; storyFileType = 'image'; storyFile = null;
+  storyFileData = null; storyFileType = 'image'; storyFile = null; storyFileDur = null;
   document.getElementById('storyPick').innerHTML = pickerSlot('pickStory()');
   document.getElementById('storyCaption').value = '';
   openSheet('storyComposer');
@@ -1232,6 +1233,7 @@ function pickStory(){
     if(file.type.startsWith('video/')){
       const dur = await videoDuration(file);
       if(dur > 61){ toast('Видео дольше 60 секунд — обрежьте, пожалуйста ✂️'); f.value=''; return; }
+      storyFileDur = Math.round(dur) || null;   // сохраняем длительность в базу при публикации
       storyFileData = await readAsDataURL(file);   // превью локально, в облако — оригинал без сжатия
       storyFileType = 'video';
     } else {
@@ -1261,7 +1263,8 @@ async function publishStory(){
     await sbRpc('publish_story', {
       p_media_type: mediaType, p_media_data: mediaData,
       p_caption: document.getElementById('storyCaption').value || '',
-      p_avatar: avatarUrl(me), init_data: tg.initData || ''
+      p_avatar: avatarUrl(me), init_data: tg.initData || '',
+      p_duration: storyFileDur
     });
     closeSheet('storyComposer');
     await loadCloudStories();
