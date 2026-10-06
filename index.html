@@ -683,14 +683,28 @@ let cloudStories = [];
 
 async function loadCloudStories(){
   try{
-    const rows = await sbGet('stories?select=*&order=created_at.asc');
+    // ВАЖНО: "views" (кто посмотрел) не читается публичным ключом — это приватные
+    // данные, доступные только автору через серверную функцию get_story_viewers().
+    // Поэтому запрашиваем явный список колонок без views.
+    const rows = await sbGet('stories?select=id,user_id,user_name,user_avatar,media_type,media_data,caption,created_at&order=created_at.asc');
+    const prevById = {}; cloudStories.forEach(s=>{ prevById[s.id] = s; });
     cloudStories = rows.map(r=>({
       id:r.id, userId:String(r.user_id||'0'), userName:r.user_name||'Гость',
       userAvatar:r.user_avatar || 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=G',
       mediaType:r.media_type||'image', mediaData:r.media_data||'', caption:r.caption||'',
-      views:(r.views||[]).map(v => (v && typeof v==='object') ? {id:String(v.id), name:v.name||'', at:v.at?Date.parse(v.at):0} : {id:String(v), name:'', at:0}), createdAt:Date.parse(r.created_at)||0
+      views: (prevById[r.id] && prevById[r.id].views) || [], // подтягивается отдельно для своих историй
+      createdAt:Date.parse(r.created_at)||0
     })).filter(s => (Date.now() - s.createdAt) < 24*3600*1000);
   }catch(e){ console.warn('stories cloud fail', e); }
+}
+
+/* Приватный список "кто посмотрел" — только для автора истории, через подписанный initData */
+async function fetchStoryViewers(storyId){
+  if(!tgUser || !tg.initData) return [];
+  try{
+    const r = await sbRpc('get_story_viewers', { p_id: storyId, init_data: tg.initData });
+    return (Array.isArray(r)?r:[]).map(v => ({ id:String(v.id), name:v.name||'', at:v.at?Date.parse(v.at):0 }));
+  }catch(e){ console.warn('get_story_viewers fail', e); return []; }
 }
 
 /* загрузка видео-истории в облачное хранилище (Supabase Storage, бесплатно) */
@@ -1078,8 +1092,12 @@ async function showStoryItem(){
   const isMine = tgUser && String(s.userId)===String(tgUser.id);
   if(isMine){
     viewsEl.style.display = 'flex';
-    viewsEl.textContent = '👁 ' + (s.views?s.views.length:0) + ' — кто посмотрел';
+    viewsEl.textContent = '👁 …';
     viewsEl.onclick = ()=>openViewers(s);
+    fetchStoryViewers(s.id).then(v=>{
+      s.views = v;
+      if(viewsEl) viewsEl.textContent = '👁 ' + v.length + ' — кто посмотрел';
+    });
   } else viewsEl.style.display = 'none';
 
   document.getElementById('storyMsgBtn').style.display = (!isMine && s.userId && s.userId!=='0') ? 'flex' : 'none';
@@ -1227,7 +1245,9 @@ async function updateProfileStats(){
   const stories = cloudStories;
   const mine = stories.filter(s=> tgUser && String(s.userId)===String(tgUser.id));
   document.getElementById('stStory').textContent = mine.length;
-  document.getElementById('stViews').textContent = mine.reduce((a,s)=>a+(s.views?s.views.length:0),0);
+  const viewsArr = await Promise.all(mine.map(s=> fetchStoryViewers(s.id).catch(()=>[])));
+  mine.forEach((s,i)=>{ s.views = viewsArr[i]||[]; });
+  document.getElementById('stViews').textContent = viewsArr.reduce((a,v)=>a+v.length,0);
 }
 
 /* ---------- Рекламные заявки ---------- */
@@ -1851,7 +1871,9 @@ function msgStoryAuthor(){
 }
 
 /* кто посмотрел историю */
-function openViewers(s){
+async function openViewers(s){
+  const fresh = await fetchStoryViewers(s.id).catch(()=>null);
+  if(Array.isArray(fresh) && fresh.length) s.views = fresh;
   const list = (s.views||[]);
   document.getElementById('viewersBody').innerHTML =
     `<div class="secTitle">Просмотрели историю (${list.length})</div>` +
