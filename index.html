@@ -166,7 +166,30 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #storyCenter{position:absolute;left:35%;right:35%;top:0;bottom:0;z-index:1}
 #muteBtn{position:absolute;right:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:3;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:none;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer}
 #muteBtn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
-#storyViews{position:absolute;left:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));color:#fff;font-size:13px;background:rgba(0,0,0,.4);padding:6px 12px;border-radius:14px;display:flex;align-items:center;gap:5px;z-index:3}
+#storyViews{color:#fff;font-size:13px;background:rgba(255,255,255,.16);border:none;padding:8px 13px;border-radius:14px;display:none;align-items:center;gap:5px;font-family:inherit;cursor:pointer;backdrop-filter:blur(8px)}
+#storyActions{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:40px 14px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;background:linear-gradient(transparent,rgba(0,0,0,.55));pointer-events:none}
+#storyActions .row{display:flex;align-items:center;gap:8px;pointer-events:auto}
+#svFollowBtn{background:rgba(255,255,255,.16);color:#fff;border:none;border-radius:16px;padding:9px 16px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;backdrop-filter:blur(8px)}
+#svFollowBtn.on{background:#fff;color:#111}
+#reactRow{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.reactBtn{background:rgba(255,255,255,.16);border:none;border-radius:16px;padding:7px 12px;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:5px;color:#fff;font-weight:700;font-family:inherit;backdrop-filter:blur(8px)}
+.reactBtn .rc{font-size:11.5px}
+.reactBtn.on{background:#fff;color:#111}
+#storyActions #muteBtn{position:static;width:38px;height:38px;background:rgba(255,255,255,.16)}
+#svComment{flex:1;min-width:0;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:18px;padding:10px 14px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+#svComment::placeholder{color:rgba(255,255,255,.65)}
+#svSend{width:40px;height:40px;border-radius:50%;border:none;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+#svSend svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
+.svAvaWrap{position:relative;flex:0 0 auto}
+.onDot{position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#32D74B;border:2.5px solid var(--card);display:none}
+.onDotB{border-color:#000}
+.newDot{position:absolute;top:4px;right:8px;width:8px;height:8px;border-radius:50%;background:#FF2D55;z-index:3}
+.ctaRow{display:flex;gap:10px;margin:18px 0 0}
+.ctaRow button{flex:1;height:44px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+.followsRow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.followsRow:last-child{border-bottom:none}
+.followsRow .fAva{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.followsRow .fName{flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ============ FORMS ============ */
 .field{margin-bottom:13px}
@@ -257,14 +280,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #chatSendBtn svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .chatItem{display:flex;align-items:center;gap:12px;padding:13px 12px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:9px;cursor:pointer}
 .chatItem:active{transform:scale(.98)}
-.chatAva{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.chatAva{position:relative;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .chatItemBody{flex:1;min-width:0}
 .chatItemName{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chatItemLast{font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .chatUnread{background:#FF2D55;color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 6px;flex:0 0 auto}
 .chatEmpty{padding:60px 20px;text-align:center;color:var(--text2);font-size:14px}
-#storyMsgBtn,#storyDelBtn{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:34px;height:34px;display:none;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px)}
-#storyMsgBtn svg,#storyDelBtn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#storyMsgBtn,#storyDelBtn,#storyRepostBtn{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:34px;height:34px;display:none;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px)}
+#storyMsgBtn svg,#storyDelBtn svg,#storyRepostBtn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #storyViews{cursor:pointer}
 .viewerRow{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid var(--border)}
 .viewerAva{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
@@ -464,12 +487,22 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   </div>
 </div>
 
+<!-- ===================== FOLLOWS SHEET ===================== -->
+<div class="sheet" id="followsSheet">
+  <div class="backdrop" onclick="closeSheet('followsSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="followsBody"></div>
+  </div>
+</div>
+
 <!-- ===================== STORY VIEWER ===================== -->
 <div id="storyViewer">
   <div id="storyBars"></div>
   <div id="storyTop">
-    <img id="svAvatar" alt="">
+    <div class="svAvaWrap"><img id="svAvatar" alt=""><span id="svOnDot" class="onDot onDotB"></span></div>
     <div><div class="sname" id="svName"></div><div class="stime" id="svTime"></div></div>
+    <button id="storyRepostBtn" onclick="svRepostStory()" title="Поделиться историей"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
     <button id="storyMsgBtn" onclick="msgStoryAuthor()" title="Написать автору"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     <button id="storyDelBtn" onclick="deleteMyStory()" title="Удалить историю"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
     <button id="storyClose" onclick="closeStory()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -478,8 +511,19 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="tapL" onclick="storyNav(-1)"></div>
     <div id="storyCenter"></div>
     <div class="tapR" onclick="storyNav(1)"></div>
-    <div id="storyViews">👁 0</div>
-    <button id="muteBtn" onclick="toggleMute()"><svg viewBox="0 0 24 24" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+    <div id="storyActions">
+      <div class="row">
+        <button id="svFollowBtn" style="display:none" onclick="svToggleFollow()"></button>
+        <button id="storyViews" style="display:none">👁 0</button>
+        <div style="flex:1"></div>
+        <div id="reactRow"></div>
+        <button id="muteBtn" onclick="toggleMute()" style="display:none"><svg viewBox="0 0 24 24" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+      </div>
+      <div class="row" id="saRow2" style="display:none">
+        <input id="svComment" placeholder="Написать автору..." onfocus="svSetPaused(true)" onblur="svSetPaused(false)" onkeydown="if(event.key==='Enter')sendStoryComment()">
+        <button id="svSend" onclick="sendStoryComment()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -522,7 +566,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="chatHead">
     <button class="cbtn" id="chatBackBtn" onclick="chatBack()" style="display:none"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div id="chatPeerAva" class="chatAva" style="width:34px;height:34px;font-size:15px;display:none"></div>
-    <div id="chatPeerName">Сообщения</div>
+    <div style="flex:1;min-width:0">
+      <div id="chatPeerName">Сообщения</div>
+      <div id="chatPeerStatus" style="display:none;font-size:11px;color:var(--text2);font-weight:500"></div>
+    </div>
     <button class="cbtn" onclick="closeChat()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div id="chatBody"></div>
@@ -645,7 +692,13 @@ const UZ = {
  'Пока нет сообщений.':"Hali xabarlar yo'q.",'Откройте чью-то историю и нажмите ✈️,':'Kimdir storyini ochib ✈️ bosing,',
  'чтобы написать автору лично.':'muallifga shaxsan yozish uchun.',
  'Напишите первое сообщение':'Birinchi xabarni yozing','Моя':'Mening','Написать автору':'Muallifga yozish',
- 'отправлено':'yuborildi','Сегодня':'Bugun','Вчера':'Kecha'
+ 'отправлено':'yuborildi','Сегодня':'Bugun','Вчера':'Kecha',
+ 'Подписаться':"Obuna bo'lish",'Вы подписаны':"Obunadasiz",'Вы отписались':"Obunadan chiqdingiz",'Подписки':'Obunalar',
+ 'Написать автору...':"Muallifga yozish...",'Отправлено автору в личные 💬':"Muallifga shaxsiy yuborildi 💬",
+ 'Репост опубликован 🎉':"Repost e'lon qilindi 🎉",'в сети':'onlayn','был(а) недавно':"yaqinda onlayn edi",
+ 'Нравится':'Yoqadi','Нет подписок':"Obunalar yo'q",'Подпишитесь на авторов из их историй':"Storylar orqali mualliflarga obuna bo'ling",
+ 'Сообщения':'Xabarlar','Откройте приложение в Telegram':"Ilovani Telegram'da oching",'Гость не может получать сообщения':"Mehmon xabar qabul qilmaydi",
+ 'Ошибка отправки':"Yuborishda xatolik"
 };
 let APP_LANG = appPrefs.lang || 'ru';
 function t(s){ return (APP_LANG==='uz' && UZ[s]) ? UZ[s] : s; }
@@ -738,7 +791,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.3.1';
+const APP_VERSION = 'v2.4.0';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -1095,12 +1148,16 @@ function openProduct(id){
     <div class="pRow"><span>${t('Район')}</span><span>${esc(p.district||'—')}</span></div>
     <div class="pRow"><span>${t('Просмотров')}</span><span>👁 ${p.views}</span></div>
     <div class="pDesc">${esc(p.desc||'')}</div>
+    <div class="ctaRow">
+      <button id="likeBtn" class="btnOut" onclick="toggleProductLike('${p.id}')">❤️ ${t('Нравится')} <span id="likeCnt"></span></button>
+    </div>
     <div class="cta">
       <button class="btnMain" onclick="contactSeller('tg')">✈️ ${t('Написать в Telegram')}</button>
       <button class="btnOut" onclick="contactSeller('ig')">📷 Instagram</button>
     </div>`;
   document.getElementById('productPanel').scrollTop = 0;
   openSheet('productSheet');
+  loadLikeState(p.id);
   haptic('light');
 }
 function galleryNav(d){
@@ -1177,8 +1234,10 @@ async function renderStories(){
     const g = groups[idS];
     const s0 = g[0];
     const unseen = g.some(st=>!viewed.includes(st.id));
-    html += `<div class="storyAvatar" onclick='openStoryGroup("${idS}")'>
+    const fresh = isFollowed(idS) && Math.max(...g.map(x=>x.createdAt)) > (LS.get('seen_'+String(idS),0));
+    html += `<div class="storyAvatar" style="position:relative" onclick='openStoryGroup("${idS}")'>
       <div class="storyRing ${unseen?'':'viewed'}"><img class="storyImg" src="${s0.userAvatar}" alt=""></div>
+      ${fresh?'<span class="newDot"></span>':''}
       <div class="storyName">${esc((s0.userName||'User').slice(0,8))}</div></div>`;
   }
   document.getElementById('storiesRow').innerHTML = html;
@@ -1197,7 +1256,7 @@ async function renderStories(){
 }
 
 /* ---------- Просмотр истории ---------- */
-let svGroups = [], svUser = null, svIdx = 0, svTimer = null, svStart = 0;
+let svGroups = [], svUser = null, svIdx = 0, svTimer = null, svStart = 0, svPaused = false;
 const STORY_MS = 5000;
 
 function openStoryGroup(userId){
@@ -1244,6 +1303,26 @@ async function showStoryItem(){
 
   document.getElementById('storyMsgBtn').style.display = (!isMine && s.userId && s.userId!=='0') ? 'flex' : 'none';
   document.getElementById('storyDelBtn').style.display = isMine ? 'flex' : 'none';
+  document.getElementById('storyRepostBtn').style.display = (!isMine && s.userId && s.userId!=='0') ? 'flex' : 'none';
+  svPaused = false;
+  const cInp = document.getElementById('svComment'); cInp.value='';
+  document.getElementById('saRow2').style.display = (!isMine && s.userId && s.userId!=='0') ? 'flex' : 'none';
+  const fb = document.getElementById('svFollowBtn');
+  const followed = isFollowed(s.userId);
+  if(!isMine && s.userId && s.userId!=='0'){
+    fb.style.display = 'inline-flex'; fb.classList.toggle('on', followed);
+    fb.textContent = followed ? t('Вы подписаны') : t('Подписаться');
+  } else fb.style.display = 'none';
+  document.getElementById('muteBtn').style.display = isVideo ? 'flex' : 'none';
+  svLoadReactions(s.id);
+  LS.set('seen_'+String(s.userId), Date.now());
+  if(s.userId && s.userId!=='0'){
+    sbRpc('online_status', { p_ids: String(s.userId) }).then(list=>{
+      const a = (list||[])[0];
+      const dot = document.getElementById('svOnDot');
+      if(dot) dot.style.display = (a && Date.now()-Date.parse(a.at) < 5*60000) ? 'block' : 'none';
+    }).catch(()=>{});
+  }
 
   const myViewId = tgUser? String(tgUser.id) : '0';
   if(!s.views || !s.views.some(v=>v.id===myViewId)){
@@ -1259,8 +1338,12 @@ async function showStoryItem(){
     if(svStarted) return;
     svStarted = true;
     svStart = performance.now();
+    let prevT = performance.now();
     const step = ()=>{
-      const p = (performance.now()-svStart)/svDurMs;
+      const now = performance.now();
+      if(svPaused){ svStart += now - prevT; prevT = now; svTimer = requestAnimationFrame(step); return; }
+      const p = (now - svStart)/svDurMs;
+      prevT = now;
       fill.style.width = Math.min(100, p*100) + '%';
       if(p >= 1){ storyNav(1); return; }
       svTimer = requestAnimationFrame(step);
@@ -1879,6 +1962,7 @@ function openMenuSheet(){
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('catalog')">🛍 ${t('Маркет')}</div>
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('favorites')">🤍 ${t('Избранное')}</div>
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('profile')">👤 ${t('Профиль')}</div>
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');openFollows()">⭐ ${t('Подписки')}</div>
       ${isAdmin ? `<div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('admin')">⚙️ ${t('Админ-панель')}</div>` : ''}
     </div>
     <div class="aCard">
@@ -1965,7 +2049,8 @@ function showInboxView(){
   chatMode = 'inbox';
   document.getElementById('chatBackBtn').style.display = 'none';
   document.getElementById('chatPeerAva').style.display = 'none';
-  document.getElementById('chatPeerName').textContent = 'Сообщения';
+  document.getElementById('chatPeerName').textContent = t('Сообщения');
+  const stEl = document.getElementById('chatPeerStatus'); if(stEl){ stEl.style.display='none'; stEl.textContent=''; }
   document.getElementById('chatInputRow').style.display = 'none';
 }
 
@@ -1989,7 +2074,7 @@ function renderInbox(){
   }
   body.innerHTML = inboxData.map((c,i)=>`
     <div class="chatItem" onclick="openThreadIdx(${i})">
-      <div class="chatAva">${esc((c.peer_name||'П').charAt(0).toUpperCase())}</div>
+      <div class="chatAva">${esc((c.peer_name||'П').charAt(0).toUpperCase())}<span class="onDot"></span></div>
       <div class="chatItemBody">
         <div class="chatItemName">${esc(c.peer_name||'Пользователь')}</div>
         <div class="chatItemLast">${esc((c.last_text||'').slice(0,60))}</div>
@@ -1999,6 +2084,7 @@ function renderInbox(){
         ${c.unread ? `<span class="chatUnread">${c.unread}</span>` : ''}
       </div>
     </div>`).join('');
+  markChatOnline();
 }
 
 function openThreadIdx(i){
@@ -2013,6 +2099,7 @@ async function openThread(peerId, peerName){
   ava.style.display = letter ? 'flex' : 'none';
   ava.textContent = letter ? letter.toUpperCase() : '';
   document.getElementById('chatPeerName').textContent = chatPeerName;
+  markThreadOnline(chatPeerId);
   document.getElementById('chatInputRow').style.display = 'flex';
   await loadThread(chatPeerId, chatPeerName);
   haptic('light');
@@ -2092,6 +2179,185 @@ function msgStoryAuthor(){
   openChats().then(()=> openThread(s.userId, s.userName||t('Пользователь')));
 }
 
+/* ===== СОЦИАЛЬНЫЕ ФУНКЦИИ: подписки, реакции, комментарии, репост, онлайн ===== */
+let myFollows = null, svReacts = {}, svMineReact = null, onlineMap = {};
+
+async function refreshMyFollows(){
+  if(!tg.initData) return;
+  try{
+    const list = await sbRpc('follow_list', { init_data: tg.initData });
+    myFollows = Array.isArray(list) ? list : [];
+  }catch(e){ /* silent */ }
+}
+function touchUser(){
+  if(tg.initData) sbRpc('touch_user', { init_data: tg.initData }).catch(()=>{});
+}
+const isFollowed = id => Array.isArray(myFollows) && myFollows.some(f=>String(f.id)===String(id));
+
+async function svToggleFollow(){
+  const s = svUser && svUser.items[svIdx];
+  if(!s || !tg.initData) return;
+  haptic('light');
+  try{
+    const r = await sbRpc('follow_toggle', { p_target: String(s.userId), p_tname: s.userName||'', init_data: tg.initData });
+    if(!r.ok) return;
+    await refreshMyFollows();
+    const btn = document.getElementById('svFollowBtn');
+    btn.classList.toggle('on', r.on);
+    btn.textContent = r.on ? t('Вы подписаны') : t('Подписаться');
+    toast(r.on ? t('Вы подписаны') : t('Вы отписались'));
+    renderStories();
+  }catch(e){ console.warn('follow fail', e); }
+}
+
+async function svLoadReactions(sid){
+  svReacts = {}; svMineReact = null;
+  try{
+    const list = await sbRpc('react_list', { p_story_id: sid });
+    (list||[]).forEach(x=>{
+      svReacts[x.e] = svReacts[x.e]||[];
+      svReacts[x.e].push(x);
+      if(tgUser && String(x.u)===String(tgUser.id)) svMineReact = x.e;
+    });
+  }catch(e){ /* silent */ }
+  const row = document.getElementById('reactRow');
+  const EMOJIS = ['❤️','🔥','😂','😮'];
+  row.innerHTML = EMOJIS.map(e=>{
+    const n = (svReacts[e]||[]).length;
+    return `<button class="reactBtn ${svMineReact===e?'on':''}" onclick="svReact('${e}')">${e}${n?` <span class="rc">${n}</span>`:''}</button>`;
+  }).join('');
+  row.style.display = 'flex';
+}
+async function svReact(e){
+  const s = svUser && svUser.items[svIdx];
+  if(!s) return;
+  if(!tg.initData){ toast(t('Откройте приложение в Telegram')); return; }
+  haptic('light');
+  try{
+    const r = await sbRpc('react_story', { p_story_id: s.id, p_emoji: e, p_name: (tgUser&&tgUser.first_name)||'', init_data: tg.initData });
+    if(r && r.ok===false) return;
+    await svLoadReactions(s.id);
+  }catch(err){ console.warn('react fail', err); }
+}
+
+async function sendStoryComment(){
+  const s = svUser && svUser.items[svIdx];
+  const inp = document.getElementById('svComment');
+  const text = (inp.value||'').trim();
+  if(!s || !text) return;
+  if(!tg.initData){ toast(t('Откройте приложение в Telegram')); return; }
+  if(!s.userId || s.userId==='0'){ toast(t('Гость не может получать сообщения')); return; }
+  try{
+    await chatApi('send', { to_id: String(s.userId), to_name: s.userName||'', text: '💬 ' + text });
+    inp.value = '';
+    svSetPaused(false);
+    toast(t('Отправлено автору в личные 💬'));
+    haptic('light');
+  }catch(e){ toast('Ошибка отправки'); }
+}
+
+async function svRepostStory(){
+  const s = svUser && svUser.items[svIdx];
+  if(!s || !tg.initData) return;
+  haptic('light');
+  const cap = (s.caption ? s.caption + ' ' : '') + '🔁 ' + (s.userName||'');
+  try{
+    await sbRpc('publish_story', {
+      p_media_type: s.mediaType, p_media_data: s.mediaData,
+      p_caption: cap, p_avatar: avatarUrl(tgUser), init_data: tg.initData,
+      p_duration: s.durSec || null
+    });
+    toast(t('Репост опубликован 🎉'));
+    closeStory();
+    await loadCloudStories();
+    renderStories();
+  }catch(e){ toast(t('Не удалось опубликовать историю')); }
+}
+
+function svSetPaused(v){ svPaused = v; }
+
+/* онлайн-статусы */
+function isOnline(atMs){ return atMs && (Date.now()-atMs < 5*60000); }
+async function markChatOnline(){
+  if(!inboxData.length) return;
+  const ids = [...new Set(inboxData.map(c=>String(c.peer_id)))].join(',');
+  try{
+    const list = await sbRpc('online_status', { p_ids: ids });
+    (list||[]).forEach(a=>{ onlineMap[a.id] = Date.parse(a.at)||0; });
+  }catch(e){ return; }
+  document.querySelectorAll('#chatBody .chatItem').forEach((el,i)=>{
+    const c = inboxData[i]; if(!c) return;
+    const dot = el.querySelector('.onDot');
+    if(dot) dot.style.display = isOnline(onlineMap[String(c.peer_id)]) ? 'block' : 'none';
+  });
+}
+async function markThreadOnline(peerId){
+  const st = document.getElementById('chatPeerStatus');
+  try{
+    const list = await sbRpc('online_status', { p_ids: String(peerId) });
+    const a = (list||[])[0];
+    if(!a){ st.textContent=''; st.style.display='none'; return; }
+    const at = Date.parse(a.at)||0;
+    let txt = '';
+    if(Date.now()-at < 5*60000) txt = t('в сети');
+    else if(Date.now()-at < 24*3600000) txt = t('был(а) недавно');
+    st.textContent = txt;
+    st.style.display = txt ? 'block' : 'none';
+  }catch(e){}
+}
+
+/* лайки товара */
+async function loadLikeState(pid){
+  if(!tg.initData) return;
+  try{
+    const r = await sbRpc('like_status', { p_product: pid, init_data: tg.initData });
+    applyLikeUi(r);
+  }catch(e){}
+}
+function applyLikeUi(r){
+  const b = document.getElementById('likeBtn'); if(!b || !r || !r.ok) return;
+  b.className = r.on ? 'btnMain' : 'btnOut';
+  document.getElementById('likeCnt').textContent = '· ' + (r.cnt||0);
+  b.dataset.on = r.on ? '1' : '0';
+}
+async function toggleProductLike(pid){
+  if(!tg.initData){ toast(t('Откройте приложение в Telegram')); return; }
+  haptic('light');
+  try{
+    const r = await sbRpc('like_toggle', { p_product: pid, init_data: tg.initData });
+    applyLikeUi(r);
+  }catch(e){}
+}
+
+/* список подписок */
+async function openFollows(){
+  openSheet('followsSheet');
+  const body = document.getElementById('followsBody');
+  body.innerHTML = `<div class="secTitle">⭐ ${t('Подписки')}</div>`;
+  let list = myFollows;
+  if(!Array.isArray(list)){
+    await refreshMyFollows();
+    list = myFollows||[];
+  }
+  body.innerHTML += (list && list.length)
+    ? `<div class="aCard" style="padding:4px 12px">` + list.map(f=>`
+      <div class="followsRow">
+        <div class="fAva">${esc((f.name||'?').charAt(0).toUpperCase())}</div>
+        <div class="fName">${esc(f.name || ('ID '+f.id))}</div>
+        <button class="aBtn" data-n="${esc(f.name||'')}" onclick="openThread('${String(f.id)}', this.dataset.n)">✈️</button>
+        <button class="aBtn" onclick="unfollowFrom('${String(f.id)}')">✕</button>
+      </div>`).join('') + `</div>`
+    : `<div class="empty"><h3>${t('Нет подписок')}</h3><p>${t('Подпишитесь на авторов из их историй')}</p></div>`;
+}
+async function unfollowFrom(id){
+  if(!tg.initData) return;
+  haptic('light');
+  try{ await sbRpc('follow_toggle', { p_target: String(id), p_tname:'', init_data: tg.initData }); }catch(e){}
+  myFollows = (Array.isArray(myFollows)?myFollows:[]).filter(f=>String(f.id)!==String(id));
+  renderStories();
+  openFollows();
+}
+
 /* кто посмотрел историю */
 async function openViewers(s){
   const fresh = await fetchStoryViewers(s.id).catch(()=>null);
@@ -2136,6 +2402,9 @@ function deleteMyStory(){
   await migrateLocalStories();
   await migrateLocalToCloud();
   renderChips();
+  await refreshMyFollows();
+  touchUser();
+  setInterval(touchUser, 300000);
   await loadCloudStories();
   renderStories();
   renderPartners();
