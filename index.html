@@ -557,7 +557,8 @@ function initGlobe(){
     haptic('medium');
     setTimeout(openCatalog, 320);
   });
-  wrap.addEventListener('click', ()=>{                 // клик по мини-глобусу
+  wrap.addEventListener('click', (e)=>{               // клик по мини-глобусу
+    if(e.target.closest('#heroHeader') || e.target.closest('#heroHint')) return;
     if(wrap.classList.contains('mini')){ haptic('light'); toggleHero(); }
   });
 
