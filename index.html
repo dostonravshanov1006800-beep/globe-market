@@ -296,6 +296,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
     <!-- PROFILE -->
     <div class="screen" id="scr-profile">
+      <div style="text-align:center;font-size:11px;opacity:.45;margin-bottom:10px" id="verTag"></div>
       <div class="profCard">
         <img class="profAvatar" id="profAvatar" alt="">
         <div class="profName" id="profName">Гость</div>
@@ -639,6 +640,26 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
+const APP_VERSION = 'v2.2.1';
+/* ---- Отчёт об ошибках клиента (диагностика) ---- */
+function reportError(kind, message){
+  try{
+    const body = {
+      version: APP_VERSION, kind: String(kind||'').slice(0,80), message: String(message||'').slice(0,900),
+      user_agent: navigator.userAgent.slice(0,300),
+      init_len: (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp.initData.length : 0,
+      init_head: (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp.initData.slice(0,60) : ''
+    };
+    fetch(SB_URL + '/rest/v1/client_errors', {
+      method:'POST', keepalive:true,
+      headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    }).catch(()=>{});
+  }catch(e){}
+}
+window.addEventListener('error', (ev)=>{ reportError('js_error', (ev.message||'') + ' @ ' + (ev.filename||'') + ':' + (ev.lineno||'')); });
+window.addEventListener('unhandledrejection', (ev)=>{ reportError('promise', (ev.reason && ev.reason.message) || String(ev.reason||'')); });
+
 async function sbGet(path){
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY }
@@ -664,12 +685,14 @@ async function sbRpc(fn, args){
   if(!r.ok){
     let msg = 'cloud ' + r.status;
     try{ msg = (await r.json()).message || msg; }catch(e){}
+    reportError('rpc:'+fn, msg);
     throw new Error(msg);
   }
   return r.json();
 }
 function requireInitData(){
   if(!tg.initData){
+    reportError('no_init_data', 'initData пуст при действии админа');
     throw new Error('initData пуст — переоткройте мини-апп через кнопку меню бота (не из пересланной ссылки/кэша)');
   }
 }
@@ -1225,6 +1248,7 @@ async function publishStory(){
 function renderProfile(){
   const me = tgUser;
   document.getElementById('profAvatar').src = avatarUrl(me);
+  const vt = document.getElementById('verTag'); if(vt) vt.textContent = 'Globe Market ' + APP_VERSION + ' · 06.10.2026';
   document.getElementById('profName').textContent = me ? [me.first_name, me.last_name].filter(Boolean).join(' ') : 'Гость';
   document.getElementById('profUsername').textContent = me && me.username ? '@'+me.username : 'Откройте приложение в Telegram';
   const up = LS.get('user_profile', {});
