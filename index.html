@@ -668,7 +668,12 @@ async function sbRpc(fn, args){
   }
   return r.json();
 }
-const adminApi = (action, payload)=> sbRpc('admin_api', { action, payload: payload||{}, init_data: tg.initData || '' });
+function requireInitData(){
+  if(!tg.initData){
+    throw new Error('initData пуст — переоткройте мини-апп через кнопку меню бота (не из пересланной ссылки/кэша)');
+  }
+}
+const adminApi = (action, payload)=>{ requireInitData(); return sbRpc('admin_api', { action, payload: payload||{}, init_data: tg.initData }); };
 const userApi  = (action, payload)=> sbRpc('user_api',  { action, payload: payload||{}, init_data: tg.initData || '' });
 
 /* ---------- Кэш каталога и партнёров ---------- */
@@ -1381,7 +1386,7 @@ async function renderAdminList(){
   box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
   let list = [];
   try{ const r = await adminApi('all_listings'); list = r.data||[]; }
-  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>${esc(e.message||'неизвестная ошибка')}</p></div>`; return; }
   box.innerHTML = list.length ? list.map(p=>`
     <div class="aCard">
       <div style="display:flex;gap:12px">
@@ -1417,7 +1422,7 @@ async function deleteProduct(id){
 }
 let editProdId = null;
 async function editProduct(id){
-  try{ var r = await adminApi('all_listings'); }catch(e){ toast('Ошибка загрузки'); return; }
+  try{ var r = await adminApi('all_listings'); }catch(e){ toast('Ошибка загрузки: ' + (e.message||'')); return; }
   const p = (r.data||[]).find(x=>x.id===id);
   if(!p) return;
   editProdId = id;
@@ -1495,7 +1500,7 @@ async function renderAdminPartners(){
   box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
   let list = [];
   try{ const r = await adminApi('all_partners'); list = r.data||[]; }
-  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>${esc(e.message||'неизвестная ошибка')}</p></div>`; return; }
   box.innerHTML = list.length ? list.map(p=>`
     <div class="aCard">
       <div style="display:flex;gap:12px;align-items:center">
@@ -1530,7 +1535,7 @@ async function renderAdminReqs(){
   box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
   let reqs = [];
   try{ const r = await adminApi('list_ads'); reqs = r.data||[]; }
-  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>Откройте панель из Telegram</p></div>`; return; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>${esc(e.message||'неизвестная ошибка')}</p></div>`; return; }
   const stMap = {wait:['st-wait','🟡 На рассмотрении'], ok:['st-ok','🟢 Активна'], no:['st-no','🔴 Отклонена']};
   box.innerHTML = reqs.length ? reqs.map(r=>`
     <div class="aCard">
@@ -1700,7 +1705,7 @@ function videoDuration(file){ return new Promise(res=>{
 /* ================================================================
    ЛИЧНЫЕ СООБЩЕНИЯ (DM) — приватно, видит только получатель
 ================================================================ */
-const chatApi = (action, payload)=> sbRpc('chat_api', { action, payload: payload||{}, init_data: tg.initData || '' });
+const chatApi = (action, payload)=>{ requireInitData(); return sbRpc('chat_api', { action, payload: payload||{}, init_data: tg.initData }); };
 let chatMode = 'inbox', chatPeerId = null, chatPeerName = '', chatTimer = null;
 let inboxData = [], lastUnread = 0;
 
@@ -1749,7 +1754,7 @@ async function loadInbox(silent){
     updateChatBadge();
     if(!silent || chatMode === 'inbox') renderInbox();
     if(chatMode === 'inbox') refreshNotifHint();
-  }catch(e){ if(!silent) toast('Не удалось загрузить чаты'); }
+  }catch(e){ if(!silent) toast('Чаты: ' + (e.message||'ошибка')); console.warn('inbox fail', e); }
 }
 
 function renderInbox(){
@@ -1803,7 +1808,7 @@ async function loadThread(peerId, peerName, silent){
       </div>`).join('') || `<div class="chatEmpty">Напишите первое сообщение ${esc(peerName)} 👋</div>`;
     body.scrollTop = body.scrollHeight;
     lastUnread = 0; updateChatBadge();
-  }catch(e){ if(!silent) toast('Не удалось загрузить переписку'); }
+  }catch(e){ if(!silent) toast('Переписка: ' + (e.message||'ошибка')); console.warn('thread fail', e); }
 }
 
 let msgSending = false;
@@ -1818,7 +1823,7 @@ async function sendMsg(){
     await chatApi('send', { to_id: chatPeerId, to_name: chatPeerName, text });
     haptic('medium');
     await loadThread(chatPeerId, chatPeerName, true);
-  }catch(e){ toast('Сообщение не отправилось'); inp.value = text; }
+  }catch(e){ toast('Не отправилось: ' + (e.message||'ошибка')); console.warn('send fail', e); inp.value = text; }
   msgSending = false;
 }
 
