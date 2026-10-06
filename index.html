@@ -13,6 +13,22 @@
   --text:#1C1C1E; --text2:#8E8E93; --hint:#C7C7CC;
   --border:#E5E5EA;
   --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --card:#fff; --header:rgba(255,255,255,.8); --tabbar:rgba(255,255,255,.92);
+  --glass:rgba(255,255,255,.92); --hint2:#D9D9DE;
+}
+html[data-theme="dark"]{
+  --bg:#121212; --bg2:#1C1C1E; --input:#2C2C2E; --card:#1C1C1E;
+  --text:#F2F2F7; --text2:#98989F; --hint:#636366; --border:#2C2C2E;
+  --shadow:0 2px 12px rgba(0,0,0,.45);
+  --header:rgba(28,28,30,.85); --tabbar:rgba(28,28,30,.94);
+  --glass:rgba(60,60,64,.92); --hint2:#3A3A3C;
+}
+html[data-theme="black"]{
+  --bg:#000; --bg2:#0A0A0A; --input:#161618; --card:#0D0D0F;
+  --text:#F2F2F7; --text2:#98989F; --hint:#48484A; --border:#26262A;
+  --shadow:0 2px 12px rgba(0,0,0,.6);
+  --header:rgba(10,10,12,.9); --tabbar:rgba(6,6,8,.96);
+  --glass:rgba(50,50,54,.92); --hint2:#2C2C2E;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -20,7 +36,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
 /* ============ APP LAYOUT ============ */
 #app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
-#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:10px;background:rgba(255,255,255,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.05);position:relative;z-index:10}
+#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:10px;background:var(--header);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:relative;z-index:10}
 #appHeader .hbtn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;background:var(--input)}
 #appHeader .hbtn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:6px}
@@ -32,7 +48,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
 /* ============ SEARCH ============ */
 #searchRow{display:flex;gap:10px;align-items:center;margin-bottom:14px}
-.searchbox{flex:1;background:#fff;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;padding:0 14px;height:44px}
+.searchbox{flex:1;background:var(--card);border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;padding:0 14px;height:44px}
 .searchbox svg{width:17px;height:17px;stroke:var(--text2);fill:none;stroke-width:2}
 .searchbox input{border:none;outline:none;background:none;flex:1;font-size:15px;font-family:inherit;color:var(--text)}
 .searchbox input::placeholder{color:var(--hint)}
@@ -42,7 +58,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #partnersSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
 #partnersRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
 #partnersRow::-webkit-scrollbar{display:none}
-.pCard{flex:0 0 auto;width:150px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow);cursor:pointer;transform:translateY(0);transition:transform .2s}
+.pCard{flex:0 0 auto;width:150px;border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transform:translateY(0);transition:transform .2s}
 .pCard:active{transform:translateY(2px)}
 .pImg{width:100%;height:100px;object-fit:cover;display:block;background:var(--input)}
 .pImgPh{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
@@ -56,28 +72,28 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #storiesRow::-webkit-scrollbar{display:none}
 .storyAvatar{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;width:66px;cursor:pointer}
 .storyRing{width:64px;height:64px;border-radius:50%;padding:2.5px;background:linear-gradient(45deg,#0A84FF,#5E5CE6,#FF2D55)}
-.storyRing.viewed{background:#D9D9DE}
-.storyRing.add{background:#fff;border:2px dashed #C7C7CC;padding:0;display:flex;align-items:center;justify-content:center}
+.storyRing.viewed{background:var(--hint2)}
+.storyRing.add{background:var(--card);border:2px dashed var(--hint);padding:0;display:flex;align-items:center;justify-content:center}
 .storyRing.add svg{width:24px;height:24px;stroke:var(--text2);stroke-width:2;fill:none}
-.storyImg{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid #fff;display:block}
+.storyImg{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid var(--card);display:block}
 .storyName{font-size:11px;color:var(--text2);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .storyAvatar.add .storyName{color:var(--accent);font-weight:600}
 
 /* ============ CATEGORY CHIPS ============ */
 #chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
 #chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;padding:8px 15px;border-radius:20px;background:#fff;font-size:13.5px;font-weight:500;color:var(--text);box-shadow:var(--shadow);border:1.5px solid transparent;cursor:pointer;transition:all .2s}
+.chip{flex:0 0 auto;padding:8px 15px;border-radius:20px;background:var(--card);font-size:13.5px;font-weight:500;color:var(--text);box-shadow:var(--shadow);border:1.5px solid transparent;cursor:pointer;transition:all .2s}
 .chip.on{background:var(--accent);color:#fff}
 
 /* ============ PRODUCT GRID ============ */
 #grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;opacity:0;transform:translateY(20px);animation:cardUp .4s ease forwards}
+.card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;opacity:0;transform:translateY(20px);animation:cardUp .4s ease forwards}
 @keyframes cardUp{to{opacity:1;transform:none}}
 .cardImgWrap{position:relative;aspect-ratio:1;background:var(--input)}
 .cardImgWrap img{width:100%;height:100%;object-fit:cover;display:block}
 .topBadge{position:absolute;top:9px;left:9px;background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:9px;display:flex;align-items:center;gap:3px}
 .adBadge{position:absolute;top:9px;right:9px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:4px 8px;border-radius:9px;backdrop-filter:blur(6px)}
-.favHeart{position:absolute;bottom:9px;right:9px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.favHeart{position:absolute;bottom:9px;right:9px;width:30px;height:30px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .favHeart svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2}
 .favHeart.on svg{fill:#FF2D55;stroke:#FF2D55}
 .cardBody{padding:11px 12px 13px}
@@ -90,7 +106,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .empty p{font-size:13px}
 
 /* ============ TAB BAR ============ */
-#tabbar{position:absolute;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:20}
+#tabbar{position:absolute;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--tabbar);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:20}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text2);position:relative;transition:color .2s}
 .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab span{font-size:10px;font-weight:600}
@@ -100,7 +116,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 /* ============ SHEETS ============ */
 .sheet{position:fixed;inset:0;z-index:90;visibility:hidden}
 .sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .3s}
-.sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:#fff;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .35s ease-in-out;display:flex;flex-direction:column}
+.sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--card);border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .35s ease-in-out;display:flex;flex-direction:column}
 .sheet.open{visibility:visible}
 .sheet.open .backdrop{opacity:1}
 .sheet.open .panel{transform:none}
@@ -122,7 +138,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cta{display:flex;gap:10px;margin:18px 0 8px}
 .cta button{flex:1;height:48px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
 .btnMain{background:var(--accent);color:#fff;border:none}
-.btnOut{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+.btnOut{background:var(--card);color:var(--accent);border:1.5px solid var(--accent)}
 
 /* partner sheet */
 .ptImg{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
@@ -156,7 +172,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .field{margin-bottom:13px}
 .field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
 .field input,.field textarea,.field select{width:100%;background:var(--input);border:1.5px solid transparent;border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:border .2s}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:#fff}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:var(--card)}
 .field textarea{resize:none;min-height:80px}
 .submitBtn{width:100%;height:50px;border-radius:14px;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
 .submitBtn:active{transform:scale(.98)}
@@ -170,16 +186,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 /* ============ ADMIN ============ */
 .adminNav{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
 .adminNav::-webkit-scrollbar{display:none}
-.aCard{background:#fff;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.aCard{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
 .aCard h4{font-size:14.5px;margin-bottom:4px}
 .aCard .sub{font-size:12.5px;color:var(--text2)}
 .aRow{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
-.aBtn{padding:9px 13px;border-radius:11px;border:1.5px solid var(--border);background:#fff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+.aBtn{padding:9px 13px;border-radius:11px;border:1.5px solid var(--border);background:var(--card);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
 .aBtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .aBtn.danger{color:#FF3B30;border-color:#FF3B30}
 .aBtn.gold{color:#B8860B;border-color:var(--gold)}
 .statGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.statCard{background:#fff;border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.statCard{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
 .statCard .num{font-size:26px;font-weight:800;color:var(--accent)}
 .statCard .lbl{font-size:12.5px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:5px}
 .reqStatus{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:9px;display:inline-block}
@@ -188,7 +204,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .st-no{background:#FDE2E1;color:#C0392B}
 
 /* ============ PROFILE ============ */
-.profCard{background:#fff;border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);text-align:center;margin-bottom:14px}
+.profCard{background:var(--card);border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);text-align:center;margin-bottom:14px}
 .profAvatar{width:88px;height:88px;border-radius:50%;object-fit:cover;margin:0 auto 12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
 .profName{font-size:20px;font-weight:800}
 .profUser{color:var(--text2);font-size:14px;margin-top:3px}
@@ -196,7 +212,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .profStats .ps b{display:block;font-size:19px;font-weight:800;color:var(--text)}
 .profStats .ps span{font-size:11.5px;color:var(--text2)}
 .tariffs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:13px}
-.tariff{background:#fff;border-radius:14px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);border:2px solid transparent;cursor:pointer}
+.tariff{background:var(--card);border-radius:14px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);border:2px solid transparent;cursor:pointer}
 .tariff.on{border-color:var(--accent)}
 .tariff .ic{font-size:21px}
 .tariff .nm{font-size:12px;font-weight:700;margin-top:5px}
@@ -216,7 +232,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 /* ============ ЛИЧНЫЕ СООБЩЕНИЯ (DM) ============ */
 #chatScreen{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
 #chatScreen.open{display:flex;animation:tabIn .25s ease}
-#chatHead{height:calc(54px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;gap:10px;padding-left:10px;padding-right:14px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.06)}
+#chatHead{height:calc(54px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;gap:10px;padding-left:10px;padding-right:14px;background:var(--header);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
 #chatHead .cbtn{width:38px;height:38px;border-radius:50%;border:none;background:var(--input);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
 #chatHead .cbtn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #chatPeerName{font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -226,16 +242,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .msgRow.mine{justify-content:flex-end}
 .bubble{max-width:78%;padding:10px 13px;border-radius:18px;font-size:14.5px;line-height:1.4;word-wrap:break-word;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.msgRow:not(.mine) .bubble{background:#fff;border-bottom-left-radius:5px}
+.msgRow:not(.mine) .bubble{background:var(--card);border-bottom-left-radius:5px}
 .msgRow.mine .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:5px}
 .msgTime{font-size:10px;color:var(--text2);margin-top:3px;display:flex;gap:4px;align-items:center}
 .msgRow.mine .msgTime{justify-content:flex-end}
-#chatInputRow{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid rgba(0,0,0,.06)}
+#chatInputRow{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--tabbar);backdrop-filter:blur(14px);border-top:1px solid var(--border)}
 #chatInput{flex:1;background:var(--input);border:none;border-radius:20px;padding:11px 16px;font-size:15px;font-family:inherit;outline:none;color:var(--text)}
 #chatSendBtn{width:42px;height:42px;border-radius:50%;border:none;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:transform .15s}
 #chatSendBtn:active{transform:scale(.9)}
 #chatSendBtn svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.chatItem{display:flex;align-items:center;gap:12px;padding:13px 12px;background:#fff;border-radius:16px;box-shadow:var(--shadow);margin-bottom:9px;cursor:pointer}
+.chatItem{display:flex;align-items:center;gap:12px;padding:13px 12px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:9px;cursor:pointer}
 .chatItem:active{transform:scale(.98)}
 .chatAva{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .chatItemBody{flex:1;min-width:0}
@@ -261,7 +277,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       <i class="hbadge" id="chatBadge" style="display:none">0</i>
     </button>
-    <button class="hbtn" id="adminHeadBtn" style="display:none;background:#fff;border:1.5px solid var(--border)" onclick="switchTab('admin')" title="Панель админа">
+    <button class="hbtn" id="adminHeadBtn" style="display:none;background:var(--card);border:1.5px solid var(--border)" onclick="switchTab('admin')" title="Панель админа">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
     <button class="hbtn" onclick="openMenuSheet()" title="Меню">
@@ -278,7 +294,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div id="searchRow">
         <div class="searchbox">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-          <input id="searchInput" placeholder="Поиск товаров..." oninput="renderGrid()">
+          <input id="searchInput" placeholder="Поиск товаров..." data-i18n-ph="Поиск товаров..." oninput="renderGrid()">
         </div>
       </div>
       <div id="storiesRow"></div>
@@ -290,7 +306,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
     <!-- FAVORITES -->
     <div class="screen" id="scr-favorites">
-      <div class="secTitle">Избранное</div>
+      <div class="secTitle" data-i18n="Избранное">Избранное</div>
       <div id="favGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
     </div>
 
@@ -302,9 +318,22 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="profName" id="profName">Гость</div>
         <div class="profUser" id="profUsername"></div>
         <div class="profStats">
-          <div class="ps"><b id="stFav">0</b><span>в избранном</span></div>
-          <div class="ps"><b id="stStory">0</b><span>историй</span></div>
-          <div class="ps"><b id="stViews">0</b><span>просмотров</span></div>
+          <div class="ps"><b id="stFav">0</b><span data-i18n="в избранном">в избранном</span></div>
+          <div class="ps"><b id="stStory">0</b><span data-i18n="историй">историй</span></div>
+          <div class="ps"><b id="stViews">0</b><span data-i18n="просмотров">просмотров</span></div>
+        </div>
+      </div>
+      <div class="aCard">
+        <h4>🎨 Оформление</h4>
+        <div class="aRow" style="margin-top:10px">
+          <button class="aBtn" id="thLight" onclick="setTheme('light')">🌞 Светлая</button>
+          <button class="aBtn" id="thDark" onclick="setTheme('dark')">🌙 Тёмная</button>
+          <button class="aBtn" id="thBlack" onclick="setTheme('black')">⬛ Чёрная</button>
+        </div>
+        <h4 style="margin-top:16px">🌐 Язык / Til</h4>
+        <div class="aRow" style="margin-top:10px">
+          <button class="aBtn" id="langRu" onclick="setLang('ru')">🇷🇺 Русский</button>
+          <button class="aBtn" id="langUz" onclick="setLang('uz')">🇺🇿 O'zbekcha</button>
         </div>
       </div>
       <div class="aCard">
@@ -312,21 +341,21 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="field" style="margin:8px 0 0"><input id="profInst" maxlength="60" placeholder="@username"></div>
       </div>
       <div class="aCard">
-        <h4>О себе</h4>
-        <div class="field" style="margin:8px 0 0"><textarea id="profBio" maxlength="500" placeholder="Пара слов о себе..."></textarea></div>
+        <h4 data-i18n="О себе">О себе</h4>
+        <div class="field" style="margin:8px 0 0"><textarea id="profBio" maxlength="500" placeholder="Пара слов о себе..." data-i18n-ph="Пара слов о себе..."></textarea></div>
       </div>
-      <button class="submitBtn" onclick="saveProfile()">💾 Сохранить профиль</button>
+      <button class="submitBtn" onclick="saveProfile()" data-i18n="💾 Сохранить профиль">💾 Сохранить профиль</button>
 
-      <div class="secTitle" style="margin-top:26px">📢 Реклама в Globe Market</div>
+      <div class="secTitle" style="margin-top:26px" data-i18n="📢 Реклама в Globe Market">📢 Реклама в Globe Market</div>
       <div class="tariffs">
-        <div class="tariff on" data-t="Stories в топе" onclick="pickTariff(this)"><div class="ic">📸</div><div class="nm">Stories</div><div class="pr">топ ленты</div></div>
-        <div class="tariff" data-t="Топ маркетплейса" onclick="pickTariff(this)"><div class="ic">🏆</div><div class="nm">Топ маркет</div><div class="pr">бейдж ТОП</div></div>
-        <div class="tariff" data-t="Пакет Stories+Топ" onclick="pickTariff(this)"><div class="ic">🚀</div><div class="nm">Пакет</div><div class="pr">всё сразу</div></div>
+        <div class="tariff on" data-t="Stories в топе" onclick="pickTariff(this)"><div class="ic">📸</div><div class="nm">Stories</div><div class="pr" data-i18n="топ ленты">топ ленты</div></div>
+        <div class="tariff" data-t="Топ маркетплейса" onclick="pickTariff(this)"><div class="ic">🏆</div><div class="nm" data-i18n="Топ маркет">Топ маркет</div><div class="pr" data-i18n="бейдж ТОП">бейдж ТОП</div></div>
+        <div class="tariff" data-t="Пакет Stories+Топ" onclick="pickTariff(this)"><div class="ic">🚀</div><div class="nm" data-i18n="Пакет">Пакет</div><div class="pr" data-i18n="всё сразу">всё сразу</div></div>
       </div>
       <div class="aCard">
-        <div class="field"><label>Что рекламируем?</label><input id="adDesc" placeholder="Например: мой магазин кроссовок"></div>
-        <div class="field"><label>Ссылка</label><input id="adLink" maxlength="200" placeholder="https://t.me/..."></div>
-        <button class="submitBtn" onclick="sendAdRequest()">Отправить заявку 🚀</button>
+        <div class="field"><label data-i18n="Что рекламируем?">Что рекламируем?</label><input id="adDesc" placeholder="Например: мой магазин кроссовок" data-i18n-ph="Например: мой магазин кроссовок"></div>
+        <div class="field"><label data-i18n="Ссылка">Ссылка</label><input id="adLink" maxlength="200" placeholder="https://t.me/..."></div>
+        <button class="submitBtn" onclick="sendAdRequest()" data-i18n="Отправить заявку 🚀">Отправить заявку 🚀</button>
         <div id="myAdReqs" style="margin-top:14px"></div>
       </div>
     </div>
@@ -396,19 +425,19 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="tabbar">
     <div class="tab on" data-scr="catalog" onclick="switchTab('catalog')">
       <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span>Маркет</span>
+      <span data-i18n="Маркет">Маркет</span>
     </div>
     <div class="tab" data-scr="favorites" onclick="switchTab('favorites')">
       <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span>Избранное</span><i class="badge" id="favBadge" style="display:none">0</i>
+      <span data-i18n="Избранное">Избранное</span><i class="badge" id="favBadge" style="display:none">0</i>
     </div>
     <div class="tab" data-scr="profile" onclick="switchTab('profile')">
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Профиль</span>
+      <span data-i18n="Профиль">Профиль</span>
     </div>
     <div class="tab" id="adminTabBtn" data-scr="admin" onclick="switchTab('admin')" style="display:none">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span>Админ</span>
+      <span data-i18n="Админ">Админ</span>
     </div>
   </div>
 </div>
@@ -458,9 +487,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="sheetScroll">
       <div class="secTitle">Новая история</div>
       <div class="aCard">
-        <div class="field"><label>Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
-        <div class="field"><label>Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." maxlength="300"></div>
-        <button class="submitBtn" onclick="publishStory()">📸 Опубликовать</button>
+        <div class="field"><label data-i18n="Фото или видео (видео — до 60 секунд и 50 МБ)">Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
+        <div class="field"><label data-i18n="Подпись (необязательно)">Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." data-i18n-ph="Текст..." maxlength="300"></div>
+        <button class="submitBtn" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
       </div>
     </div>
   </div>
@@ -495,7 +524,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   </div>
   <div id="chatBody"></div>
   <div id="chatInputRow" style="display:none">
-    <input id="chatInput" placeholder="Сообщение..." maxlength="2000" onkeydown="if(event.key==='Enter')sendMsg()" autocomplete="off">
+    <input id="chatInput" placeholder="Сообщение..." data-i18n-ph="Сообщение..." maxlength="2000" onkeydown="if(event.key==='Enter')sendMsg()" autocomplete="off">
     <button id="chatSendBtn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
   </div>
 </div>
@@ -576,6 +605,71 @@ const LS = {
   set:(k,v)=>localStorage.setItem(k, JSON.stringify(v))
 };
 
+/* ============ ТЕМА И ЯЗЫК (настройки пользователя) ============ */
+let appPrefs = LS.get('app_prefs', { theme:'light', lang:'ru' });
+// применяем тему сразу, до рендеров, чтобы не мигало
+document.documentElement.setAttribute('data-theme', appPrefs.theme || 'light');
+
+const UZ = {
+ 'Маркет':'Market','Избранное':'Sevimlilar','Профиль':'Profil','Админ':'Admin',
+ 'Поиск товаров...':'Mahsulot qidirish...',
+ 'Наши партнёры':'Hamkorlarimiz',
+ 'Все':'Barchasi','Электроника':'Elektronika','Одежда':'Kiyim','Транспорт':'Transport','Недвижимость':"Ko'chmas mulk",'Услуги':'Xizmatlar','Другое':'Boshqa',
+ 'в избранном':'sevimlida','историй':'story','просмотров':"ko'rish",
+ 'О себе':"O'zim haqimda",'Пара слов о себе...':"O'zingiz haqida bir necha so'z...",
+ '💾 Сохранить профиль':'💾 Profilni saqlash',
+ '📢 Реклама в Globe Market':"📢 Globe Market'da reklama",
+ 'топ ленты':'topda','бейдж ТОП':'TOP belgisi','всё сразу':'hammasi birga','Топ маркет':'TOP market','Пакет':'Paket',
+ 'Что рекламируем?':'Nima reklama qilamiz?','Например: мой магазин кроссовок':"Masalan: krossovka do'konim",
+ 'Ссылка':'Havola','Отправить заявку 🚀':'Ariza yuborish 🚀',
+ 'Подпись (необязательно)':'Yozuv (majburiy emas)','Текст...':'Matn...',
+ 'Фото или видео (видео — до 60 секунд и 50 МБ)':'Foto yoki video (video — 60 sekundgacha, 50 MB)',
+ '📸 Опубликовать':"📸 E'lon qilish",'Сначала выберите фото или видео':'Avval foto yoki video tanlang',
+ 'Не удалось опубликовать историю':"Storyni e'lon qilishda xatolik",
+ 'История опубликована — её видят все 🎉':"Story e'lon qilindi — hammasi ko'radi 🎉",
+ 'Сообщение...':'Xabar...',
+ 'Ничего не найдено':'Hech narsa topilmadi','Каталог пока пуст':"Katalog hali bo'sh",'Админ скоро добавит товары':"Admin tez orada mahsulot qo'shadi",
+ 'Попробуйте другую категорию или запрос':"Boshqa kategoriya yoki so'rovni sinab ko'ring",
+ 'Пока пусто':"Hali bo'sh",'Сохраняй понравившиеся товары 🤍':'Yoqqan mahsulotlarni saqlang 🤍',
+ 'Категория':'Kategoriya','Район':'Tuman','Просмотров':"Ko'rishlar",'Написать в Telegram':'Telegramda yozish',
+ 'кто посмотрел':"kim ko'rgan",'Просмотрели историю':"Storyni ko'rganlar",
+ 'Пока никто не смотрел':"Hali hech kim ko'rmagan",'Как только кто-то откроет — увидите здесь':"Kimdir ochishi bilanoq bu yerda ko'rasiz",
+ 'Гость':'Mehmon','Пользователь':'Foydalanuvchi','Откройте приложение в Telegram':"Ilovani Telegram'da oching",
+ 'Маркетплейс внутри Telegram':"Telegram ichidagi marketplace",'Админ-панель':'Admin panel',
+ 'Связаться с магазином':"Do'kon bilan aloqa",
+ "🟡 Заявка на рассмотрении":"🟡 Ariza ko'rib chiqilmoqda","🟢 Реклама одобрена":"🟢 Reklama ma'qullandi",'🔴 Заявка отклонена':'🔴 Ariza rad etildi',
+ 'Нет новых уведомлений':"Yangi bildirishnomalar yo'q",'Здесь появятся статусы заявок и новые истории':'Ariza holatlari va yangi storylar bu yerda chiqadi',
+ 'Пока нет сообщений.':"Hali xabarlar yo'q.",'Откройте чью-то историю и нажмите ✈️,':'Kimdir storyini ochib ✈️ bosing,',
+ 'чтобы написать автору лично.':'muallifga shaxsan yozish uchun.',
+ 'Напишите первое сообщение':'Birinchi xabarni yozing','Моя':'Mening','Написать автору':'Muallifga yozish'
+};
+let APP_LANG = appPrefs.lang || 'ru';
+function t(s){ return (APP_LANG==='uz' && UZ[s]) ? UZ[s] : s; }
+function applyI18n(){
+  APP_LANG = appPrefs.lang || 'ru';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', appPrefs.theme || 'light');
+  [['light','thLight'],['dark','thDark'],['black','thBlack']].forEach(([th,id])=>{
+    const b = document.getElementById(id); if(b) b.classList.toggle('primary', appPrefs.theme===th);
+  });
+  [['ru','langRu'],['uz','langUz']].forEach(([l,id])=>{
+    const b = document.getElementById(id); if(b) b.classList.toggle('primary', (appPrefs.lang||'ru')===l);
+  });
+}
+function setTheme(th){
+  appPrefs.theme = th; LS.set('app_prefs', appPrefs);
+  applyTheme(); haptic('light');
+}
+function setLang(l){
+  if((appPrefs.lang||'ru')===l) return;
+  appPrefs.lang = l; LS.set('app_prefs', appPrefs);
+  toast(l==='uz' ? "Til o'zgartirildi" : 'Язык изменён');
+  setTimeout(()=>location.reload(), 500);
+}
+
 /* ---------- IndexedDB (личные Stories) ---------- */
 const DB_NAME = 'MarketAppDB', DB_VER = 1;
 let db = null;
@@ -640,7 +734,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.2.5';
+const APP_VERSION = 'v2.3.0';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -857,7 +951,7 @@ function renderPartners(){
       </div>
     </div>`;
   }).join('');
-  sec.innerHTML = `<div class="secTitle">🤝 Наши партнёры</div><div id="partnersRow">${cards}</div>`;
+  sec.innerHTML = `<div class="secTitle">🤝 ${t('Наши партнёры')}</div><div id="partnersRow">${cards}</div>`;
 }
 function openPartner(id){
   const p = cloudPartners.find(x=>x.id===id);
@@ -885,7 +979,7 @@ let activeCat = 'Все';
 function renderChips(){
   const cats = ['Все', ...CATEGORIES];
   document.getElementById('chips').innerHTML = cats.map(c=>
-    `<div class="chip ${c===activeCat?'on':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+    `<div class="chip ${c===activeCat?'on':''}" onclick="setCat('${c}')">${t(c)}</div>`).join('');
 }
 function setCat(c){ activeCat = c; renderChips(); renderGrid(); haptic('light'); }
 
@@ -943,8 +1037,8 @@ function renderGrid(){
   if(!list.length){
     grid.innerHTML = `<div class="empty">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-      <h3>${cloudListings.length? 'Ничего не найдено' : 'Каталог пока пуст'}</h3>
-      <p>${cloudListings.length? 'Попробуйте другую категорию или запрос' : 'Админ скоро добавит товары'}</p></div>`;
+      <h3>${cloudListings.length? t('Ничего не найдено') : t('Каталог пока пуст')}</h3>
+      <p>${cloudListings.length? t('Попробуйте другую категорию или запрос') : t('Админ скоро добавит товары')}</p></div>`;
     return;
   }
   grid.innerHTML = list.map((p,i)=>
@@ -971,7 +1065,7 @@ function renderFav(){
   g.innerHTML = list.length ? list.map(p=>cardHTML(p)).join('')
    : `<div class="empty" style="grid-column:1/-1">
       <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <h3>Пока пусто</h3><p>Сохраняй понравившиеся товары 🤍</p></div>`;
+      <h3>${t('Пока пусто')}</h3><p>${t('Сохраняй понравившиеся товары 🤍')}</p></div>`;
 }
 
 /* ---------- КАРТОЧКА ТОВАРА (sheet) ---------- */
@@ -993,12 +1087,12 @@ function openProduct(id){
     </div>
     <div class="pTitle">${esc(p.title)}</div>
     <div class="pPrice">${fmtPrice(p.price)}</div>
-    <div class="pRow"><span>Категория</span><span>${esc(p.category||'—')}</span></div>
-    <div class="pRow"><span>Район</span><span>${esc(p.district||'—')}</span></div>
-    <div class="pRow"><span>Просмотров</span><span>👁 ${p.views}</span></div>
+    <div class="pRow"><span>${t('Категория')}</span><span>${esc(p.category||'—')}</span></div>
+    <div class="pRow"><span>${t('Район')}</span><span>${esc(p.district||'—')}</span></div>
+    <div class="pRow"><span>${t('Просмотров')}</span><span>👁 ${p.views}</span></div>
     <div class="pDesc">${esc(p.desc||'')}</div>
     <div class="cta">
-      <button class="btnMain" onclick="contactSeller('tg')">✈️ Написать в Telegram</button>
+      <button class="btnMain" onclick="contactSeller('tg')">✈️ ${t('Написать в Telegram')}</button>
       <button class="btnOut" onclick="contactSeller('ig')">📷 Instagram</button>
     </div>`;
   document.getElementById('productPanel').scrollTop = 0;
@@ -1092,7 +1186,7 @@ async function renderStories(){
       const views = mine.reduce((a,s)=>a+(s.views?s.views.length:0),0);
       add.querySelector('.storyRing').className = 'storyRing';
       add.querySelector('.storyRing').innerHTML = `<img class="storyImg" src="${avatarUrl(tgUser)}">`;
-      add.querySelector('.storyName').textContent = 'Моя 👁'+views;
+      add.querySelector('.storyName').textContent = t('Моя')+' 👁'+views;
       add.onclick = ()=>openStoryGroup(String(tgUser.id));
     }
   }
@@ -1116,7 +1210,7 @@ async function showStoryItem(){
   if(!s){ closeStory(); return; }
 
   document.getElementById('svAvatar').src = s.userAvatar;
-  document.getElementById('svName').textContent = s.userName || 'Пользователь';
+  document.getElementById('svName').textContent = s.userName || t('Пользователь');
   document.getElementById('svTime').textContent = timeAgo(s.createdAt);
 
   const bars = document.getElementById('storyBars');
@@ -1140,7 +1234,7 @@ async function showStoryItem(){
     viewsEl.onclick = ()=>openViewers(s);
     fetchStoryViewers(s.id).then(v=>{
       s.views = v;
-      if(viewsEl) viewsEl.textContent = '👁 ' + v.length + ' — кто посмотрел';
+      if(viewsEl) viewsEl.textContent = '👁 ' + v.length + ' — ' + t('кто посмотрел');
     });
   } else viewsEl.style.display = 'none';
 
@@ -1249,7 +1343,7 @@ function pickStory(){
 let storyPublishing = false;
 async function publishStory(){
   if(storyPublishing) return;
-  if(!storyFileData){ toast('Сначала выберите фото или видео'); return; }
+  if(!storyFileData){ toast(t('Сначала выберите фото или видео')); return; }
   if(!tgUser || !tg.initData){ toast('Откройте приложение в Telegram, чтобы публиковать истории'); return; }
   storyPublishing = true;
   const me = tgUser;
@@ -1269,11 +1363,11 @@ async function publishStory(){
     closeSheet('storyComposer');
     await loadCloudStories();
     renderStories();
-    toast('История опубликована — её видят все 🎉');
+    toast(t('История опубликована — её видят все 🎉'));
     haptic('medium');
   }catch(e){
     console.warn('publish story fail', e);
-    toast('Не удалось опубликовать историю');
+    toast(t('Не удалось опубликовать историю'));
   }
   storyPublishing = false;
   if(btn){ btn.textContent='📸 Опубликовать'; }
@@ -1286,8 +1380,8 @@ function renderProfile(){
   const me = tgUser;
   document.getElementById('profAvatar').src = avatarUrl(me);
   const vt = document.getElementById('verTag'); if(vt) vt.textContent = 'Globe Market ' + APP_VERSION + ' · 06.10.2026';
-  document.getElementById('profName').textContent = me ? [me.first_name, me.last_name].filter(Boolean).join(' ') : 'Гость';
-  document.getElementById('profUsername').textContent = me && me.username ? '@'+me.username : 'Откройте приложение в Telegram';
+  document.getElementById('profName').textContent = me ? [me.first_name, me.last_name].filter(Boolean).join(' ') : t('Гость');
+  document.getElementById('profUsername').textContent = me && me.username ? '@'+me.username : t('Откройте приложение в Telegram');
   const up = LS.get('user_profile', {});
   document.getElementById('profInst').value = up.instagram || '';
   document.getElementById('profBio').value = up.bio || '';
@@ -1773,18 +1867,18 @@ function pullToRefresh(){
 function openMenuSheet(){
   const s = LS.get('shop_settings', {});
   const shopName = s.name || 'Globe Market';
-  const shopDesc = s.desc || 'Маркетплейс внутри Telegram';
+  const shopDesc = s.desc || t('Маркетплейс внутри Telegram');
   document.getElementById('menuBody').innerHTML = `
     <div class="secTitle">${esc(shopName)}</div>
     <p style="font-size:13.5px;color:var(--text2);margin:-8px 0 16px">${esc(shopDesc)}</p>
     <div class="aCard" style="padding:6px">
-      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('catalog')">🛍 Маркет</div>
-      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('favorites')">🤍 Избранное</div>
-      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('profile')">👤 Профиль</div>
-      ${isAdmin ? `<div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('admin')">⚙️ Админ-панель</div>` : ''}
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('catalog')">🛍 ${t('Маркет')}</div>
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('favorites')">🤍 ${t('Избранное')}</div>
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('profile')">👤 ${t('Профиль')}</div>
+      ${isAdmin ? `<div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('admin')">⚙️ ${t('Админ-панель')}</div>` : ''}
     </div>
     <div class="aCard">
-      <h4>Связаться с магазином</h4>
+      <h4>${t('Связаться с магазином')}</h4>
       <div class="aRow">
         <button class="aBtn primary" onclick="closeSheet('menuSheet');contactSeller('tg')">✈️ Telegram</button>
         <button class="aBtn" onclick="closeSheet('menuSheet');contactSeller('ig')">📷 Instagram</button>
@@ -1798,7 +1892,7 @@ async function openNotifSheet(){
   if(tgUser){
     try{
       const r = await userApi('my_requests');
-      const stMap = {wait:'🟡 Заявка на рассмотрении', ok:'🟢 Реклама одобрена', no:'🔴 Заявка отклонена'};
+      const stMap = {wait:t('🟡 Заявка на рассмотрении'), ok:t('🟢 Реклама одобрена'), no:t('🔴 Заявка отклонена')};
       (r.data||[]).forEach(rr=>
         items.push({icon:'📢', text:`${stMap[rr.status]||stMap.wait} — ${rr.tariff||''}`, time:timeAgo(Date.parse(rr.created_at)||0)}));
     }catch(e){}
@@ -1815,7 +1909,7 @@ async function openNotifSheet(){
         <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(it.text)}</div>
         <div style="font-size:11.5px;color:var(--text2);margin-top:2px">${esc(it.time)}</div></div></div>`).join('')
     : `<div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-       <h3>Нет новых уведомлений</h3><p>Здесь появятся статусы заявок и новые истории</p></div>`);
+       <h3>${t('Нет новых уведомлений')}</h3><p>${t('Здесь появятся статусы заявок и новые истории')}</p></div>`);
   openSheet('notifSheet'); haptic('light');
 }
 
@@ -1886,7 +1980,7 @@ function renderInbox(){
   if(chatMode !== 'inbox') return;
   const body = document.getElementById('chatBody');
   if(!inboxData.length){
-    body.innerHTML = `<div class="chatEmpty"><div style="font-size:40px;margin-bottom:10px">✉️</div>Пока нет сообщений.<br>Откройте чью-то историю и нажмите ✈️,<br>чтобы написать автору лично.</div>`;
+    body.innerHTML = `<div class="chatEmpty"><div style="font-size:40px;margin-bottom:10px">✉️</div>${t('Пока нет сообщений.')}<br>${t('Откройте чью-то историю и нажмите ✈️,')}<br>${t('чтобы написать автору лично.')}</div>`;
     return;
   }
   body.innerHTML = inboxData.map((c,i)=>`
@@ -1930,7 +2024,7 @@ async function loadThread(peerId, peerName, silent){
           <div class="bubble">${esc(m.text)}</div>
           <div class="msgTime">${fmtChatTime(m.created_at)}${String(m.from_id)===myId?' · отправлено':''}</div>
         </div>
-      </div>`).join('') || `<div class="chatEmpty">Напишите первое сообщение ${esc(peerName)} 👋</div>`;
+      </div>`).join('') || `<div class="chatEmpty">${t('Напишите первое сообщение')} ${esc(peerName)} 👋</div>`;
     body.scrollTop = body.scrollHeight;
     lastUnread = 0; updateChatBadge();
   }catch(e){ if(!silent) toast('Переписка: ' + (e.message||'ошибка')); console.warn('thread fail', e); }
@@ -1972,7 +2066,7 @@ function msgStoryAuthor(){
   const s = svUser && svUser.items[svIdx];
   if(!s || !s.userId || s.userId==='0'){ toast('Гость не может получать сообщения'); return; }
   closeStory();
-  openChats().then(()=> openThread(s.userId, s.userName||'Пользователь'));
+  openChats().then(()=> openThread(s.userId, s.userName||t('Пользователь')));
 }
 
 /* кто посмотрел историю */
@@ -1981,14 +2075,14 @@ async function openViewers(s){
   if(Array.isArray(fresh) && fresh.length) s.views = fresh;
   const list = (s.views||[]);
   document.getElementById('viewersBody').innerHTML =
-    `<div class="secTitle">Просмотрели историю (${list.length})</div>` +
+    `<div class="secTitle">${t('Просмотрели историю')} (${list.length})</div>` +
     (list.length ? `<div class="aCard" style="padding:4px 12px">` + list.map(v=>`
       <div class="viewerRow">
         <div class="viewerAva">${esc((v.name||v.id||'?').charAt(0).toUpperCase())}</div>
         <div style="flex:1"><div style="font-size:14px;font-weight:600">${esc(v.name||('ID '+v.id))}</div>
         <div style="font-size:11.5px;color:var(--text2);margin-top:1px">${v.at?timeAgo(v.at):''}</div></div>
       </div>`).join('') + `</div>`
-    : `<div class="empty"><h3>Пока никто не смотрел</h3><p>Как только кто-то откроет — увидите здесь</p></div>`);
+    : `<div class="empty"><h3>${t('Пока никто не смотрел')}</h3><p>${t('Как только кто-то откроет — увидите здесь')}</p></div>`);
   openSheet('viewersSheet');
 }
 
@@ -2014,6 +2108,8 @@ function deleteMyStory(){
 ================================================================ */
 (async function start(){
   await openDB();
+  applyI18n();
+  applyTheme();
   await migrateLocalStories();
   await migrateLocalToCloud();
   renderChips();
