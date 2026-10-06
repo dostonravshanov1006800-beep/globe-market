@@ -464,7 +464,7 @@ function toast(msg){
    THREE.JS — 3D ГЛОБУС
 ================================================================ */
 let renderer, scene, camera, earthGroup, earth, clouds, moon, moonPivot;
-let rotVel = 0.001, rotBase = 0.001, rotBoost = 0;
+let rotVel = 0.0022, rotBase = 0.0022, rotBoost = 0;  // планета вращается сама, заметно, без участия пользователя
 let cameraTargetZ = 2.6, zoomFromZ = 5, zoomStart = 0;
 let dragOn = false, dragMoved = false, lastX = 0, lastY = 0;
 let resizeRaf = null;
@@ -474,8 +474,14 @@ let resizeRaf = null;
 // и смотрится "зумленной". Отодвигаем камеру пропорционально узости экрана.
 function computeTargetZ(aspect){
   const base = 2.6;
-  if(aspect >= 1) return base;                       // десктоп / ландшафт — как было
-  return Math.min(base * Math.sqrt(1/aspect), 4.6);   // портрет — чуть дальше, планета чуть меньше
+  if(aspect >= 1) return base;                        // десктоп / ландшафт — как было
+  // портрет (телефон): точный расчёт по формуле перспективной камеры —
+  // дистанция, при которой сфера радиуса 1 помещается по УЗКОЙ (горизонтальной)
+  // стороне экрана с запасом по краям, а не вылезает "зумленной" на весь экран
+  const halfV = (45 * Math.PI/180) / 2;               // половина вертикального FOV камеры
+  const halfH = Math.atan(Math.tan(halfV) * aspect);  // половина горизонтального FOV на этом экране
+  const margin = 1.18;                                // запас по краям (чем больше — тем компактнее планета)
+  return Math.min(1 / Math.sin(halfH / margin), 6.8);
 }
 
 function initGlobe(){
@@ -603,20 +609,52 @@ function initGlobe(){
     if(wrap.classList.contains('mini')){ haptic('light'); toggleHero(); }
   });
 
+  // Жест "скролл/свайп вниз" — альтернатива тапу: планета ускоряет вращение
+  // и пользователь сам оказывается в маркетплейсе, без лишнего нажатия
+  let openedByGesture = false;
+  function gestureOpen(){
+    if(openedByGesture || opened) return;
+    openedByGesture = true;
+    rotBoost = 0.08;
+    haptic('medium');
+    setTimeout(openCatalog, 280);
+  }
+  let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+  canvas.addEventListener('touchstart', e=>{
+    if(wrap.classList.contains('mini') || !e.touches[0]) return;
+    touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartT = performance.now();
+  }, {passive:true});
+  canvas.addEventListener('touchend', e=>{
+    if(wrap.classList.contains('mini') || !e.changedTouches[0]) return;
+    const dx = touchStartX - e.changedTouches[0].clientX;
+    const dy = touchStartY - e.changedTouches[0].clientY;   // > 0 — палец идёт вверх = жест "скролл вниз"
+    const dt = performance.now() - touchStartT;
+    if(dy > 55 && Math.abs(dy) > Math.abs(dx)*1.4 && dt < 800) gestureOpen();
+  }, {passive:true});
+  wrap.addEventListener('wheel', e=>{
+    if(wrap.classList.contains('mini')) return;
+    if(e.deltaY > 0) gestureOpen();
+  }, {passive:true});
+
   animate();
 }
 
 function resizeGlobe(){
   const wrap = document.getElementById('globeWrap');
   const mini = wrap.classList.contains('mini');
-  const w = mini ? 60 : innerWidth, h = mini ? 60 : innerHeight;
+  // ВАЖНО: во время CSS-анимации перехода мини↔полный экран реальный размер
+  // обёртки меняется плавно (0.45с) — берём его напрямую, а не innerWidth/innerHeight,
+  // иначе буфер рендера рассинхронизируется с CSS-размером и картинка "плывёт"/искажается
+  const rect = wrap.getBoundingClientRect();
+  const w = mini ? 60 : Math.max(1, Math.round(rect.width));
+  const h = mini ? 60 : Math.max(1, Math.round(rect.height));
   renderer.setSize(w, h, false);
   camera.aspect = w/h;
   if(mini){
     camera.position.y = 0; camera.fov = 50;
   } else {
     camera.fov = 45;
-    cameraTargetZ = computeTargetZ(w/h);              // пересчитать при повороте экрана
+    cameraTargetZ = computeTargetZ(w/h);              // пересчитать при повороте экрана / изменении размера
     if(!zoomStart) camera.position.z = cameraTargetZ; // уже не в анимации зума — применяем сразу
   }
   camera.updateProjectionMatrix();
@@ -689,18 +727,8 @@ const CATEGORIES = ['Электроника','Одежда','Транспорт'
 const uid = ()=> 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const pic = (s)=>`https://picsum.photos/seed/${s}/600/600`;
 
-const DEMO_PRODUCTS = [
-  {id:'d1', title:'iPhone 14 Pro 256GB', price:8500000, category:'Электроника', district:'Юнусабад',
-   desc:'Состояние: новый, запечатанный. Гарантия 12 месяцев. Deep Purple.', photos:[pic('iphone14')], isTop:true, isAd:false, views:34, createdAt:Date.now()-86400000},
-  {id:'d2', title:'MacBook Pro 14 M3', price:15500000, category:'Электроника', district:'Мирзо-Улугбек',
-   desc:'Просто космос. 18 ГБ RAM, 512 SSD, циклов 12. Полный комплект.', photos:[pic('macbook')], isTop:true, isAd:false, views:51, createdAt:Date.now()-86400000*2},
-  {id:'d3', title:'Air Jordan 1 Mid', price:1650000, category:'Одежда', district:'Чиланзар',
-   desc:'Оригинал, 42 размер, носились пару раз. Коробка в комплекте.', photos:[pic('jordan')], isTop:false, isAd:false, views:12, createdAt:Date.now()-86400000},
-  {id:'d4', title:'Honda Civic 2019', price:210000000, category:'Транспорт', district:'Ташкент',
-   desc:'1.8 AT, пробег 78 тыс. км, один владелец, сервисная история.', photos:[pic('civic')], isTop:false, isAd:false, views:27, createdAt:Date.now()-86400000*3},
-  {id:'d5', title:'2-комн. квартира', price:690000000, category:'Недвижимость', district:'Яшнабад',
-   desc:'64 м², 5/9 этаж, евроремонт, рядом метро. Чистая продажа.', photos:[pic('flat')], isTop:false, isAd:false, views:19, createdAt:Date.now()-86400000*4}
-];
+// Маркетплейс стартует полностью пустым — товары добавляет только админ через панель (сохраняются локально).
+const DEMO_PRODUCTS = [];
 
 function avatarUrl(u){
   if(u && u.photo_url) return u.photo_url;
@@ -709,18 +737,22 @@ function avatarUrl(u){
 }
 
 async function seed(){
-  const l = await dbAll('listings');
-  if(l.length === 0) for(const p of DEMO_PRODUCTS) await dbPut('listings', p);
-  const s = await dbAll('stories');
-  if(s.length === 0){
-    const demos = [
-      {id:'s1', userId:777001, userName:'Sardor',  userAvatar:avatarUrl({first_name:'Sardor'}), mediaType:'image', mediaData:pic('story1'), createdAt:Date.now()-3600000,  views:[], caption:'Новая поставка 📦'},
-      {id:'s2', userId:777002, userName:'Nilufar', userAvatar:avatarUrl({first_name:'Nilufar'}), mediaType:'image', mediaData:pic('story2'), createdAt:Date.now()-7200000, views:[], caption:'Скидки 20% 🔥'},
-      {id:'s3', userId:777003, userName:'Otabek',  userAvatar:avatarUrl({first_name:'Otabek'}), mediaType:'image', mediaData:pic('story3'), createdAt:Date.now()-10800000, views:[], caption:'ТопMac уже в наличии'}
-    ];
-    for(const st of demos) await dbPut('stories', st);
-  }
+  // Маркетплейс и ленту Stories больше НЕ заполняем демо-данными —
+  // всё добавляет только админ через панель, и всё сохраняется локально.
+  // Кружок "Моя" (свой профиль) показывается всем автоматически и без истории —
+  // это уже реализовано в renderStories() ниже, отдельных демо-пользователей не нужно.
+  await migrateRemoveOldDemoData();
   await purgeExpiredStories();
+}
+
+// Разово чистим демо-товары/демо-истории, которые могли остаться в локальной базе
+// с более ранней версии сайта (у них были id d1..d5 и s1..s3) — чтобы маркет стал пустым и у тех,
+// кто уже открывал сайт раньше. Выполняется один раз на устройство.
+async function migrateRemoveOldDemoData(){
+  if(LS.get('migrated_clear_demo_v1', false)) return;
+  for(const id of ['d1','d2','d3','d4','d5']){ try{ await dbDel('listings', id); }catch(e){} }
+  for(const id of ['s1','s2','s3']){ try{ await dbDel('stories', id); }catch(e){} }
+  LS.set('migrated_clear_demo_v1', true);
 }
 
 async function purgeExpiredStories(){
@@ -746,9 +778,20 @@ function openCatalog(){
 }
 function toggleHero(){
   const wrap = document.getElementById('globeWrap');
-  const mini = !wrap.classList.contains('mini');
-  wrap.classList.toggle('mini', mini);
-  setTimeout(resizeGlobe, mini ? 60 : 0);
+  const miniNext = !wrap.classList.contains('mini');
+  wrap.classList.toggle('mini', miniNext);
+  if(miniNext){
+    setTimeout(resizeGlobe, 60);     // сжатие в кружок — конечный размер маленький, одного ресайза достаточно
+  } else {
+    // разворачивание в полный экран — обёртка растёт по CSS 0.45с;
+    // ресайзим рендер КАЖДЫЙ кадр синхронно с этим ростом, иначе буфер рендера
+    // не совпадает с текущим CSS-размером и планета выглядит искажённой/"фальшивой"
+    const start = performance.now();
+    (function tick(){
+      resizeGlobe();
+      if(performance.now() - start < 480) requestAnimationFrame(tick);
+    })();
+  }
 }
 
 function switchTab(name){
