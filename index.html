@@ -1806,7 +1806,7 @@ function deleteMyStory(){
   if(!s) return;
   const doDelete = async ()=>{
     try{
-      const r = await sbRpc('delete_my_story', { p_id: s.id, p_user_id: String(tgUser.id) });
+      const r = await sbRpc('delete_my_story', { p_id: s.id, init_data: tg.initData || '' });
       if(r && r.ok){
         toast('История удалена 🗑'); haptic('medium');
         closeStory();
