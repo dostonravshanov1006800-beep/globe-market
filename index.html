@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Globe Market</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.128.0/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F5F7; --bg2:#F7F7F7; --input:#F2F2F7;
+  --accent:#0A84FF; --gold:#FFB800;
+  --text:#1C1C1E; --text2:#8E8E93; --hint:#C7C7CC;
+  --border:#E5E5EA;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:var(--text)}
+
+/* ============ HERO / GLOBE ============ */
+#globeWrap{position:fixed;inset:0;z-index:50;background:#000;transition:all .45s cubic-bezier(.34,1.56,.64,1)}
+#globeWrap.mini{inset:auto;top:calc(56px + env(safe-area-inset-top,0px));right:12px;width:60px;height:60px;border-radius:50%;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.35);z-index:40;pointer-events:auto;cursor:pointer}
+#globeCanvas{width:100%;height:100%;display:block}
+#heroHeader{position:absolute;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;display:flex;align-items:center;justify-content:space-between;z-index:5;transition:opacity .3s}
+#globeWrap.mini #heroHeader, #globeWrap.mini #heroHint{opacity:0;pointer-events:none}
+.glass{background:rgba(20,20,25,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.hbtn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.hbtn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#heroTitle{color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;gap:7px;letter-spacing:.2px}
+#heroHint{position:absolute;bottom:calc(96px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:rgba(255,255,255,.75);font-size:13px;z-index:5;animation:pulse 2s infinite;transition:opacity .3s}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* ============ APP LAYOUT ============ */
+#app{position:fixed;inset:0;background:var(--bg);transform:translateY(100%);transition:transform .4s ease-in-out;z-index:30;display:flex;flex-direction:column}
+#app.open{transform:translateY(0)}
+#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:12px;background:rgba(255,255,255,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.05);position:relative;z-index:10}
+#appHeader .hbtn{background:var(--input)}
+#appHeader .hbtn svg{stroke:var(--text)}
+#brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:6px}
+#main{flex:1;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+
+.screen{display:none;padding:12px 14px 90px}
+.screen.active{display:block;animation:tabIn .3s ease}
+@keyframes tabIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+
+/* ============ SEARCH ============ */
+#searchRow{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.searchbox{flex:1;background:#fff;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;padding:0 14px;height:44px}
+.searchbox svg{width:17px;height:17px;stroke:var(--text2);fill:none;stroke-width:2}
+.searchbox input{border:none;outline:none;background:none;flex:1;font-size:15px;font-family:inherit;color:var(--text)}
+.searchbox input::placeholder{color:var(--hint)}
+
+/* ============ STORIES ============ */
+#storiesRow{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none}
+#storiesRow::-webkit-scrollbar{display:none}
+.storyAvatar{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;width:66px;cursor:pointer}
+.storyRing{width:64px;height:64px;border-radius:50%;padding:2.5px;background:linear-gradient(45deg,#0A84FF,#5E5CE6,#FF2D55)}
+.storyRing.viewed{background:#D9D9DE}
+.storyRing.add{background:#fff;border:2px dashed #C7C7CC;padding:0;display:flex;align-items:center;justify-content:center}
+.storyRing.add svg{width:24px;height:24px;stroke:var(--text2);stroke-width:2;fill:none}
+.storyImg{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid #fff;display:block}
+.storyName{font-size:11px;color:var(--text2);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.storyAvatar.add .storyName{color:var(--accent);font-weight:600}
+
+/* ============ CATEGORY CHIPS ============ */
+#chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+#chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 15px;border-radius:20px;background:#fff;font-size:13.5px;font-weight:500;color:var(--text);box-shadow:var(--shadow);border:1.5px solid transparent;cursor:pointer;transition:all .2s}
+.chip.on{background:var(--accent);color:#fff}
+
+/* ============ PRODUCT GRID ============ */
+#grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;opacity:0;transform:translateY(20px);animation:cardUp .4s ease forwards}
+@keyframes cardUp{to{opacity:1;transform:none}}
+.cardImgWrap{position:relative;aspect-ratio:1;background:var(--input)}
+.cardImgWrap img{width:100%;height:100%;object-fit:cover;display:block}
+.topBadge{position:absolute;top:9px;left:9px;background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:9px;display:flex;align-items:center;gap:3px}
+.adBadge{position:absolute;top:9px;right:9px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:4px 8px;border-radius:9px;backdrop-filter:blur(6px)}
+.favHeart{position:absolute;bottom:9px;right:9px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.favHeart svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2}
+.favHeart.on svg{fill:#FF2D55;stroke:#FF2D55}
+.cardBody{padding:11px 12px 13px}
+.cardTitle{font-weight:700;font-size:14px;line-height:1.25;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.cardPrice{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:5px}
+.cardLoc{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:3px}
+.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text2)}
+.empty svg{width:54px;height:54px;stroke:var(--hint);fill:none;stroke-width:1.5;margin-bottom:14px}
+.empty h3{color:var(--text);font-size:16px;margin-bottom:6px}
+.empty p{font-size:13px}
+
+/* ============ TAB BAR ============ */
+#tabbar{position:absolute;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:20}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text2);position:relative;transition:color .2s}
+.tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab span{font-size:10px;font-weight:600}
+.tab.on{color:var(--accent)}
+.tab .badge{position:absolute;top:6px;right:calc(50% - 18px);background:#FF2D55;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ============ PRODUCT SHEET ============ */
+.sheet{position:fixed;inset:0;z-index:90;visibility:hidden}
+.sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .3s}
+.sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:#fff;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .35s ease-in-out;display:flex;flex-direction:column}
+.sheet.open{visibility:visible}
+.sheet.open .backdrop{opacity:1}
+.sheet.open .panel{transform:none}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--hint);margin:8px auto 2px;flex:0 0 auto}
+.sheetScroll{overflow-y:auto;padding:0 16px 30px}
+
+/* gallery */
+.gallery{position:relative;margin:8px 0 16px;border-radius:16px;overflow:hidden;aspect-ratio:1;background:var(--input)}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.galDots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px}
+.galDot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.5);transition:all .25s}
+.galDot.on{width:16px;background:#fff}
+.pTitle{font-size:19px;font-weight:800;line-height:1.2}
+.pPrice{font-size:22px;font-weight:800;color:var(--accent);margin:7px 0 14px}
+.pRow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
+.pRow span:first-child{color:var(--text2)}
+.pRow span:last-child{font-weight:600}
+.pDesc{font-size:14px;line-height:1.55;color:#3a3a3c;margin:14px 0}
+.cta{display:flex;gap:10px;margin:18px 0 8px}
+.cta button{flex:1;height:48px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+.btnMain{background:var(--accent);color:#fff;border:none}
+.btnOut{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+
+/* ============ STORY VIEWER ============ */
+#storyViewer{position:fixed;inset:0;z-index:100;background:#000;display:none;flex-direction:column}
+#storyViewer.open{display:flex;animation:storyOpen .3s ease}
+@keyframes storyOpen{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+#storyBars{display:flex;gap:4px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px}
+.sbar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
+.sbar i{display:block;height:100%;width:0;background:#fff;border-radius:2px}
+#storyTop{display:flex;align-items:center;gap:10px;padding:4px 12px 10px}
+#storyTop img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+#storyTop .sname{color:#fff;font-size:14px;font-weight:600}
+#storyTop .stime{color:rgba(255,255,255,.6);font-size:12px}
+#storyClose{margin-left:auto;background:none;border:none;cursor:pointer}
+#storyClose svg{width:22px;height:22px;stroke:#fff;stroke-width:2;fill:none}
+#storyMedia{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#storyMedia img,#storyMedia video{max-width:100%;max-height:100%;object-fit:contain}
+.tapL,.tapR{position:absolute;top:0;bottom:0;width:35%;z-index:2}
+.tapL{left:0}.tapR{right:0}
+#storyCenter{position:absolute;left:35%;right:35%;top:0;bottom:0;z-index:1}
+#muteBtn{position:absolute;right:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:3;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:none;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer}
+#muteBtn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+#storyViews{position:absolute;left:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));color:#fff;font-size:13px;background:rgba(0,0,0,.4);padding:6px 12px;border-radius:14px;display:flex;align-items:center;gap:5px;z-index:3}
+
+/* ============ FORMS ============ */
+.field{margin-bottom:13px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;background:var(--input);border:1.5px solid transparent;border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:border .2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:#fff}
+.field textarea{resize:none;min-height:80px}
+.submitBtn{width:100%;height:50px;border-radius:14px;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.submitBtn:active{transform:scale(.98)}
+.secTitle{font-size:18px;font-weight:800;margin:6px 0 14px}
+.photoPicker{display:flex;gap:9px;flex-wrap:wrap}
+.photoSlot{width:64px;height:64px;border-radius:12px;background:var(--input);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}
+.photoSlot img{width:100%;height:100%;object-fit:cover}
+.photoSlot svg{width:22px;height:22px;stroke:var(--text2);fill:none;stroke-width:2}
+.photoSlot .rm{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* ============ ADMIN ============ */
+.adminNav{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+.adminNav::-webkit-scrollbar{display:none}
+.aCard{background:#fff;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.aCard h4{font-size:14.5px;margin-bottom:4px}
+.aCard .sub{font-size:12.5px;color:var(--text2)}
+.aRow{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.aBtn{padding:9px 13px;border-radius:11px;border:1.5px solid var(--border);background:#fff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+.aBtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.aBtn.danger{color:#FF3B30;border-color:#FF3B30}
+.aBtn.gold{color:#B8860B;border-color:var(--gold)}
+.statGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.statCard{background:#fff;border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.statCard .num{font-size:26px;font-weight:800;color:var(--accent)}
+.statCard .lbl{font-size:12.5px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:5px}
+.reqStatus{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:9px;display:inline-block}
+.st-wait{background:#FFF4CC;color:#B8860B}
+.st-ok{background:#D9F2E3;color:#1D8A4E}
+.st-no{background:#FDE2E1;color:#C0392B}
+
+/* ============ PROFILE ============ */
+.profCard{background:#fff;border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);text-align:center;margin-bottom:14px}
+.profAvatar{width:88px;height:88px;border-radius:50%;object-fit:cover;margin:0 auto 12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.profName{font-size:20px;font-weight:800}
+.profUser{color:var(--text2);font-size:14px;margin-top:3px}
+.profStats{display:flex;justify-content:center;gap:28px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.profStats .ps b{display:block;font-size:19px;font-weight:800;color:var(--text)}
+.profStats .ps span{font-size:11.5px;color:var(--text2)}
+.tariffs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:13px}
+.tariff{background:#fff;border-radius:14px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);border:2px solid transparent;cursor:pointer}
+.tariff.on{border-color:var(--accent)}
+.tariff .ic{font-size:21px}
+.tariff .nm{font-size:12px;font-weight:700;margin-top:5px}
+.tariff .pr{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ============ TOAST ============ */
+#toast{position:fixed;left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:#1C1C1E;color:#fff;font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:22px;opacity:0;transition:all .3s;z-index:200;pointer-events:none;max-width:85%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+
+@media(min-width:520px){#main{padding:0} .screen{max-width:520px;margin:0 auto}}
+</style>
+</head>
+<body>
+
+<!-- ===================== HERO ===================== -->
+<div id="globeWrap">
+  <div id="heroHeader">
+    <button class="hbtn glass" onclick="toast('Меню скоро появится')">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    </button>
+    <div id="heroTitle">🌍 Globe Market</div>
+    <div style="display:flex;gap:8px">
+      <button class="hbtn glass" onclick="toast('Нет новых уведомлений')">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="hbtn glass" onclick="openCatalog();switchTab('profile')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </div>
+  <canvas id="globeCanvas"></canvas>
+  <div id="heroHint">Коснитесь планеты, чтобы открыть каталог ✨</div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <div id="appHeader">
+    <div id="brand">🌍 <span>Globe Market</span></div>
+    <div style="flex:1"></div>
+    <button class="hbtn" id="adminHeadBtn" style="display:none;background:#fff;border:1.5px solid var(--border)" onclick="openCatalog();switchTab('admin')" title="Панель админа">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <button class="hbtn" onclick="toast('Нет новых уведомлений')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    </button>
+  </div>
+
+  <div id="main">
+    <!-- CATALOG -->
+    <div class="screen active" id="scr-catalog">
+      <div id="searchRow">
+        <div class="searchbox">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          <input id="searchInput" placeholder="Поиск товаров..." oninput="renderGrid()">
+        </div>
+      </div>
+      <div id="storiesRow"></div>
+      <div id="chips"></div>
+      <div id="grid"></div>
+    </div>
+
+    <!-- FAVORITES -->
+    <div class="screen" id="scr-favorites">
+      <div class="secTitle">Избранное</div>
+      <div id="favGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="scr-profile">
+      <div class="profCard">
+        <img class="profAvatar" id="profAvatar" alt="">
+        <div class="profName" id="profName">Гость</div>
+        <div class="profUser" id="profUsername"></div>
+        <div class="profStats">
+          <div class="ps"><b id="stFav">0</b><span>в избранном</span></div>
+          <div class="ps"><b id="stStory">0</b><span>историй</span></div>
+          <div class="ps"><b id="stViews">0</b><span>просмотров</span></div>
+        </div>
+      </div>
+      <div class="aCard">
+        <h4>Instagram</h4>
+        <div class="field" style="margin:8px 0 0"><input id="profInst" placeholder="@username"></div>
+      </div>
+      <div class="aCard">
+        <h4>О себе</h4>
+        <div class="field" style="margin:8px 0 0"><textarea id="profBio" placeholder="Пара слов о себе..."></textarea></div>
+      </div>
+      <button class="submitBtn" onclick="saveProfile()">💾 Сохранить профиль</button>
+
+      <div class="secTitle" style="margin-top:26px">📢 Реклама в Globe Market</div>
+      <div class="tariffs">
+        <div class="tariff on" data-t="Stories в топе" onclick="pickTariff(this)"><div class="ic">📸</div><div class="nm">Stories</div><div class="pr">топ ленты</div></div>
+        <div class="tariff" data-t="Топ маркетплейса" onclick="pickTariff(this)"><div class="ic">🏆</div><div class="nm">Топ маркет</div><div class="pr">бейдж ТОП</div></div>
+        <div class="tariff" data-t="Пакет Stories+Топ" onclick="pickTariff(this)"><div class="ic">🚀</div><div class="nm">Пакет</div><div class="pr">всё сразу</div></div>
+      </div>
+      <div class="aCard">
+        <div class="field"><label>Что рекламируем?</label><input id="adDesc" placeholder="Например: мой магазин кроссовок"></div>
+        <div class="field"><label>Ссылка</label><input id="adLink" placeholder="https://t.me/..."></div>
+        <button class="submitBtn" onclick="sendAdRequest()">Отправить заявку 🚀</button>
+        <div id="myAdReqs" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="screen" id="scr-admin">
+      <div class="secTitle">⚙️ Панель админа</div>
+      <div class="adminNav">
+        <div class="chip on" data-a="add" onclick="adminTab(this)">➕ Добавить</div>
+        <div class="chip" data-a="list" onclick="adminTab(this)">📦 Мои товары</div>
+        <div class="chip" data-a="reqs" onclick="adminTab(this)">📢 Заявки</div>
+        <div class="chip" data-a="stats" onclick="adminTab(this)">📊 Статистика</div>
+        <div class="chip" data-a="settings" onclick="adminTab(this)">⚙️ Настройки</div>
+      </div>
+
+      <div id="adm-add">
+        <div class="aCard">
+          <div class="field"><label>Фотографии (до 5)</label><div class="photoPicker" id="admPhotos"></div></div>
+          <div class="field"><label>Название товара</label><input id="fTitle" placeholder="iPhone 14 Pro 256GB"></div>
+          <div class="field" style="display:flex;gap:10px">
+            <div style="flex:1"><label>Цена (сум)</label><input id="fPrice" type="number" placeholder="8500000"></div>
+            <div style="flex:1"><label>Район / город</label><input id="fDistrict" placeholder="Юнусабад"></div>
+          </div>
+          <div class="field"><label>Категория</label>
+            <select id="fCategory"></select>
+          </div>
+          <div class="field"><label>Описание</label><textarea id="fDesc" placeholder="Состояние, комплектация..."></textarea></div>
+          <button class="submitBtn" onclick="publishProduct()">🚀 Опубликовать</button>
+        </div>
+      </div>
+
+      <div id="adm-list" style="display:none"></div>
+      <div id="adm-reqs" style="display:none"></div>
+
+      <div id="adm-stats" style="display:none">
+        <div class="statGrid" id="statGrid"></div>
+      </div>
+
+      <div id="adm-settings" style="display:none">
+        <div class="aCard">
+          <div class="field"><label>Мой Telegram (@ник)</label><input id="setTg" placeholder="@mystore"></div>
+          <div class="field"><label>Мой Instagram</label><input id="setIg" placeholder="@mystore"></div>
+          <div class="field"><label>Название магазина</label><input id="setName" placeholder="Globe Market"></div>
+          <div class="field"><label>Описание магазина</label><textarea id="setDesc" placeholder="Лучшие товары в Ташкенте"></textarea></div>
+          <div class="field"><label>Баннер главной страницы</label><div class="photoPicker" id="setBanner"></div></div>
+          <button class="submitBtn" onclick="saveSettings()">💾 Сохранить всё</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div id="tabbar">
+    <div class="tab on" data-scr="catalog" onclick="switchTab('catalog')">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>Маркет</span>
+    </div>
+    <div class="tab" data-scr="favorites" onclick="switchTab('favorites')">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Избранное</span><i class="badge" id="favBadge" style="display:none">0</i>
+    </div>
+    <div class="tab" data-scr="profile" onclick="switchTab('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Профиль</span>
+    </div>
+    <div class="tab" id="adminTab" data-scr="admin" onclick="switchTab('admin')" style="display:none">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Админ</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PRODUCT SHEET ===================== -->
+<div class="sheet" id="productSheet">
+  <div class="backdrop" onclick="closeSheet('productSheet')"></div>
+  <div class="panel" id="productPanel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="productBody"></div>
+  </div>
+</div>
+
+<!-- ===================== STORY VIEWER ===================== -->
+<div id="storyViewer">
+  <div id="storyBars"></div>
+  <div id="storyTop">
+    <img id="svAvatar" alt="">
+    <div><div class="sname" id="svName"></div><div class="stime" id="svTime"></div></div>
+    <button id="storyClose" onclick="closeStory()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div id="storyMedia">
+    <div class="tapL" onclick="storyNav(-1)"></div>
+    <div id="storyCenter"></div>
+    <div class="tapR" onclick="storyNav(1)"></div>
+    <div id="storyViews">👁 0</div>
+    <button id="muteBtn" onclick="toggleMute()"><svg viewBox="0 0 24 24" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+  </div>
+</div>
+
+<!-- ===================== STORY COMPOSER ===================== -->
+<div class="sheet" id="storyComposer">
+  <div class="backdrop" onclick="closeSheet('storyComposer')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll">
+      <div class="secTitle">Новая история</div>
+      <div class="aCard">
+        <div class="field"><label>Фото или видео (до 30 сек)</label><div class="photoPicker" id="storyPick"></div></div>
+        <div class="field"><label>Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..."></div>
+        <button class="submitBtn" onclick="publishStory()">📸 Опубликовать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="hiddenFile" accept="image/*,video/*" style="display:none">
+<div id="toast"></div>
+
+<script>
+/* ================================================================
+   GLOBE MARKET — Telegram Mini App
+   Товары публикует ТОЛЬКО админ. Пользователи смотрят, добавляют
+   Stories, избранное и заявки на рекламу.
+   Хранение: IndexedDB + localStorage. Деплой: GitHub Pages.
+================================================================ */
+
+/* ---------- НАСТРОЙКИ ВЛАДЕЛЬЦА ---------- */
+const OWNER_TG_ID = 8396883978;      // ← TG ID владельца (админа)
+const BOT_TOKEN   = "";              // ← вставь токен бота для заявок на рекламу
+
+/* ---------- TELEGRAM ---------- */
+const tg = window.Telegram.WebApp;
+tg.ready(); tg.expand();
+try{ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }catch(e){}
+const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
+const isAdmin = tgUser ? (tgUser.id === OWNER_TG_ID) : false;
+const haptic = (s)=>{ try{ tg.HapticFeedback.impactOccurred(s||'light'); }catch(e){} };
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ================================================================
+   THREE.JS — 3D ГЛОБУС
+================================================================ */
+let renderer, scene, camera, earthGroup, earth, clouds, moon, moonPivot;
+let rotVel = 0.001, rotBase = 0.001, rotBoost = 0;
+let cameraTargetZ = 2.5, zoomStart = 0;
+let dragOn = false, dragMoved = false, lastX = 0, lastY = 0;
+
+function initGlobe(){
+  const canvas = document.getElementById('globeCanvas');
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 5;          // zoom-in стартует издалека
+  zoomStart = performance.now();
+
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+
+  earthGroup = new THREE.Group();
+  scene.add(earthGroup);
+
+  // Земля
+  const tex = {
+    map:      loader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg'),
+    specular: loader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg'),
+    night:    loader.load('https://threejs.org/examples/textures/planets/earth_lights_2048.png'),
+  };
+  earth = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 64, 64),
+    new THREE.MeshPhongMaterial({
+      map: tex.map,
+      specularMap: tex.specular,
+      specular: new THREE.Color(0x333333),
+      shininess: 12,
+      emissiveMap: tex.night,
+      emissive: new THREE.Color(0x47507a),
+      emissiveIntensity: 0.9
+    })
+  );
+  earthGroup.add(earth);
+
+  // Облака — отдельный слой, вращается в обратную сторону
+  clouds = new THREE.Mesh(
+    new THREE.SphereGeometry(1.012, 64, 64),
+    new THREE.MeshLambertMaterial({
+      map: loader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png'),
+      transparent: true, opacity: 0.85, depthWrite: false
+    })
+  );
+  earthGroup.add(clouds);
+
+  // Свет
+  const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(5, 2, 3);
+  scene.add(sun);
+  scene.add(new THREE.AmbientLight(0x556699, 0.45));
+
+  // Звёзды — 2000 частиц
+  const starGeo = new THREE.BufferGeometry();
+  const pos = new Float32Array(2000*3);
+  for(let i=0;i<2000;i++){
+    const r = 12 + Math.random()*20, th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    pos[i*3]   = r*Math.sin(ph)*Math.cos(th);
+    pos[i*3+1] = r*Math.sin(ph)*Math.sin(th);
+    pos[i*3+2] = r*Math.cos(ph);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.07, sizeAttenuation:true}));
+  scene.add(stars);
+
+  // Атмосфера — синее свечение (sprite с radial gradient)
+  const glowCanvas = document.createElement('canvas'); glowCanvas.width = glowCanvas.height = 256;
+  const g = glowCanvas.getContext('2d');
+  const grad = g.createRadialGradient(128,128,60,128,128,128);
+  grad.addColorStop(0,'rgba(80,140,255,0.55)');
+  grad.addColorStop(0.35,'rgba(60,110,255,0.22)');
+  grad.addColorStop(1,'rgba(40,90,255,0)');
+  g.fillStyle = grad; g.fillRect(0,0,256,256);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: new THREE.CanvasTexture(glowCanvas), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+  }));
+  glow.scale.set(3.1,3.1,1);
+  earthGroup.add(glow);
+
+  // Луна — серый шарик, орбитирует в правом верхнем углу
+  moon = new THREE.Mesh(
+    new THREE.SphereGeometry(0.13, 32, 32),
+    new THREE.MeshStandardMaterial({color:0xbfbfbf, roughness:0.9})
+  );
+  moonPivot = new THREE.Group();
+  const mpos = new THREE.Vector3(2.2, 1.3, 1.2);
+  moon.position.copy(mpos);
+  moonPivot.add(moon); scene.add(moonPivot);
+
+  resizeGlobe();
+  window.addEventListener('resize', resizeGlobe);
+
+  // Управление
+  const wrap = document.getElementById('globeWrap');
+  canvas.addEventListener('pointerdown', e=>{ dragOn=true; dragMoved=false; lastX=e.clientX; lastY=e.clientY; });
+  window.addEventListener('pointermove', e=>{
+    if(!dragOn) return;
+    const dx = e.clientX-lastX, dy = e.clientY-lastY;
+    if(Math.abs(dx)+Math.abs(dy) > 4) dragMoved = true;
+    earthGroup.rotation.y += dx*0.005;
+    camera.position.y = Math.max(-1.2, Math.min(1.2, camera.position.y - dy*0.004));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  window.addEventListener('pointerup', ()=>{ dragOn=false; });
+  canvas.addEventListener('click', ()=>{
+    if(dragMoved) return;
+    rotBoost = 0.05;                 // резкое ускорение
+    haptic('medium');
+    setTimeout(openCatalog, 320);
+  });
+  wrap.addEventListener('click', ()=>{                 // клик по мини-глобусу
+    if(wrap.classList.contains('mini')){ haptic('light'); toggleHero(); }
+  });
+
+  animate();
+}
+
+function resizeGlobe(){
+  const wrap = document.getElementById('globeWrap');
+  const mini = wrap.classList.contains('mini');
+  const w = mini ? 60 : innerWidth, h = mini ? 60 : innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w/h;
+  if(mini){ camera.position.y = 0; camera.fov = 50; }
+  camera.updateProjectionMatrix();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const now = performance.now();
+
+  // zoom-in при первом открытии: z 5 → 2.5 за 2 сек
+  if(zoomStart){
+    const p = Math.min(1, (now - zoomStart)/2000);
+    const e = 1 - Math.pow(1-p, 3);
+    camera.position.z = 5 + (cameraTargetZ - 5)*e;
+    if(p >= 1) zoomStart = 0;
+  }
+
+  // вращение: базовое + буст с плавным затуханием
+  if(rotBoost > 0.0005){ rotBoost *= 0.94; } else { rotBoost = 0; }
+  rotVel = rotBase + rotBoost;
+  earth.rotation.y  += rotVel;
+  clouds.rotation.y -= rotVel*0.55;   // облака чуть медленнее, в обратную сторону
+  moonPivot.rotation.y += 0.0016;
+
+  renderer.render(scene, camera);
+}
+
+/* ================================================================
+   БАЗА ДАННЫХ — IndexedDB + localStorage
+================================================================ */
+const DB_NAME = 'MarketAppDB', DB_VER = 1;
+let db = null;
+
+function openDB(){
+  return new Promise((res, rej)=>{
+    const rq = indexedDB.open(DB_NAME, DB_VER);
+    rq.onupgradeneeded = e=>{
+      const d = e.target.result;
+      if(!d.objectStoreNames.contains('listings'))  d.createObjectStore('listings',  {keyPath:'id'});
+      if(!d.objectStoreNames.contains('stories'))  d.createObjectStore('stories',  {keyPath:'id'});
+      if(!d.objectStoreNames.contains('users'))     d.createObjectStore('users',     {keyPath:'tgId'});
+      if(!d.objectStoreNames.contains('ad_requests'))d.createObjectStore('ad_requests',{keyPath:'id'});
+    };
+    rq.onsuccess = e=>{ db = e.target.result; res(db); };
+    rq.onerror = e=>rej(e);
+  });
+}
+function dbAll(store){ return new Promise(res=>{
+  const rq = db.transaction(store,'readonly').objectStore(store).getAll();
+  rq.onsuccess = ()=>res(rq.result||[]); rq.onerror=()=>res([]);
+});}
+function dbPut(store, obj){ return new Promise(res=>{
+  const rq = db.transaction(store,'readwrite').objectStore(store).put(obj);
+  rq.onsuccess = ()=>res(true); rq.onerror=()=>res(false);
+});}
+function dbDel(store, id){ return new Promise(res=>{
+  const rq = db.transaction(store,'readwrite').objectStore(store).delete(id);
+  rq.onsuccess = ()=>res(true); rq.onerror=()=>res(false);
+});}
+
+const LS = {
+  get:(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+  set:(k,v)=>localStorage.setItem(k, JSON.stringify(v))
+};
+
+/* ================================================================
+   ДЕМО-ДАННЫЕ
+================================================================ */
+const CATEGORIES = ['Электроника','Одежда','Транспорт','Недвижимость','Услуги','Другое'];
+const uid = ()=> 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pic = (s)=>`https://picsum.photos/seed/${s}/600/600`;
+
+const DEMO_PRODUCTS = [
+  {id:'d1', title:'iPhone 14 Pro 256GB', price:8500000, category:'Электроника', district:'Юнусабад',
+   desc:'Состояние: новый, запечатанный. Гарантия 12 месяцев. Deep Purple.', photos:[pic('iphone14')], isTop:true, isAd:false, views:34, createdAt:Date.now()-86400000},
+  {id:'d2', title:'MacBook Pro 14 M3', price:15500000, category:'Электроника', district:'Мирзо-Улугбек',
+   desc:'Просто космос. 18 ГБ RAM, 512 SSD, циклов 12. Полный комплект.', photos:[pic('macbook')], isTop:true, isAd:false, views:51, createdAt:Date.now()-86400000*2},
+  {id:'d3', title:'Air Jordan 1 Mid', price:1650000, category:'Одежда', district:'Чиланзар',
+   desc:'Оригинал, 42 размер, носились пару раз. Коробка в комплекте.', photos:[pic('jordan')], isTop:false, isAd:false, views:12, createdAt:Date.now()-86400000},
+  {id:'d4', title:'Honda Civic 2019', price:210000000, category:'Транспорт', district:'Ташкент',
+   desc:'1.8 AT, пробег 78 тыс. км, один владелец, сервисная история.', photos:[pic('civic')], isTop:false, isAd:false, views:27, createdAt:Date.now()-86400000*3},
+  {id:'d5', title:'2-комн. квартира', price:690000000, category:'Недвижимость', district:'Яшнабад',
+   desc:'64 м², 5/9 этаж, евроремонт, рядом метро. Чистая продажа.', photos:[pic('flat')], isTop:false, isAd:false, views:19, createdAt:Date.now()-86400000*4}
+];
+
+function avatarUrl(u){
+  if(u && u.photo_url) return u.photo_url;
+  const n = (u && (u.first_name||'?')) || '?';
+  return 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=' + encodeURIComponent(n);
+}
+
+async function seed(){
+  const l = await dbAll('listings');
+  if(l.length === 0) for(const p of DEMO_PRODUCTS) await dbPut('listings', p);
+  const s = await dbAll('stories');
+  if(s.length === 0){
+    const demos = [
+      {id:'s1', userId:777001, userName:'Sardor',  userAvatar:avatarUrl({first_name:'Sardor'}), mediaType:'image', mediaData:pic('story1'), createdAt:Date.now()-3600000,  views:[], caption:'Новая поставка 📦'},
+      {id:'s2', userId:777002, userName:'Nilufar', userAvatar:avatarUrl({first_name:'Nilufar'}), mediaType:'image', mediaData:pic('story2'), createdAt:Date.now()-7200000, views:[], caption:'Скидки 20% 🔥'},
+      {id:'s3', userId:777003, userName:'Otabek',  userAvatar:avatarUrl({first_name:'Otabek'}), mediaType:'image', mediaData:pic('story3'), createdAt:Date.now()-10800000, views:[], caption:'ТопMac уже в наличии'}
+    ];
+    for(const st of demos) await dbPut('stories', st);
+  }
+  await purgeExpiredStories();
+}
+
+async function purgeExpiredStories(){
+  const s = await dbAll('stories');
+  const now = Date.now();
+  for(const st of s) if(st.expiresAt && st.expiresAt < now) await dbDel('stories', st.id);
+}
+
+/* ================================================================
+   РОЛИ И НАВИГАЦИЯ
+================================================================ */
+if(isAdmin){
+  document.getElementById('adminTab').style.display = 'flex';
+  document.getElementById('adminHeadBtn').style.display = 'flex';
+}
+
+let opened = false;
+function openCatalog(){
+  if(opened) return;
+  opened = true;
+  toggleHero();
+  document.getElementById('app').classList.add('open');
+}
+function toggleHero(){
+  const wrap = document.getElementById('globeWrap');
+  const mini = !wrap.classList.contains('mini');
+  wrap.classList.toggle('mini', mini);
+  setTimeout(resizeGlobe, mini ? 60 : 0);
+}
+
+function switchTab(name){
+  openCatalog();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+name).classList.add('active');
+  document.querySelectorAll('#tabbar .tab').forEach(t=>t.classList.toggle('on', t.dataset.scr===name));
+  document.getElementById('main').scrollTop = 0;
+  haptic('light');
+  if(name==='favorites') renderFav();
+  if(name==='profile') renderProfile();
+  if(name==='admin') renderAdmin();
+}
+
+/* ================================================================
+   КАТАЛОГ
+================================================================ */
+let activeCat = 'Все';
+function renderChips(){
+  const cats = ['Все', ...CATEGORIES];
+  document.getElementById('chips').innerHTML = cats.map(c=>
+    `<div class="chip ${c===activeCat?'on':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+function setCat(c){ activeCat = c; renderChips(); renderGrid(); haptic('light'); }
+
+async function visibleProducts(){
+  let list = await dbAll('listings');
+  list.sort((a,b)=> (b.isTop-a.isTop) || (b.createdAt-a.createdAt));
+  const q = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+  return list.filter(p=>{
+    if(activeCat !== 'Все' && p.category !== activeCat) return false;
+    if(q && !(p.title.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function cardHTML(p, showFavBtn=true){
+  const favs = LS.get('favorites', []);
+  const on = favs.includes(p.id);
+  return `<div class="card" onclick="openProduct('${p.id}')">
+    <div class="cardImgWrap">
+      <img src="${p.photos[0]}" loading="lazy" alt="">
+      ${p.isTop?'<div class="topBadge">🏆 ТОП</div>':''}
+      ${p.isAd?'<div class="adBadge">Реклама</div>':''}
+      ${showFavBtn?`<div class="favHeart ${on?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>`:''}
+    </div>
+    <div class="cardBody">
+      <div class="cardTitle">${esc(p.title)}</div>
+      <div class="cardPrice">${fmtPrice(p.price)}</div>
+      <div class="cardLoc">📍 ${esc(p.district||'')}</div>
+    </div>
+  </div>`;
+}
+
+async function renderGrid(){
+  const list = await visibleProducts();
+  const grid = document.getElementById('grid');
+  if(!list.length){
+    grid.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <h3>Ничего не найдено</h3><p>Попробуйте другую категорию или запрос</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map((p,i)=>
+    cardHTML(p).replace('class="card"', `class="card" style="animation-delay:${i*50}ms"`)
+  ).join('');
+}
+
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtPrice(v){
+  if(!v && v!==0) return 'Договорная';
+  return new Intl.NumberFormat('ru-RU').format(v) + ' сум';
+}
+
+/* ---------- ИЗБРАННОЕ ---------- */
+function toggleFav(id){
+  let f = LS.get('favorites', []);
+  if(f.includes(id)){ f = f.filter(x=>x!==id); toast('Убрано из избранного'); }
+  else { f.push(id); toast('🤍 В избранном'); }
+  LS.set('favorites', f);
+  haptic('light');
+  renderGrid();
+  if(document.getElementById('scr-favorites').classList.contains('active')) renderFav();
+  const b = document.getElementById('favBadge');
+  b.style.display = f.length? 'flex':'none'; b.textContent = f.length;
+}
+async function renderFav(){
+  const favs = LS.get('favorites', []);
+  const all = await dbAll('listings');
+  const list = all.filter(p=>favs.includes(p.id));
+  const g = document.getElementById('favGrid');
+  g.innerHTML = list.length ? list.map(p=>cardHTML(p)).join('')
+   : `<div class="empty" style="grid-column:1/-1">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <h3>Пока пусто</h3><p>Сохраняй понравившиеся товары 🤍</p></div>`;
+}
+
+/* ---------- КАРТОЧКА ТОВАРА (sheet) ---------- */
+let currentPhotos = [], currentPhotoIdx = 0;
+async function openProduct(id){
+  const p = (await dbAll('listings')).find(x=>x.id===id);
+  if(!p) return;
+  p.views = (p.views||0)+1; await dbPut('listings', p);
+  const settings = LS.get('shop_settings', {});
+  currentPhotos = p.photos; currentPhotoIdx = 0;
+  document.getElementById('productBody').innerHTML = `
+    <div class="gallery" id="pGallery">
+      <img id="pMainImg" src="${p.photos[0]}">
+      <div class="galDots" id="pDots">${p.photos.map((_,i)=>`<div class="galDot ${i===0?'on':''}"></div>`).join('')}</div>
+    </div>
+    <div class="pTitle">${esc(p.title)}</div>
+    <div class="pPrice">${fmtPrice(p.price)}</div>
+    <div class="pRow"><span>Категория</span><span>${esc(p.category||'—')}</span></div>
+    <div class="pRow"><span>Район</span><span>${esc(p.district||'—')}</span></div>
+    <div class="pRow"><span>Просмотров</span><span>👁 ${p.views||1}</span></div>
+    <div class="pDesc">${esc(p.desc||'')}</div>
+    <div class="cta">
+      <button class="btnMain" onclick="contactSeller('tg')">✈️ Написать в Telegram</button>
+      <button class="btnOut" onclick="contactSeller('ig')">📷 Instagram</button>
+    </div>`;
+  document.getElementById('productPanel').scrollTop = 0;
+  openSheet('productSheet');
+  haptic('light');
+}
+function galleryNav(d){
+  if(currentPhotos.length<2) return;
+  currentPhotoIdx = (currentPhotoIdx + d + currentPhotos.length) % currentPhotos.length;
+  document.getElementById('pMainImg').src = currentPhotos[currentPhotoIdx];
+  document.querySelectorAll('#pDots .galDot').forEach((el,i)=>el.classList.toggle('on', i===currentPhotoIdx));
+}
+function contactSeller(kind){
+  const s = LS.get('shop_settings', {});
+  const tgNick = s.tg || 'https://t.me/';
+  const igNick = s.ig || '';
+  if(kind==='tg'){
+    const url = tgNick.startsWith('@') ? 'https://t.me/'+tgNick.slice(1) : (tgNick.startsWith('http')?tgNick:'https://t.me/'+tgNick);
+    tg.openTelegramLink(url); return;
+  }
+  if(!igNick){ toast('Instagram не указан продавцом'); return; }
+  const u = igNick.replace(/^@/,'');
+  tg.openLink('https://instagram.com/'+u);
+}
+function openSheet(id){ document.getElementById(id).classList.add('open'); }
+function closeSheet(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ================================================================
+   STORIES
+================================================================ */
+function timeAgo(ts){
+  const m = Math.floor((Date.now()-ts)/60000);
+  if(m<1) return 'только что';
+  if(m<60) return m + ' мин назад';
+  const h = Math.floor(m/60);
+  if(h<24) return h + ' ч назад';
+  return Math.floor(h/24) + ' дн назад';
+}
+
+async function renderStories(){
+  const stories = (await dbAll('stories')).filter(s=>!s.expiresAt || s.expiresAt > Date.now());
+  const viewed = LS.get('viewed_stories', []);
+  const groups = {};
+  stories.forEach(s=>{ (groups[s.userId] = groups[s.userId]||[]).push(s); });
+  const ids = Object.keys(groups).sort((a,b)=>{
+    const ga = groups[a], gb = groups[b];
+    return Math.max(...gb.map(x=>x.createdAt)) - Math.max(...ga.map(x=>x.createdAt));
+  });
+
+  let html = `<div class="storyAvatar" id="myStoryAdd" onclick="openComposer()">
+    <div class="storyRing add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+    <div class="storyName">Моя</div></div>`;
+
+  for(const idS of ids){
+    const g = groups[idS];
+    const s0 = g[0];
+    const unseen = g.some(st=>!viewed.includes(st.id));
+    html += `<div class="storyAvatar" onclick='openStoryGroup(${idS})'>
+      <div class="storyRing ${unseen?'':'viewed'}"><img class="storyImg" src="${s0.userAvatar}" alt=""></div>
+      <div class="storyName">${esc((s0.userName||'User').slice(0,8))}</div></div>`;
+  }
+  document.getElementById('storiesRow').innerHTML = html;
+
+  // своя история: превью со счётчиком просмотров
+  if(tgUser){
+    const mine = groups[String(tgUser.id)] || groups[tgUser.id];
+    if(mine){
+      const add = document.getElementById('myStoryAdd');
+      const views = mine.reduce((a,s)=>a+(s.views?s.views.length:0),0);
+      add.querySelector('.storyRing').className = 'storyRing';
+      add.querySelector('.storyRing').innerHTML = `<img class="storyImg" src="${avatarUrl(tgUser)}">`;
+      add.querySelector('.storyName').textContent = 'Моя 👁'+views;
+      add.onclick = ()=>openStoryGroup(String(tgUser.id));
+    }
+  }
+}
+
+/* ---------- Просмотр истории ---------- */
+let svGroups = [], svUser = null, svIdx = 0, svTimer = null, svStart = 0;
+const STORY_MS = 5000;
+
+function openStoryGroup(userId){
+  const found = svGroups.find(g=>String(g.userId)===String(userId));
+  if(!found) return;
+  svUser = found; svIdx = 0;
+  document.getElementById('storyViewer').classList.add('open');
+  haptic('light');
+  showStoryItem();
+}
+async function showStoryItem(){
+  clearInterval(svTimer);
+  const s = svUser.items[svIdx];
+  if(!s){ closeStory(); return; }
+
+  document.getElementById('svAvatar').src = s.userAvatar;
+  document.getElementById('svName').textContent = s.userName || 'Пользователь';
+  document.getElementById('svTime').textContent = timeAgo(s.createdAt);
+
+  const bars = document.getElementById('storyBars');
+  bars.innerHTML = svUser.items.map((_,i)=>`<div class="sbar"><i style="width:${i<svIdx?100:0}%"></i></div>`).join('');
+  const fill = bars.children[svIdx].firstElementChild;
+
+  const media = document.getElementById('storyMedia');
+  const isVideo = s.mediaType === 'video';
+  media.querySelectorAll('img,video').forEach(el=>el.remove());
+  const el = document.createElement(isVideo?'video':'img');
+  if(isVideo){ el.controls = false; el.muted = LS.get('stories_muted', true); el.loop = true; el.playsInline = true; }
+  el.src = s.mediaData;
+  media.insertBefore(el, media.firstChild);
+  if(isVideo) el.play().catch(()=>{});
+
+  // просмотры (только свои)
+  const viewsEl = document.getElementById('storyViews');
+  if(tgUser && String(s.userId)===String(tgUser.id)){
+    viewsEl.style.display = 'flex';
+    viewsEl.textContent = '👁 ' + (s.views?s.views.length:0);
+  } else viewsEl.style.display = 'none';
+
+  // отметить просмотренной
+  if(!s.views || !s.views.includes(tgUser?tgUser.id:0)){
+    s.views = [...(s.views||[]), tgUser?tgUser.id:0];
+    await dbPut('stories', s);
+  }
+  const viewed = LS.get('viewed_stories', []);
+  if(!viewed.includes(s.id)){ viewed.push(s.id); LS.set('viewed_stories', viewed); renderStories(); }
+
+  svStart = performance.now();
+  const dur = isVideo ? Math.max(STORY_MS, (el.duration||5)*1000) : STORY_MS;
+  const step = ()=>{
+    const p = (performance.now()-svStart)/dur;
+    fill.style.width = Math.min(100, p*100) + '%';
+    if(p >= 1){ storyNav(1); return; }
+    svTimer = requestAnimationFrame(step);
+  };
+  svTimer = requestAnimationFrame(step);
+}
+function storyNav(d){
+  clearInterval(svTimer);
+  svIdx += d;
+  if(svIdx < 0) svIdx = 0;
+  if(svIdx >= svUser.items.length){ closeStory(); return; }
+  showStoryItem();
+  haptic('light');
+}
+function closeStory(){
+  document.getElementById('storyViewer').classList.remove('open');
+  clearInterval(svTimer);
+  const v = document.querySelector('#storyMedia video'); if(v) v.pause();
+  renderStories();
+}
+function toggleMute(){
+  const muted = !LS.get('stories_muted', true);
+  LS.set('stories_muted', muted);
+  const v = document.querySelector('#storyMedia video'); if(v) v.muted = muted;
+  document.getElementById('muteIcon').innerHTML = muted
+    ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+    : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+}
+
+// свайп вниз для закрытия
+(function(){
+  let sy = null;
+  const sv = document.getElementById('storyViewer');
+  sv.addEventListener('pointerdown', e=>{ sy = e.clientY; });
+  sv.addEventListener('pointerup', e=>{
+    if(sy !== null && e.clientY - sy > 80) closeStory();
+    sy = null;
+  });
+})();
+
+/* ---------- Добавление истории ---------- */
+let storyFileData = null, storyFileType = 'image';
+function openComposer(){
+  storyFileData = null; storyFileType = 'image';
+  document.getElementById('storyPick').innerHTML = pickerSlot('pickStory()');
+  document.getElementById('storyCaption').value = '';
+  openSheet('storyComposer');
+}
+function pickerSlot(fn){
+  return `<div class="photoSlot" onclick="${fn}"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>`;
+}
+function pickStory(){
+  const f = document.getElementById('hiddenFile');
+  f.onchange = ()=>{
+    const file = f.files[0]; if(!file) return;
+    if(file.type.startsWith('video/') && file.size > 25*1024*1024){ toast('Видео слишком большое (макс 25 МБ)'); return; }
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      storyFileData = fr.result;
+      storyFileType = file.type.startsWith('video/') ? 'video' : 'image';
+      document.getElementById('storyPick').innerHTML =
+        `<div class="photoSlot"><img src="${storyFileType==='image'?storyFileData:''}">${storyFileType==='video'?'🎬':''}<button class="rm" onclick="openComposer()">✕</button></div>`;
+    };
+    fr.readAsDataURL(file);
+    f.value = '';
+  };
+  f.click();
+}
+async function publishStory(){
+  if(!storyFileData){ toast('Сначала выберите фото или видео'); return; }
+  const me = tgUser || {id: 0, first_name: 'Гость'};
+  await dbPut('stories', {
+    id: uid(), userId: me.id, userName: me.first_name||'Гость',
+    userAvatar: avatarUrl(me), mediaType: storyFileType, mediaData: storyFileData,
+    caption: document.getElementById('storyCaption').value || '',
+    createdAt: Date.now(), expiresAt: Date.now() + 86400000, views: []
+  });
+  closeSheet('storyComposer');
+  renderStories();
+  toast('История опубликована 🎉');
+  haptic('medium');
+}
+
+/* ================================================================
+   ПРОФИЛЬ
+================================================================ */
+function renderProfile(){
+  const me = tgUser;
+  document.getElementById('profAvatar').src = avatarUrl(me);
+  document.getElementById('profName').textContent = me ? [me.first_name, me.last_name].filter(Boolean).join(' ') : 'Гость';
+  document.getElementById('profUsername').textContent = me && me.username ? '@'+me.username : 'Откройте приложение в Telegram';
+  const up = LS.get('user_profile', {});
+  document.getElementById('profInst').value = up.instagram || '';
+  document.getElementById('profBio').value = up.bio || '';
+  updateProfileStats();
+  renderMyAdReqs();
+}
+function saveProfile(){
+  LS.set('user_profile', {
+    instagram: document.getElementById('profInst').value.trim(),
+    bio: document.getElementById('profBio').value.trim()
+  });
+  toast('Профиль сохранён 💾'); haptic('light');
+}
+async function updateProfileStats(){
+  document.getElementById('stFav').textContent = LS.get('favorites', []).length;
+  const stories = await dbAll('stories');
+  const mine = stories.filter(s=> tgUser && String(s.userId)===String(tgUser.id));
+  document.getElementById('stStory').textContent = mine.length;
+  document.getElementById('stViews').textContent = mine.reduce((a,s)=>a+(s.views?s.views.length:0),0);
+}
+
+/* ---------- Рекламные заявки ---------- */
+let pickedTariff = 'Stories в топе';
+function pickTariff(el){
+  document.querySelectorAll('.tariff').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); pickedTariff = el.dataset.t; haptic('light');
+}
+async function sendAdRequest(){
+  const desc = document.getElementById('adDesc').value.trim();
+  const link = document.getElementById('adLink').value.trim();
+  if(!desc){ toast('Опишите, что рекламируем'); return; }
+  const me = tgUser || {id:0, first_name:'Гость', username:'unknown'};
+  const req = { id: uid(), userId: me.id, userName: me.first_name||'Гость',
+    username: me.username||'', tariff: pickedTariff, description: desc, link,
+    status: 'wait', createdAt: Date.now() };
+  await dbPut('ad_requests', req);
+  document.getElementById('adDesc').value = ''; document.getElementById('adLink').value = '';
+
+  // уведомление владельцу через бот
+  if(BOT_TOKEN){
+    try{
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          chat_id: OWNER_TG_ID,
+          text: `📢 Новая заявка на рекламу!\n\nОт: ${req.userName} (@${req.username})\nТариф: ${req.tariff}\nЧто: ${desc}\nСсылка: ${link||'—'}`
+        })
+      });
+    }catch(e){}
+  }
+  renderMyAdReqs();
+  toast('Заявка отправлена! Ответим в течение дня 🚀');
+  haptic('medium');
+}
+async function renderMyAdReqs(){
+  const box = document.getElementById('myAdReqs');
+  if(!box) return;
+  const reqs = (await dbAll('ad_requests'))
+    .filter(r=> tgUser && String(r.userId)===String(tgUser.id))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  if(!reqs.length){ box.innerHTML=''; return; }
+  const stMap = {wait:['st-wait','🟡 На рассмотрении'], ok:['st-ok','🟢 Активна'], no:['st-no','🔴 Отклонена']};
+  box.innerHTML = reqs.map(r=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${esc(r.tariff)}</span>
+      <span class="reqStatus ${stMap[r.status][0]}">${stMap[r.status][1]}</span></div>`).join('');
+}
+
+/* ================================================================
+   АДМИН-ПАНЕЛЬ (только OWNER_TG_ID)
+================================================================ */
+let adminPhotos = [];
+function adminTab(el){
+  document.querySelectorAll('.adminNav .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const map = {add:'adm-add', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
+  Object.values(map).forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById(map[el.dataset.a]).style.display='block';
+  if(el.dataset.a==='list') renderAdminList();
+  if(el.dataset.a==='reqs') renderAdminReqs();
+  if(el.dataset.a==='stats') renderStats();
+  haptic('light');
+}
+function renderAdmin(){
+  // категории в селект
+  const sel = document.getElementById('fCategory');
+  sel.innerHTML = CATEGORIES.map(c=>`<option>${c}</option>`).join('');
+  // фотопикер
+  adminPhotos = [];
+  document.getElementById('admPhotos').innerHTML = pickerSlot('pickAdminPhoto()');
+  // настройки
+  const s = LS.get('shop_settings', {});
+  document.getElementById('setTg').value = s.tg||'';
+  document.getElementById('setIg').value = s.ig||'';
+  document.getElementById('setName').value = s.name||'';
+  document.getElementById('setDesc').value = s.desc||'';
+  document.getElementById('setBanner').innerHTML = s.banner
+    ? `<div class="photoSlot"><img src="${s.banner}"><button class="rm" onclick="clearBanner()">✕</button></div>`
+    : pickerSlot('pickBanner()');
+}
+function pickAdminPhoto(){
+  const f = document.getElementById('hiddenFile');
+  f.onchange = ()=>{
+    const file = f.files[0]; if(!file) return;
+    if(adminPhotos.length >= 5){ toast('Максимум 5 фото'); return; }
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      adminPhotos.push(fr.result);
+      document.getElementById('admPhotos').innerHTML =
+        adminPhotos.map((p,i)=>`<div class="photoSlot"><img src="${p}"><button class="rm" onclick="rmAdminPhoto(${i})">✕</button></div>`).join('')
+        + (adminPhotos.length<5 ? pickerSlot('pickAdminPhoto()') : '');
+    };
+    fr.readAsDataURL(file); f.value='';
+  };
+  f.click();
+}
+function rmAdminPhoto(i){ adminPhotos.splice(i,1); renderAdminPhotoPicker(); }
+function renderAdminPhotoPicker(){
+  document.getElementById('admPhotos').innerHTML =
+    adminPhotos.map((p,i)=>`<div class="photoSlot"><img src="${p}"><button class="rm" onclick="rmAdminPhoto(${i})">✕</button></div>`).join('')
+    + (adminPhotos.length<5 ? pickerSlot('pickAdminPhoto()') : '');
+}
+async function publishProduct(){
+  const title = document.getElementById('fTitle').value.trim();
+  const price = parseInt(document.getElementById('fPrice').value) || 0;
+  if(!title){ toast('Введите название'); return; }
+  if(!adminPhotos.length){ toast('Добавьте хотя бы одно фото'); return; }
+  const p = {
+    id: uid(), title, price,
+    category: document.getElementById('fCategory').value,
+    district: document.getElementById('fDistrict').value.trim(),
+    desc: document.getElementById('fDesc').value.trim(),
+    photos: adminPhotos, isTop:false, isAd:false, views:0, createdAt: Date.now()
+  };
+  await dbPut('listings', p);
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fPrice').value = '';
+  document.getElementById('fDistrict').value = '';
+  document.getElementById('fDesc').value = '';
+  renderAdmin();
+  renderGrid();
+  toast('Товар опубликован 🚀'); haptic('medium');
+}
+async function renderAdminList(){
+  const list = (await dbAll('listings')).sort((a,b)=>b.createdAt-a.createdAt);
+  const box = document.getElementById('adm-list');
+  box.innerHTML = list.length ? list.map(p=>`
+    <div class="aCard">
+      <div style="display:flex;gap:12px">
+        <img src="${p.photos[0]}" style="width:58px;height:58px;border-radius:12px;object-fit:cover">
+        <div style="flex:1">
+          <h4>${esc(p.title)}</h4>
+          <div class="sub">${fmtPrice(p.price)} · 👁 ${p.views||0} · 🤍 ${favCount(p.id)}</div>
+        </div>
+      </div>
+      <div class="aRow">
+        <button class="aBtn gold ${p.isTop?'primary':''}" onclick="toggleTop('${p.id}')">🏆 ${p.isTop?'Снять ТОП':'ТОП'}</button>
+        <button class="aBtn" onclick="editProduct('${p.id}')">✏️ Редактировать</button>
+        <button class="aBtn danger" onclick="deleteProduct('${p.id}')">🗑 Удалить</button>
+      </div>
+    </div>`).join('')
+  : `<div class="empty"><h3>Товаров пока нет</h3><p>Добавьте первый товар во вкладке «➕ Добавить»</p></div>`;
+}
+function favCount(id){ return LS.get('favorites',[]).includes(id)?1:0; }
+async function toggleTop(id){
+  const p = (await dbAll('listings')).find(x=>x.id===id);
+  if(!p) return;
+  p.isTop = !p.isTop; await dbPut('listings', p);
+  renderAdminList(); renderGrid(); haptic('light');
+}
+async function deleteProduct(id){
+  if(!confirm('Удалить этот товар?')) return;
+  await dbDel('listings', id);
+  renderAdminList(); renderGrid(); toast('Товар удалён');
+}
+async function editProduct(id){
+  const p = (await dbAll('listings')).find(x=>x.id===id);
+  if(!p) return;
+  const nt = prompt('Название товара:', p.title); if(nt===null) return;
+  const np = prompt('Цена (сум):', p.price); if(np===null) return;
+  const nd = prompt('Описание:', p.desc||''); if(nd===null) return;
+  p.title = nt.trim(); p.price = parseInt(np)||0; p.desc = nd.trim();
+  await dbPut('listings', p);
+  renderAdminList(); renderGrid(); toast('Сохранено ✅');
+}
+async function renderAdminReqs(){
+  const reqs = (await dbAll('ad_requests')).sort((a,b)=>b.createdAt-a.createdAt);
+  const box = document.getElementById('adm-reqs');
+  const stMap = {wait:['st-wait','🟡 На рассмотрении'], ok:['st-ok','🟢 Активна'], no:['st-no','🔴 Отклонена']};
+  box.innerHTML = reqs.length ? reqs.map(r=>`
+    <div class="aCard">
+      <h4>${esc(r.tariff)}</h4>
+      <div class="sub">${esc(r.userName)} (@${esc(r.username)}) · ${timeAgo(r.createdAt)}</div>
+      <div style="font-size:13.5px;margin-top:8px">${esc(r.description)}</div>
+      ${r.link?`<div style="font-size:12.5px;margin-top:4px;color:var(--accent);word-break:break-all">${esc(r.link)}</div>`:''}
+      <div style="margin-top:8px"><span class="reqStatus ${stMap[r.status][0]}">${stMap[r.status][1]}</span></div>
+      <div class="aRow">
+        <button class="aBtn primary" onclick="setReq('${r.id}','ok')">✅ Одобрить</button>
+        <button class="aBtn danger" onclick="setReq('${r.id}','no')">❌ Отклонить</button>
+      </div>
+    </div>`).join('')
+  : `<div class="empty"><h3>Заявок пока нет</h3><p>Новые заявки на рекламу появятся здесь</p></div>`;
+}
+async function setReq(id, status){
+  const r = (await dbAll('ad_requests')).find(x=>x.id===id);
+  if(!r) return;
+  r.status = status; await dbPut('ad_requests', r);
+  renderAdminReqs(); haptic('light');
+}
+async function renderStats(){
+  const users = await dbAll('users');
+  const list = await dbAll('listings');
+  const reqs = await dbAll('ad_requests');
+  const stories = await dbAll('stories');
+  const views = list.reduce((a,p)=>a+(p.views||0),0);
+  const newReqs = reqs.filter(r=>r.status==='wait').length;
+  const stats = [
+    ['📦','Активных товаров', list.length],
+    ['👥','Пользователей', Math.max(users.length, list.length?list.length:0)],
+    ['👁','Просмотров всего', views],
+    ['🤍','В избранном', LS.get('favorites',[]).length],
+    ['📢','Новых заявок', newReqs],
+    ['📸','Историй', stories.length]
+  ];
+  document.getElementById('statGrid').innerHTML = stats.map(s=>
+    `<div class="statCard"><div class="num">${s[2]}</div><div class="lbl">${s[0]} ${s[1]}</div></div>`).join('');
+}
+function pickBanner(){
+  const f = document.getElementById('hiddenFile');
+  f.onchange = ()=>{
+    const file = f.files[0]; if(!file) return;
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      const s = LS.get('shop_settings', {}); s.banner = fr.result; LS.set('shop_settings', s);
+      document.getElementById('setBanner').innerHTML =
+        `<div class="photoSlot"><img src="${s.banner}"><button class="rm" onclick="clearBanner()">✕</button></div>`;
+    };
+    fr.readAsDataURL(file); f.value='';
+  };
+  f.click();
+}
+function clearBanner(){
+  const s = LS.get('shop_settings', {}); delete s.banner; LS.set('shop_settings', s);
+  document.getElementById('setBanner').innerHTML = pickerSlot('pickBanner()');
+}
+function saveSettings(){
+  LS.set('shop_settings', {
+    ...LS.get('shop_settings', {}),
+    tg: document.getElementById('setTg').value.trim(),
+    ig: document.getElementById('setIg').value.trim(),
+    name: document.getElementById('setName').value.trim(),
+    desc: document.getElementById('setDesc').value.trim()
+  });
+  toast('Настройки сохранены 💾'); haptic('light');
+}
+
+/* ================================================================
+   СТАРТ
+================================================================ */
+(async function start(){
+  initGlobe();
+  await openDB();
+  await seed();
+  renderChips();
+  renderGrid();
+  renderStories();
+  const f = LS.get('favorites', []);
+  const b = document.getElementById('favBadge');
+  b.style.display = f.length?'flex':'none'; b.textContent = f.length;
+  // приветствие в чат бота (опционально, если токен задан)
+  if(BOT_TOKEN && tgUser){
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id: OWNER_TG_ID,
+        text: `👋 Globe Market открыл: ${tgUser.first_name||''} (@${tgUser.username||'—'})` })
+    }).catch(()=>{});
+  }
+})();
+</script>
+</body>
+</html>
