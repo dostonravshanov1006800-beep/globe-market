@@ -598,6 +598,32 @@ const userApi  = (action, payload)=> sbRpc('user_api',  { action, payload: paylo
 /* ---------- Кэш каталога и партнёров ---------- */
 let cloudListings = LS.get('cloud_listings', []);
 let cloudPartners = LS.get('cloud_partners', []);
+let cloudStories = [];
+
+async function loadCloudStories(){
+  try{
+    const rows = await sbGet('stories?select=*&order=created_at.asc');
+    cloudStories = rows.map(r=>({
+      id:r.id, userId:String(r.user_id||'0'), userName:r.user_name||'Гость',
+      userAvatar:r.user_avatar || 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=G',
+      mediaType:r.media_type||'image', mediaData:r.media_data||'', caption:r.caption||'',
+      views:(r.views||[]).map(String), createdAt:Date.parse(r.created_at)||0
+    }));
+  }catch(e){ console.warn('stories cloud fail', e); }
+}
+
+/* загрузка видео-истории в облачное хранилище (Supabase Storage, бесплатно) */
+async function sbUploadStory(file){
+  const ext = (file.name||'').split('.').pop() || 'mp4';
+  const path = 'st_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8) + '.' + ext;
+  const r = await fetch(SB_URL + '/storage/v1/object/stories/' + path, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type': file.type || 'application/octet-stream' },
+    body: file
+  });
+  if(!r.ok) throw new Error('upload ' + r.status);
+  return SB_URL + '/storage/v1/object/public/stories/' + path;
+}
 
 function mapListing(r){
   return {
@@ -864,14 +890,33 @@ function closeSheet(id){ document.getElementById(id).classList.remove('open'); }
 /* ================================================================
    STORIES (личные, локально)
 ================================================================ */
-async function purgeExpiredStories(){
-  const s = await dbAll('stories');
-  const now = Date.now();
-  for(const st of s) if(st.expiresAt && st.expiresAt < now) await dbDel('stories', st.id);
+async function migrateLocalStories(){
+  // разовая миграция: старые локальные истории переносятся в облако (видны всем)
+  if(LS.get('mig_stories_v1', false)) return;
+  try{
+    const loc = await dbAll('stories');
+    for(const st of loc){
+      try{
+        if(st.expiresAt && st.expiresAt < Date.now()){ await dbDel('stories', st.id); continue; }
+        let mediaData = st.mediaData, mediaType = st.mediaType||'image';
+        if(mediaType === 'video'){
+          const blob = await (await fetch(mediaData)).blob();
+          mediaData = await sbUploadStory(new File([blob], 'story.mp4', {type: blob.type || 'video/mp4'}));
+        }
+        await sbInsert('stories', {
+          user_id: String(st.userId||'0'), user_name: st.userName||'Гость',
+          user_avatar: st.userAvatar||'', media_type: mediaType, media_data: mediaData,
+          caption: st.caption||'', views: []
+        });
+      }catch(e){ console.warn('mig story fail', e); }
+      await dbDel('stories', st.id);
+    }
+    LS.set('mig_stories_v1', true);
+  }catch(e){ console.warn('story migration skipped', e); }
 }
 
 async function renderStories(){
-  const stories = (await dbAll('stories')).filter(s=>!s.expiresAt || s.expiresAt > Date.now());
+  const stories = cloudStories;
   const viewed = LS.get('viewed_stories', []);
   const groups = {};
   stories.forEach(s=>{ (groups[s.userId] = groups[s.userId]||[]).push(s); });
@@ -949,9 +994,10 @@ async function showStoryItem(){
     viewsEl.textContent = '👁 ' + (s.views?s.views.length:0);
   } else viewsEl.style.display = 'none';
 
-  if(!s.views || !s.views.includes(tgUser?tgUser.id:0)){
-    s.views = [...(s.views||[]), tgUser?tgUser.id:0];
-    await dbPut('stories', s);
+  const myViewId = tgUser? String(tgUser.id) : '0';
+  if(!s.views || !s.views.includes(myViewId)){
+    s.views = [...(s.views||[]), myViewId];
+    sbRpc('story_view', { p_id:s.id, p_viewer: myViewId }).catch(()=>{});
   }
   const viewed = LS.get('viewed_stories', []);
   if(!viewed.includes(s.id)){ viewed.push(s.id); LS.set('viewed_stories', viewed); renderStories(); }
@@ -1001,9 +1047,9 @@ function toggleMute(){
 })();
 
 /* ---------- Добавление истории ---------- */
-let storyFileData = null, storyFileType = 'image';
+let storyFileData = null, storyFileType = 'image', storyFile = null;
 function openComposer(){
-  storyFileData = null; storyFileType = 'image';
+  storyFileData = null; storyFileType = 'image'; storyFile = null;
   document.getElementById('storyPick').innerHTML = pickerSlot('pickStory()');
   document.getElementById('storyCaption').value = '';
   openSheet('storyComposer');
@@ -1013,17 +1059,19 @@ function pickerSlot(fn){
 }
 function pickStory(){
   const f = document.getElementById('hiddenFile');
-  f.onchange = ()=>{
+  f.onchange = async ()=>{
     const file = f.files[0]; if(!file) return;
     if(file.type.startsWith('video/') && file.size > 25*1024*1024){ toast('Видео слишком большое (макс 25 МБ)'); return; }
-    const fr = new FileReader();
-    fr.onload = ()=>{
-      storyFileData = fr.result;
-      storyFileType = file.type.startsWith('video/') ? 'video' : 'image';
-      document.getElementById('storyPick').innerHTML =
-        `<div class="photoSlot"><img src="${storyFileType==='image'?storyFileData:''}">${storyFileType==='video'?'🎬':''}<button class="rm" onclick="openComposer()">✕</button></div>`;
-    };
-    fr.readAsDataURL(file);
+    storyFile = file;
+    if(file.type.startsWith('video/')){
+      storyFileData = await readAsDataURL(file);   // превью локально
+      storyFileType = 'video';
+    } else {
+      storyFileData = await compressImage(file, 1200, 0.7);  // сжатое фото — в облако
+      storyFileType = 'image';
+    }
+    document.getElementById('storyPick').innerHTML =
+      `<div class="photoSlot"><img src="${storyFileType==='image'?storyFileData:''}">${storyFileType==='video'?'🎬':''}<button class="rm" onclick="openComposer()">✕</button></div>`;
     f.value = '';
   };
   f.click();
@@ -1031,16 +1079,28 @@ function pickStory(){
 async function publishStory(){
   if(!storyFileData){ toast('Сначала выберите фото или видео'); return; }
   const me = tgUser || {id: 0, first_name: 'Гость'};
-  await dbPut('stories', {
-    id: uid(), userId: me.id, userName: me.first_name||'Гость',
-    userAvatar: avatarUrl(me), mediaType: storyFileType, mediaData: storyFileData,
-    caption: document.getElementById('storyCaption').value || '',
-    createdAt: Date.now(), expiresAt: Date.now() + 86400000, views: []
-  });
-  closeSheet('storyComposer');
-  renderStories();
-  toast('История опубликована 🎉');
-  haptic('medium');
+  const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
+  try{
+    let mediaData = storyFileData, mediaType = storyFileType;
+    if(mediaType === 'video' && storyFile){
+      if(btn) btn.textContent='Загружаю видео...';
+      mediaData = await sbUploadStory(storyFile);
+    }
+    await sbInsert('stories', {
+      user_id: String(me.id||'0'), user_name: me.first_name||'Гость', user_avatar: avatarUrl(me),
+      media_type: mediaType, media_data: mediaData,
+      caption: document.getElementById('storyCaption').value || '', views: []
+    });
+    closeSheet('storyComposer');
+    await loadCloudStories();
+    renderStories();
+    toast('История опубликована — её видят все 🎉');
+    haptic('medium');
+  }catch(e){
+    console.warn('publish story fail', e);
+    toast('Не удалось опубликовать историю');
+  }
+  if(btn){ btn.textContent='📸 Опубликовать'; }
 }
 
 /* ================================================================
@@ -1066,7 +1126,7 @@ function saveProfile(){
 }
 async function updateProfileStats(){
   document.getElementById('stFav').textContent = LS.get('favorites', []).length;
-  const stories = await dbAll('stories');
+  const stories = cloudStories;
   const mine = stories.filter(s=> tgUser && String(s.userId)===String(tgUser.id));
   document.getElementById('stStory').textContent = mine.length;
   document.getElementById('stViews').textContent = mine.reduce((a,s)=>a+(s.views?s.views.length:0),0);
@@ -1437,8 +1497,8 @@ function pullToRefresh(){
   main.addEventListener('touchend', async ()=>{
     if(pulling){
       pulling = false; haptic('medium');
-      await purgeExpiredStories();
       await loadCloud();
+      await loadCloudStories();
       renderStories();
       toast('Лента обновлена 🔄');
     }
@@ -1482,7 +1542,7 @@ async function openNotifSheet(){
         items.push({icon:'📢', text:`${stMap[rr.status]||stMap.wait} — ${rr.tariff||''}`, time:timeAgo(Date.parse(rr.created_at)||0)}));
     }catch(e){}
   }
-  const stories = (await dbAll('stories')).filter(s=>!s.expiresAt || s.expiresAt>Date.now());
+  const stories = cloudStories;
   const viewed = LS.get('viewed_stories', []);
   const unseen = stories.filter(s=>!viewed.includes(s.id) && !(tgUser && String(s.userId)===String(tgUser.id)));
   if(unseen.length) items.unshift({icon:'📸', text:`${unseen.length} новых историй в ленте`, time:'сейчас'});
@@ -1503,9 +1563,10 @@ async function openNotifSheet(){
 ================================================================ */
 (async function start(){
   await openDB();
-  await purgeExpiredStories();
+  await migrateLocalStories();
   await migrateLocalToCloud();
   renderChips();
+  await loadCloudStories();
   renderStories();
   renderPartners();
   showSkeletons();
