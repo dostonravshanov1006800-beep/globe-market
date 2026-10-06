@@ -281,8 +281,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
           <input id="searchInput" placeholder="Поиск товаров..." oninput="renderGrid()">
         </div>
       </div>
-      <div id="partnersSec"></div>
       <div id="storiesRow"></div>
+      <div id="partnersSec"></div>
       <div id="bannerBox"></div>
       <div id="chips"></div>
       <div id="grid"></div>
@@ -863,7 +863,7 @@ function visibleProducts(){
 function cardHTML(p, showFavBtn=true){
   const favs = LS.get('favorites', []);
   const on = favs.includes(p.id);
-  const img0 = p.photos[0] || 'https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=400&name=%F0%9F%93%A6';
+  const img0 = p.photos[0] || 'https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=400&bold=true&name=%E2%80%A2';
   return `<div class="card" onclick="openProduct('${p.id}')">
     <div class="cardImgWrap">
       <img src="${esc(img0)}" loading="lazy" alt="">
@@ -940,7 +940,7 @@ function openProduct(id){
   p.views = (p.views||0)+1;
   LS.set('cloud_listings', cloudListings);
   sbRpc('bump_views', { p_id: id }).catch(()=>{});
-  currentPhotos = p.photos.length? p.photos : ['https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=600&name=%F0%9F%93%A6'];
+  currentPhotos = p.photos.length? p.photos : ['https://ui-avatars.com/api/?background=E5E5EA&color=8E8E93&size=600&bold=true&name=%E2%80%A2'];
   currentPhotoIdx = 0;
   document.getElementById('productBody').innerHTML = `
     <div class="gallery" id="pGallery">
