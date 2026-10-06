@@ -22,7 +22,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 /* ============ HERO / GLOBE ============ */
 #globeWrap{position:fixed;inset:0;z-index:50;background:#000;transition:all .45s cubic-bezier(.34,1.56,.64,1)}
 #globeWrap.mini{inset:auto;top:calc(56px + env(safe-area-inset-top,0px));right:12px;width:60px;height:60px;border-radius:50%;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.35);z-index:40;pointer-events:auto;cursor:pointer}
-#globeCanvas{width:100%;height:100%;display:block}
+#globeCanvas{width:100%;height:100%;display:block;touch-action:none}
 #heroHeader{position:absolute;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;display:flex;align-items:center;justify-content:space-between;z-index:5;transition:opacity .3s}
 #globeWrap.mini #heroHeader, #globeWrap.mini #heroHint{opacity:0;pointer-events:none}
 .glass{background:rgba(20,20,25,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -214,12 +214,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 <!-- ===================== HERO ===================== -->
 <div id="globeWrap">
   <div id="heroHeader">
-    <button class="hbtn glass" onclick="toast('Меню скоро появится')">
+    <button class="hbtn glass" onclick="openMenuSheet()">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
     </button>
     <div id="heroTitle">🌍 Globe Market</div>
     <div style="display:flex;gap:8px">
-      <button class="hbtn glass" onclick="toast('Нет новых уведомлений')">
+      <button class="hbtn glass" onclick="openNotifSheet()">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       </button>
       <button class="hbtn glass" onclick="openCatalog();switchTab('profile')">
@@ -239,7 +239,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <button class="hbtn" id="adminHeadBtn" style="display:none;background:#fff;border:1.5px solid var(--border)" onclick="openCatalog();switchTab('admin')" title="Панель админа">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.6.65 1.04 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
-    <button class="hbtn" onclick="toast('Нет новых уведомлений')">
+    <button class="hbtn" onclick="openNotifSheet()">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
     </button>
   </div>
@@ -412,6 +412,24 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   </div>
 </div>
 
+<!-- ===================== MENU ===================== -->
+<div class="sheet" id="menuSheet">
+  <div class="backdrop" onclick="closeSheet('menuSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="menuBody"></div>
+  </div>
+</div>
+
+<!-- ===================== NOTIFICATIONS ===================== -->
+<div class="sheet" id="notifSheet">
+  <div class="backdrop" onclick="closeSheet('notifSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="notifBody"></div>
+  </div>
+</div>
+
 <input type="file" id="hiddenFile" accept="image/*,video/*" style="display:none">
 <div id="toast"></div>
 
@@ -446,16 +464,28 @@ function toast(msg){
 ================================================================ */
 let renderer, scene, camera, earthGroup, earth, clouds, moon, moonPivot;
 let rotVel = 0.001, rotBase = 0.001, rotBoost = 0;
-let cameraTargetZ = 2.5, zoomStart = 0;
+let cameraTargetZ = 2.6, zoomFromZ = 5, zoomStart = 0;
 let dragOn = false, dragMoved = false, lastX = 0, lastY = 0;
+let resizeRaf = null;
+
+// На узких (телефонных) экранах угол обзора камеры по горизонтали сильно
+// уже, чем на широких браузерных — без поправки планета вылезает за край
+// и смотрится "зумленной". Отодвигаем камеру пропорционально узости экрана.
+function computeTargetZ(aspect){
+  const base = 2.6;
+  if(aspect >= 1) return base;                       // десктоп / ландшафт — как было
+  return Math.min(base * Math.sqrt(1/aspect), 4.6);   // портрет — чуть дальше, планета чуть меньше
+}
 
 function initGlobe(){
   const canvas = document.getElementById('globeCanvas');
   renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));   // меньше нагрузки на телефонах — меньше дёрганья
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.z = 5;          // zoom-in стартует издалека
+  cameraTargetZ = computeTargetZ(innerWidth / innerHeight);
+  zoomFromZ = cameraTargetZ + 2.4;   // zoom-in стартует издалека
+  camera.position.z = zoomFromZ;
   zoomStart = performance.now();
 
   const loader = new THREE.TextureLoader();
@@ -537,11 +567,21 @@ function initGlobe(){
   moonPivot.add(moon); scene.add(moonPivot);
 
   resizeGlobe();
-  window.addEventListener('resize', resizeGlobe);
+  const debouncedResize = ()=>{
+    if(resizeRaf) return;
+    resizeRaf = requestAnimationFrame(()=>{ resizeRaf = null; resizeGlobe(); });
+  };
+  window.addEventListener('resize', debouncedResize);
+  window.addEventListener('orientationchange', debouncedResize);
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', debouncedResize);
 
   // Управление
   const wrap = document.getElementById('globeWrap');
-  canvas.addEventListener('pointerdown', e=>{ dragOn=true; dragMoved=false; lastX=e.clientX; lastY=e.clientY; });
+  canvas.addEventListener('pointerdown', e=>{
+    dragOn=true; dragMoved=false; lastX=e.clientX; lastY=e.clientY;
+    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  canvas.addEventListener('touchmove', e=>{ if(dragOn) e.preventDefault(); }, {passive:false});
   window.addEventListener('pointermove', e=>{
     if(!dragOn) return;
     const dx = e.clientX-lastX, dy = e.clientY-lastY;
@@ -571,7 +611,13 @@ function resizeGlobe(){
   const w = mini ? 60 : innerWidth, h = mini ? 60 : innerHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w/h;
-  if(mini){ camera.position.y = 0; camera.fov = 50; }
+  if(mini){
+    camera.position.y = 0; camera.fov = 50;
+  } else {
+    camera.fov = 45;
+    cameraTargetZ = computeTargetZ(w/h);              // пересчитать при повороте экрана
+    if(!zoomStart) camera.position.z = cameraTargetZ; // уже не в анимации зума — применяем сразу
+  }
   camera.updateProjectionMatrix();
 }
 
@@ -583,7 +629,7 @@ function animate(){
   if(zoomStart){
     const p = Math.min(1, (now - zoomStart)/2000);
     const e = 1 - Math.pow(1-p, 3);
-    camera.position.z = 5 + (cameraTargetZ - 5)*e;
+    camera.position.z = zoomFromZ + (cameraTargetZ - zoomFromZ)*e;
     if(p >= 1) zoomStart = 0;
   }
 
@@ -1331,6 +1377,56 @@ function pullToRefresh(){
     if(pulling){ pulling = false; haptic('medium'); await purgeExpiredStories(); renderStories(); renderGrid(); toast('Лента обновлена 🔄'); }
     startY = null;
   });
+}
+
+/* ================================================================
+   МЕНЮ И УВЕДОМЛЕНИЯ (боковые шторки хедера)
+================================================================ */
+function openMenuSheet(){
+  const s = LS.get('shop_settings', {});
+  const shopName = s.name || 'Globe Market';
+  const shopDesc = s.desc || 'Маркетплейс внутри Telegram';
+  document.getElementById('menuBody').innerHTML = `
+    <div class="secTitle">${esc(shopName)}</div>
+    <p style="font-size:13.5px;color:var(--text2);margin:-8px 0 16px">${esc(shopDesc)}</p>
+    <div class="aCard" style="padding:6px">
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('catalog')">🛍 Маркет</div>
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('favorites')">🤍 Избранное</div>
+      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('profile')">👤 Профиль</div>
+      ${isAdmin ? `<div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('admin')">⚙️ Админ-панель</div>` : ''}
+    </div>
+    <div class="aCard">
+      <h4>Связаться с магазином</h4>
+      <div class="aRow">
+        <button class="aBtn primary" onclick="closeSheet('menuSheet');contactSeller('tg')">✈️ Telegram</button>
+        <button class="aBtn" onclick="closeSheet('menuSheet');contactSeller('ig')">📷 Instagram</button>
+      </div>
+    </div>`;
+  openSheet('menuSheet'); haptic('light');
+}
+
+async function openNotifSheet(){
+  const items = [];
+  if(tgUser){
+    const reqs = (await dbAll('ad_requests')).filter(r=>String(r.userId)===String(tgUser.id));
+    const stMap = {wait:'🟡 Заявка на рассмотрении', ok:'🟢 Реклама одобрена', no:'🔴 Заявка отклонена'};
+    reqs.sort((a,b)=>b.createdAt-a.createdAt).forEach(r=>
+      items.push({icon:'📢', text:`${stMap[r.status]} — ${r.tariff}`, time:timeAgo(r.createdAt)}));
+  }
+  const stories = (await dbAll('stories')).filter(s=>!s.expiresAt || s.expiresAt>Date.now());
+  const viewed = LS.get('viewed_stories', []);
+  const unseen = stories.filter(s=>!viewed.includes(s.id) && !(tgUser && String(s.userId)===String(tgUser.id)));
+  if(unseen.length) items.unshift({icon:'📸', text:`${unseen.length} новых историй в ленте`, time:'сейчас'});
+
+  const box = document.getElementById('notifBody');
+  box.innerHTML = `<div class="secTitle">Уведомления</div>` + (items.length
+    ? items.map(it=>`<div class="aCard" style="display:flex;gap:11px;align-items:center">
+        <div style="font-size:22px">${it.icon}</div>
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(it.text)}</div>
+        <div style="font-size:11.5px;color:var(--text2);margin-top:2px">${esc(it.time)}</div></div></div>`).join('')
+    : `<div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+       <h3>Нет новых уведомлений</h3><p>Здесь появятся статусы заявок и новые истории</p></div>`);
+  openSheet('notifSheet'); haptic('light');
 }
 
 /* ================================================================
