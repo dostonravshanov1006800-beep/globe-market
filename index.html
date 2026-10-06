@@ -134,7 +134,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .pRow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
 .pRow span:first-child{color:var(--text2)}
 .pRow span:last-child{font-weight:600}
-.pDesc{font-size:14px;line-height:1.55;color:#3a3a3c;margin:14px 0}
+.pDesc{font-size:14px;line-height:1.55;color:var(--text2);margin:14px 0}
 .cta{display:flex;gap:10px;margin:18px 0 8px}
 .cta button{flex:1;height:48px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
 .btnMain{background:var(--accent);color:#fff;border:none}
@@ -144,7 +144,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .ptImg{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
 .ptPh{width:100%;aspect-ratio:16/10;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
 .ptTitle{font-size:19px;font-weight:800;margin-top:14px}
-.ptDesc{font-size:14px;line-height:1.55;color:#3a3a3c;margin-top:8px;white-space:pre-wrap}
+.ptDesc{font-size:14px;line-height:1.55;color:var(--text2);margin-top:8px;white-space:pre-wrap}
 
 /* ============ STORY VIEWER ============ */
 #storyViewer{position:fixed;inset:0;z-index:100;background:#000;display:none;flex-direction:column}
@@ -789,7 +789,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.4.1';
+const APP_VERSION = 'v2.4.2';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
