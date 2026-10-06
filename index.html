@@ -442,8 +442,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 ================================================================ */
 
 /* ---------- НАСТРОЙКИ ВЛАДЕЛЬЦА ---------- */
-const OWNER_TG_ID = 8396883978;      // ← TG ID владельца (админа)
-const BOT_TOKEN   = "";              // ← вставь токен бота для заявок на рекламу
+const NOTIFY_ENDPOINT = "https://lyra-7b124586.base44.app/functions/globeAdNotify"; // backend: слать заявки владельцу (токен спрятан на сервере)
+const BOT_USERNAME = "Global_mrkt_bot"; // бот проекта
 
 /* ---------- TELEGRAM ---------- */
 const tg = window.Telegram.WebApp;
@@ -895,7 +895,7 @@ function galleryNav(d){
 }
 function contactSeller(kind){
   const s = LS.get('shop_settings', {});
-  const tgNick = s.tg || 'https://t.me/';
+  const tgNick = s.tg || '@Global_mrkt_bot';
   const igNick = s.ig || '';
   if(kind==='tg'){
     const url = tgNick.startsWith('@') ? 'https://t.me/'+tgNick.slice(1) : (tgNick.startsWith('http')?tgNick:'https://t.me/'+tgNick);
@@ -1143,18 +1143,14 @@ async function sendAdRequest(){
   await dbPut('ad_requests', req);
   document.getElementById('adDesc').value = ''; document.getElementById('adLink').value = '';
 
-  // уведомление владельцу через бот
-  if(BOT_TOKEN){
-    try{
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          chat_id: OWNER_TG_ID,
-          text: `📢 Новая заявка на рекламу!\n\nОт: ${req.userName} (@${req.username})\nТариф: ${req.tariff}\nЧто: ${desc}\nСсылка: ${link||'—'}`
-        })
-      });
-    }catch(e){}
-  }
+  // уведомление владельцу через backend (токен не хранится на странице)
+  try{
+    await fetch(NOTIFY_ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: req.userName, username: req.username,
+        tariff: req.tariff, description: desc, link: link, userId: req.userId })
+    });
+  }catch(e){ console.warn('notify fail', e); }
   renderMyAdReqs();
   toast('Заявка отправлена! Ответим в течение дня 🚀');
   haptic('medium');
@@ -1313,6 +1309,13 @@ async function setReq(id, status){
   const r = (await dbAll('ad_requests')).find(x=>x.id===id);
   if(!r) return;
   r.status = status; await dbPut('ad_requests', r);
+  // уведомить клиента о решении (если он из Telegram)
+  if(String(r.userId) !== '0'){
+    try{
+      await fetch(NOTIFY_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'status_update', clientChatId: String(r.userId), status }) });
+    }catch(e){ console.warn('status notify fail', e); }
+  }
   renderAdminReqs(); haptic('light');
 }
 async function renderStats(){
@@ -1450,14 +1453,6 @@ function globeFailed(){
   const f = LS.get('favorites', []);
   const b = document.getElementById('favBadge');
   b.style.display = f.length?'flex':'none'; b.textContent = f.length;
-  // приветствие в чат бота (опционально, если токен задан)
-  if(BOT_TOKEN && tgUser){
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ chat_id: OWNER_TG_ID,
-        text: `👋 Globe Market открыл: ${tgUser.first_name||''} (@${tgUser.username||'—'})` })
-    }).catch(()=>{});
-  }
 })();
 </script>
 </body>
