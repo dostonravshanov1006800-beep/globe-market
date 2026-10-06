@@ -689,7 +689,7 @@ async function loadCloudStories(){
       userAvatar:r.user_avatar || 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=G',
       mediaType:r.media_type||'image', mediaData:r.media_data||'', caption:r.caption||'',
       views:(r.views||[]).map(v => (v && typeof v==='object') ? {id:String(v.id), name:v.name||'', at:v.at?Date.parse(v.at):0} : {id:String(v), name:'', at:0}), createdAt:Date.parse(r.created_at)||0
-    }));
+    })).filter(s => (Date.now() - s.createdAt) < 24*3600*1000);
   }catch(e){ console.warn('stories cloud fail', e); }
 }
 
