@@ -458,7 +458,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="sheetScroll">
       <div class="secTitle">Новая история</div>
       <div class="aCard">
-        <div class="field"><label>Фото или видео (видео — до 60 секунд, максимальное качество)</label><div class="photoPicker" id="storyPick"></div></div>
+        <div class="field"><label>Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
         <div class="field"><label>Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." maxlength="300"></div>
         <button class="submitBtn" onclick="publishStory()">📸 Опубликовать</button>
       </div>
@@ -640,7 +640,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.2.3';
+const APP_VERSION = 'v2.2.4';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -1154,15 +1154,29 @@ async function showStoryItem(){
   const viewed = LS.get('viewed_stories', []);
   if(!viewed.includes(s.id)){ viewed.push(s.id); LS.set('viewed_stories', viewed); renderStories(); }
 
-  svStart = performance.now();
-  const dur = isVideo ? Math.max(STORY_MS, (el.duration||5)*1000) : STORY_MS;
-  const step = ()=>{
-    const p = (performance.now()-svStart)/dur;
-    fill.style.width = Math.min(100, p*100) + '%';
-    if(p >= 1){ storyNav(1); return; }
+  let svDurMs = STORY_MS, svStarted = false;
+  const beginTimer = ()=>{
+    if(svStarted) return;
+    svStarted = true;
+    svStart = performance.now();
+    const step = ()=>{
+      const p = (performance.now()-svStart)/svDurMs;
+      fill.style.width = Math.min(100, p*100) + '%';
+      if(p >= 1){ storyNav(1); return; }
+      svTimer = requestAnimationFrame(step);
+    };
     svTimer = requestAnimationFrame(step);
   };
-  svTimer = requestAnimationFrame(step);
+  if(isVideo){
+    // длительность известна только после loadedmetadata — раньше читали NaN и рвали видео на 5 сек
+    el.preload = 'metadata';
+    el.addEventListener('loadedmetadata', ()=>{
+      svDurMs = Math.max(STORY_MS, (el.duration||5)*1000); // можно и продлить, если таймер уже идёт
+      beginTimer();
+    });
+    setTimeout(beginTimer, 2500); // страховка: если метаданные не пришли, всё равно показываем
+    el.play().catch(()=>{});
+  } else beginTimer();
 }
 function storyNav(d){
   clearInterval(svTimer);
@@ -1213,7 +1227,7 @@ function pickStory(){
   const f = document.getElementById('hiddenFile');
   f.onchange = async ()=>{
     const file = f.files[0]; if(!file) return;
-    if(file.type.startsWith('video/') && file.size > 75*1024*1024){ toast('Видео слишком большое (макс 75 МБ)'); f.value=''; return; }
+    if(file.type.startsWith('video/') && file.size > 50*1024*1024){ toast('Видео слишком большое (макс 50 МБ)'); f.value=''; return; }
     storyFile = file;
     if(file.type.startsWith('video/')){
       const dur = await videoDuration(file);
@@ -1677,7 +1691,7 @@ function pickBanner(){
     const el = document.getElementById('setBanner');
     try{
       if(file.type.startsWith('video/')){
-        if(file.size > 75*1024*1024){ toast('Видео слишком большое (макс 75 МБ)'); return; }
+        if(file.size > 50*1024*1024){ toast('Видео слишком большое (макс 50 МБ)'); return; }
         const dur = await videoDuration(file);
         if(dur > 61){ toast('Видео дольше 60 секунд — обрежьте, пожалуйста ✂️'); return; }
         el.innerHTML = `<div class="photoSlot">🎬 Загружаю видео...</div>`;
