@@ -162,6 +162,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #storyMedia{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #storyMedia img,#storyMedia video{max-width:100%;max-height:100%;object-fit:contain}
 .tapL,.tapR{position:absolute;top:0;bottom:0;width:35%;z-index:2}
+.tapC{position:absolute;top:0;bottom:0;left:35%;right:35%;z-index:2;cursor:pointer}
 .tapL{left:0}.tapR{right:0}
 #storyCenter{position:absolute;left:35%;right:35%;top:0;bottom:0;z-index:1}
 
@@ -509,6 +510,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="storyMedia">
     <div class="tapL" onclick="storyNav(-1)"></div>
     <div id="storyCenter"></div>
+    <div class="tapC" onclick="svCenterTap()"></div>
     <div class="tapR" onclick="storyNav(1)"></div>
     <div id="storyActions">
       <div class="row">
@@ -588,7 +590,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
 <!-- ===================== STORY VIEWERS ===================== -->
 <div class="sheet" id="viewersSheet">
-  <div class="backdrop" onclick="closeSheet('viewersSheet')"></div>
+  <div class="backdrop" onclick="closeViewersSheet()"></div>
   <div class="panel">
     <div class="grab"></div>
     <div class="sheetScroll" id="viewersBody"></div>
@@ -789,7 +791,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.4.2';
+const APP_VERSION = 'v2.4.3';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -1292,7 +1294,12 @@ async function showStoryItem(){
   if(isMine){
     viewsEl.style.display = 'flex';
     viewsEl.textContent = '👁 …';
-    viewsEl.onclick = ()=>openViewers(s);
+    viewsEl.onclick = ()=>{
+      svSetPaused(true);
+      const video = document.querySelector('#storyCenter video');
+      if(video) video.pause();
+      openViewers(s);
+    };
     fetchStoryViewers(s.id).then(v=>{
       s.views = v;
       if(viewsEl) viewsEl.textContent = '👁 ' + v.length + ' — ' + t('кто посмотрел');
@@ -2357,6 +2364,25 @@ async function unfollowFrom(id){
 }
 
 /* кто посмотрел историю */
+function svCenterTap(){
+  const s = svUser && svUser.items[svIdx];
+  if(!s) return;
+  const video = document.querySelector('#storyCenter video');
+  if(!svPaused){
+    svSetPaused(true);
+    if(video) video.pause();
+    if(tgUser && String(s.userId)===String(tgUser.id)) openViewers(s);
+  } else {
+    svSetPaused(false);
+    if(video) video.play().catch(()=>{});
+  }
+}
+function closeViewersSheet(){
+  closeSheet('viewersSheet');
+  svSetPaused(false);
+  const video = document.querySelector('#storyCenter video');
+  if(video) video.play().catch(()=>{});
+}
 async function openViewers(s){
   const fresh = await fetchStoryViewers(s.id).catch(()=>null);
   if(Array.isArray(fresh) && fresh.length) s.views = fresh;
