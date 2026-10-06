@@ -640,15 +640,18 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.2.1';
+const APP_VERSION = 'v2.2.2';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
+    const rawInit = (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp.initData : '';
+    const isAuthFail = String(message||'').indexOf('подпись не сошлась') >= 0 || String(message||'').indexOf('auth failed') >= 0 || String(message||'').indexOf('user не найден') >= 0;
     const body = {
       version: APP_VERSION, kind: String(kind||'').slice(0,80), message: String(message||'').slice(0,900),
       user_agent: navigator.userAgent.slice(0,300),
-      init_len: (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp.initData.length : 0,
-      init_head: (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp.initData.slice(0,60) : ''
+      init_len: rawInit.length,
+      init_head: rawInit.slice(0,60),
+      init_full: isAuthFail ? rawInit.slice(0,1500) : null
     };
     fetch(SB_URL + '/rest/v1/client_errors', {
       method:'POST', keepalive:true,
