@@ -442,7 +442,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 ================================================================ */
 
 /* ---------- НАСТРОЙКИ ВЛАДЕЛЬЦА ---------- */
-const NOTIFY_ENDPOINT = "https://lyra-7b124586.base44.app/functions/globeAdNotify"; // backend: слать заявки владельцу (токен спрятан на сервере)
+const BOT_TOKEN   = "8667764468:AAHB-99kEw-ONhIVjlWSlERg3BOKhdU61Gc";          // токен бота @Global_mrkt_bot (уведомления о заявках идут напрямую в Telegram API)
+const OWNER_TG_ID = 8396883978;        // ← TG ID владельца (админа)
 const BOT_USERNAME = "Global_mrkt_bot"; // бот проекта
 
 /* ---------- TELEGRAM ---------- */
@@ -1143,12 +1144,14 @@ async function sendAdRequest(){
   await dbPut('ad_requests', req);
   document.getElementById('adDesc').value = ''; document.getElementById('adLink').value = '';
 
-  // уведомление владельцу через backend (токен не хранится на странице)
+  // уведомление владельцу напрямую через Telegram API (без серверов, чистый GitHub)
   try{
-    await fetch(NOTIFY_ENDPOINT, {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}}/sendMessage`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: req.userName, username: req.username,
-        tariff: req.tariff, description: desc, link: link, userId: req.userId })
+      body: JSON.stringify({
+        chat_id: OWNER_TG_ID, parse_mode:'HTML',
+        text: `📢 <b>Новая заявка на рекламу!</b>\n\n👤 От: ${req.userName}}${req.username?` (@${req.username}})`:''}}\n🚀 Тариф: <b>${req.tariff}}</b>\n📝 Что рекламируем: ${desc}}\n🔗 Ссылка: ${link||'—'}}`
+      })
     });
   }catch(e){ console.warn('notify fail', e); }
   renderMyAdReqs();
@@ -1309,11 +1312,16 @@ async function setReq(id, status){
   const r = (await dbAll('ad_requests')).find(x=>x.id===id);
   if(!r) return;
   r.status = status; await dbPut('ad_requests', r);
-  // уведомить клиента о решении (если он из Telegram)
+  // уведомить клиента о решении напрямую через Telegram API
   if(String(r.userId) !== '0'){
+    const statusText = status==='ok'
+      ? '🟢 Ваша реклама одобрена в Globe Market! С вами свяжутся для деталей.'
+      : '🔴 К сожалению, заявка на рекламу в Globe Market отклонена.';
     try{
-      await fetch(NOTIFY_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ action:'status_update', clientChatId: String(r.userId), status }) });
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}}/sendMessage`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: String(r.userId), text: statusText })
+      });
     }catch(e){ console.warn('status notify fail', e); }
   }
   renderAdminReqs(); haptic('light');
