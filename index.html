@@ -640,7 +640,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.2.2';
+const APP_VERSION = 'v2.2.3';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -705,6 +705,8 @@ const userApi  = (action, payload)=> sbRpc('user_api',  { action, payload: paylo
 /* ---------- Кэш каталога и партнёров ---------- */
 let cloudListings = LS.get('cloud_listings', []);
 let cloudPartners = LS.get('cloud_partners', []);
+let cloudBanner = LS.get('cloud_banner', {});
+let bannerDraft = null; // {url,type} выбранное в форме, но ещё не сохранённое
 let cloudStories = [];
 
 async function loadCloudStories(){
@@ -769,6 +771,16 @@ async function loadCloud(){
     LS.set('cloud_partners', cloudPartners);
   }catch(e){ console.warn('partners cloud fail', e); }
   renderGrid(); renderPartners();
+}
+
+/* ---------- Баннер главной (облако, видят ВСЕ посетители) ---------- */
+async function loadBanner(){
+  try{
+    const rows = await sbGet('shop_banner?select=*&id=eq.1');
+    cloudBanner = (rows && rows[0]) || {};
+    LS.set('cloud_banner', cloudBanner);
+  }catch(e){ console.warn('banner cloud fail', e); cloudBanner = LS.get('cloud_banner', {}); }
+  renderBanner();
 }
 
 /* ---------- Разовая миграция локальных товаров админа в облако ---------- */
@@ -911,11 +923,16 @@ function showSkeletons(){
   grid.innerHTML = Array.from({length:4}).map(()=>'<div class="card" style="animation:cardUp .3s ease forwards"><div class="skel skelImg"></div><div class="skel skelRow"></div><div class="skel skelPrice"></div></div>').join('');
 }
 function renderBanner(){
-  const s = LS.get('shop_settings', {});
+  const s = cloudBanner || {};
   const box = document.getElementById('bannerBox');
-  if(s.banner && s.bannerLink){
-    box.innerHTML = `<a href="${esc(s.bannerLink)}" target="_blank" rel="noopener" style="display:block;margin-bottom:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)"><img src="${esc(s.banner)}" style="width:100%;display:block;object-fit:cover;max-height:140px"></a>`;
-  } else box.innerHTML = '';
+  if(!s.banner_url){ box.innerHTML = ''; return; }
+  const mediaTag = s.banner_type === 'video'
+    ? `<video src="${esc(s.banner_url)}" autoplay muted loop playsinline style="width:100%;display:block;object-fit:cover;max-height:150px"></video>`
+    : `<img src="${esc(s.banner_url)}" style="width:100%;display:block;object-fit:cover;max-height:150px">`;
+  const wrap = `style="display:block;margin-bottom:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)"`;
+  box.innerHTML = s.banner_link
+    ? `<a href="${esc(s.banner_link)}" target="_blank" rel="noopener" ${wrap}>${mediaTag}</a>`
+    : `<div ${wrap}>${mediaTag}</div>`;
 }
 function renderGrid(){
   renderBanner();
@@ -1371,10 +1388,16 @@ function renderAdmin(){
   document.getElementById('setIg').value = s.ig||'';
   document.getElementById('setName').value = s.name||'';
   document.getElementById('setDesc').value = s.desc||'';
-  document.getElementById('setBannerLink').value = s.bannerLink||'';
-  document.getElementById('setBanner').innerHTML = s.banner
-    ? `<div class="photoSlot"><img src="${esc(s.banner)}"><button class="rm" onclick="clearBanner()">✕</button></div>`
-    : pickerSlot('pickBanner()');
+  document.getElementById('setBannerLink').value = cloudBanner.banner_link||'';
+  bannerDraft = cloudBanner.banner_url ? { url: cloudBanner.banner_url, type: cloudBanner.banner_type||'image' } : null;
+  renderBannerPicker();
+}
+function renderBannerPicker(){
+  const el = document.getElementById('setBanner');
+  if(!bannerDraft || !bannerDraft.url){ el.innerHTML = pickerSlot('pickBanner()'); return; }
+  el.innerHTML = bannerDraft.type === 'video'
+    ? `<div class="photoSlot"><video src="${esc(bannerDraft.url)}" muted></video>🎬<button class="rm" onclick="clearBanner()">✕</button></div>`
+    : `<div class="photoSlot"><img src="${esc(bannerDraft.url)}"><button class="rm" onclick="clearBanner()">✕</button></div>`;
 }
 function pickAdminPhoto(){
   const f = document.getElementById('hiddenFile');
@@ -1637,34 +1660,72 @@ async function renderStats(){
 }
 
 /* ---------- Настройки (локальные) ---------- */
+function dataUrlToBlob(dataUrl){
+  const [header, b64] = dataUrl.split(',');
+  const mime = (header.match(/data:(.*?);base64/)||[])[1] || 'image/jpeg';
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], {type: mime});
+}
 function pickBanner(){
   const f = document.getElementById('hiddenFile');
-  f.onchange = ()=>{
+  f.accept = 'image/*,video/*';
+  f.onchange = async ()=>{
     const file = f.files[0]; if(!file) return;
-    const fr = new FileReader();
-    fr.onload = ()=>{
-      const s = LS.get('shop_settings', {}); s.banner = fr.result; LS.set('shop_settings', s);
-      document.getElementById('setBanner').innerHTML =
-        `<div class="photoSlot"><img src="${s.banner}"><button class="rm" onclick="clearBanner()">✕</button></div>`;
-    };
-    fr.readAsDataURL(file); f.value='';
+    f.accept = 'image/*'; // вернуть дефолт для остальных пикеров
+    const el = document.getElementById('setBanner');
+    try{
+      if(file.type.startsWith('video/')){
+        if(file.size > 75*1024*1024){ toast('Видео слишком большое (макс 75 МБ)'); return; }
+        const dur = await videoDuration(file);
+        if(dur > 61){ toast('Видео дольше 60 секунд — обрежьте, пожалуйста ✂️'); return; }
+        el.innerHTML = `<div class="photoSlot">🎬 Загружаю видео...</div>`;
+        const url = await sbUploadStory(file);
+        bannerDraft = { url, type:'video' };
+      } else {
+        const dataUrl = await compressImage(file, 1280, 0.78);
+        el.innerHTML = `<div class="photoSlot">Загружаю фото...</div>`;
+        const blob = dataUrlToBlob(dataUrl);
+        const url = await sbUploadStory(new File([blob], 'banner.jpg', {type:'image/jpeg'}));
+        bannerDraft = { url, type:'image' };
+      }
+      renderBannerPicker();
+    }catch(e){
+      console.warn('banner upload fail', e);
+      toast('Не удалось загрузить баннер — попробуйте ещё раз');
+      renderBannerPicker();
+    }
+    f.value='';
   };
   f.click();
 }
 function clearBanner(){
-  const s = LS.get('shop_settings', {}); delete s.banner; LS.set('shop_settings', s);
+  bannerDraft = null;
   document.getElementById('setBanner').innerHTML = pickerSlot('pickBanner()');
 }
-function saveSettings(){
+async function saveSettings(){
   LS.set('shop_settings', {
     ...LS.get('shop_settings', {}),
-    bannerLink: document.getElementById('setBannerLink').value.trim(),
     tg: document.getElementById('setTg').value.trim(),
     ig: document.getElementById('setIg').value.trim(),
     name: document.getElementById('setName').value.trim(),
     desc: document.getElementById('setDesc').value.trim()
   });
-  toast('Настройки сохранены 💾'); haptic('light');
+  const btn = event && event.target; if(btn){ btn.textContent='Сохраняю...'; }
+  try{
+    await adminApi('save_banner', {
+      banner_url: bannerDraft ? bannerDraft.url : '',
+      banner_type: bannerDraft ? bannerDraft.type : 'image',
+      banner_link: document.getElementById('setBannerLink').value.trim()
+    });
+    await loadBanner(); // баннер теперь виден всем посетителям сразу
+    toast('Настройки сохранены 💾'); haptic('light');
+  }catch(e){
+    console.warn('save banner fail', e);
+    toast('Остальное сохранено, но баннер не загрузился: ' + (e.message||'ошибка'));
+  }
+  if(btn){ btn.textContent='💾 Сохранить всё'; }
 }
 
 /* ---------- Pull-to-refresh ---------- */
@@ -1948,6 +2009,7 @@ function deleteMyStory(){
   const b = document.getElementById('favBadge');
   b.style.display = f.length?'flex':'none'; b.textContent = f.length;
   await loadCloud();
+  loadBanner();
   LS.set('cloud_loaded_once', true);
   refreshChatBadge();
   setInterval(refreshChatBadge, 20000);
