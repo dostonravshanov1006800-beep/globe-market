@@ -308,11 +308,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       </div>
       <div class="aCard">
         <h4>Instagram</h4>
-        <div class="field" style="margin:8px 0 0"><input id="profInst" placeholder="@username"></div>
+        <div class="field" style="margin:8px 0 0"><input id="profInst" maxlength="60" placeholder="@username"></div>
       </div>
       <div class="aCard">
         <h4>О себе</h4>
-        <div class="field" style="margin:8px 0 0"><textarea id="profBio" placeholder="Пара слов о себе..."></textarea></div>
+        <div class="field" style="margin:8px 0 0"><textarea id="profBio" maxlength="500" placeholder="Пара слов о себе..."></textarea></div>
       </div>
       <button class="submitBtn" onclick="saveProfile()">💾 Сохранить профиль</button>
 
@@ -324,7 +324,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       </div>
       <div class="aCard">
         <div class="field"><label>Что рекламируем?</label><input id="adDesc" placeholder="Например: мой магазин кроссовок"></div>
-        <div class="field"><label>Ссылка</label><input id="adLink" placeholder="https://t.me/..."></div>
+        <div class="field"><label>Ссылка</label><input id="adLink" maxlength="200" placeholder="https://t.me/..."></div>
         <button class="submitBtn" onclick="sendAdRequest()">Отправить заявку 🚀</button>
         <div id="myAdReqs" style="margin-top:14px"></div>
       </div>
@@ -345,15 +345,15 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div id="adm-add">
         <div class="aCard">
           <div class="field"><label>Фотографии (до 5)</label><div class="photoPicker" id="admPhotos"></div></div>
-          <div class="field"><label>Название товара</label><input id="fTitle" placeholder="iPhone 14 Pro 256GB"></div>
+          <div class="field"><label>Название товара</label><input id="fTitle" maxlength="100" placeholder="iPhone 14 Pro 256GB"></div>
           <div class="field" style="display:flex;gap:10px">
-            <div style="flex:1"><label>Цена (сум)</label><input id="fPrice" type="number" placeholder="8500000"></div>
-            <div style="flex:1"><label>Район / город</label><input id="fDistrict" placeholder="Юнусабад"></div>
+            <div style="flex:1"><label>Цена (сум)</label><input id="fPrice" maxlength="12" type="number" placeholder="8500000"></div>
+            <div style="flex:1"><label>Район / город</label><input id="fDistrict" maxlength="60" placeholder="Юнусабад"></div>
           </div>
           <div class="field"><label>Категория</label>
             <select id="fCategory"></select>
           </div>
-          <div class="field"><label>Описание</label><textarea id="fDesc" placeholder="Состояние, комплектация..."></textarea></div>
+          <div class="field"><label>Описание</label><textarea id="fDesc" maxlength="1000" placeholder="Состояние, комплектация..."></textarea></div>
           <button class="submitBtn" onclick="publishProduct()">🚀 Опубликовать (видят все)</button>
         </div>
       </div>
@@ -362,9 +362,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="aCard">
           <div class="sub" style="margin-bottom:10px">Партнёры отображаются баннером на главной — их видят все пользователи.</div>
           <div class="field"><label>Логотип / фото партнёра</label><div class="photoPicker" id="prPhotos"></div></div>
-          <div class="field"><label>Название партнёра</label><input id="prTitle" placeholder="Kafe Nuroniy"></div>
-          <div class="field"><label>Описание (что предлагает)</label><textarea id="prDesc" placeholder="Скидка 10% для клиентов Globe Market"></textarea></div>
-          <div class="field"><label>Ссылка (Telegram / Instagram / сайт)</label><input id="prLink" placeholder="https://t.me/..."></div>
+          <div class="field"><label>Название партнёра</label><input id="prTitle" maxlength="60" placeholder="Kafe Nuroniy"></div>
+          <div class="field"><label>Описание (что предлагает)</label><textarea id="prDesc" maxlength="500" placeholder="Скидка 10% для клиентов Globe Market"></textarea></div>
+          <div class="field"><label>Ссылка (Telegram / Instagram / сайт)</label><input id="prLink" maxlength="200" placeholder="https://t.me/..."></div>
           <button class="submitBtn" onclick="publishPartner()">🤝 Опубликовать партнёра</button>
         </div>
         <div id="prList"></div>
@@ -458,7 +458,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div class="secTitle">Новая история</div>
       <div class="aCard">
         <div class="field"><label>Фото или видео (видео — до 60 секунд, максимальное качество)</label><div class="photoPicker" id="storyPick"></div></div>
-        <div class="field"><label>Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..."></div>
+        <div class="field"><label>Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." maxlength="300"></div>
         <button class="submitBtn" onclick="publishStory()">📸 Опубликовать</button>
       </div>
     </div>
@@ -496,6 +496,15 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="chatInputRow" style="display:none">
     <input id="chatInput" placeholder="Сообщение..." maxlength="2000" onkeydown="if(event.key==='Enter')sendMsg()" autocomplete="off">
     <button id="chatSendBtn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
+
+<!-- ===================== EDIT PRODUCT ===================== -->
+<div class="sheet" id="editSheet">
+  <div class="backdrop" onclick="closeSheet('editSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="editBody"></div>
   </div>
 </div>
 
@@ -970,10 +979,10 @@ async function migrateLocalStories(){
           const blob = await (await fetch(mediaData)).blob();
           mediaData = await sbUploadStory(new File([blob], 'story.mp4', {type: blob.type || 'video/mp4'}));
         }
-        await sbInsert('stories', {
-          user_id: String(st.userId||'0'), user_name: st.userName||'Гость',
-          user_avatar: st.userAvatar||'', media_type: mediaType, media_data: mediaData,
-          caption: st.caption||'', views: []
+        await sbRpc('publish_story', {
+          p_media_type: mediaType, p_media_data: mediaData,
+          p_caption: st.caption||'', p_avatar: st.userAvatar||'',
+          init_data: tg.initData || ''
         });
       }catch(e){ console.warn('mig story fail', e); }
       await dbDel('stories', st.id);
@@ -1074,7 +1083,7 @@ async function showStoryItem(){
   const myViewId = tgUser? String(tgUser.id) : '0';
   if(!s.views || !s.views.some(v=>v.id===myViewId)){
     s.views = [...(s.views||[]), {id:myViewId, name:(tgUser&&tgUser.first_name)||'', at:Date.now()}];
-    sbRpc('story_view', { p_id:s.id, p_viewer: myViewId, p_viewer_name:(tgUser&&tgUser.first_name)||'' }).catch(()=>{});
+    if(tgUser && tg.initData) sbRpc('story_view', { p_id:s.id, init_data: tg.initData }).catch(()=>{});
   }
   const viewed = LS.get('viewed_stories', []);
   if(!viewed.includes(s.id)){ viewed.push(s.id); LS.set('viewed_stories', viewed); renderStories(); }
@@ -1155,9 +1164,13 @@ function pickStory(){
   };
   f.click();
 }
+let storyPublishing = false;
 async function publishStory(){
+  if(storyPublishing) return;
   if(!storyFileData){ toast('Сначала выберите фото или видео'); return; }
-  const me = tgUser || {id: 0, first_name: 'Гость'};
+  if(!tgUser || !tg.initData){ toast('Откройте приложение в Telegram, чтобы публиковать истории'); return; }
+  storyPublishing = true;
+  const me = tgUser;
   const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
   try{
     let mediaData = storyFileData, mediaType = storyFileType;
@@ -1165,10 +1178,10 @@ async function publishStory(){
       if(btn) btn.textContent='Загружаю видео...';
       mediaData = await sbUploadStory(storyFile);
     }
-    await sbInsert('stories', {
-      user_id: String(me.id||'0'), user_name: me.first_name||'Гость', user_avatar: avatarUrl(me),
-      media_type: mediaType, media_data: mediaData,
-      caption: document.getElementById('storyCaption').value || '', views: []
+    await sbRpc('publish_story', {
+      p_media_type: mediaType, p_media_data: mediaData,
+      p_caption: document.getElementById('storyCaption').value || '',
+      p_avatar: avatarUrl(me), init_data: tg.initData || ''
     });
     closeSheet('storyComposer');
     await loadCloudStories();
@@ -1179,6 +1192,7 @@ async function publishStory(){
     console.warn('publish story fail', e);
     toast('Не удалось опубликовать историю');
   }
+  storyPublishing = false;
   if(btn){ btn.textContent='📸 Опубликовать'; }
 }
 
@@ -1217,10 +1231,14 @@ function pickTariff(el){
   document.querySelectorAll('.tariff').forEach(t=>t.classList.remove('on'));
   el.classList.add('on'); pickedTariff = el.dataset.t; haptic('light');
 }
+let adSending = false;
 async function sendAdRequest(){
+  if(adSending) return;
   const desc = document.getElementById('adDesc').value.trim();
   const link = document.getElementById('adLink').value.trim();
   if(!desc){ toast('Опишите, что рекламируем'); return; }
+  adSending = true;
+  setTimeout(()=>{ adSending = false; }, 5000);
   const me = tgUser || {id:0, first_name:'Гость', username:'unknown'};
   // 1) сохраняем заявку в облако (админ увидит её в панели)
   try{
@@ -1271,6 +1289,12 @@ async function renderMyAdReqs(){
    АДМИН-ПАНЕЛЬ (только OWNER_TG_ID, публикация в облако)
 ================================================================ */
 let adminPhotos = [];
+function adminConfirm(msg){
+  return new Promise(res=>{
+    try{ tg.showConfirm(msg, ok=>res(!!ok)); }
+    catch(e){ res(window.confirm(msg)); }
+  });
+}
 function admTab(el){
   document.querySelectorAll('.adminNav .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
@@ -1320,12 +1344,15 @@ function renderAdminPhotoPicker(){
 }
 
 /* ---------- Публикация товара в облако ---------- */
+let productPublishing = false;
 async function publishProduct(){
+  if(productPublishing) return;
   const title = document.getElementById('fTitle').value.trim();
   const price = parseInt(document.getElementById('fPrice').value) || 0;
   if(!title){ toast('Введите название'); return; }
   if(!adminPhotos.length){ toast('Добавьте хотя бы одно фото'); return; }
   const s = LS.get('shop_settings', {});
+  productPublishing = true;
   const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
   try{
     await adminApi('upsert_listing', {
@@ -1345,6 +1372,7 @@ async function publishProduct(){
   }catch(e){
     toast('Не удалось опубликовать: ' + e.message);
   }
+  productPublishing = false;
   if(btn){ btn.textContent='🚀 Опубликовать (видят все)'; }
 }
 
@@ -1379,23 +1407,42 @@ async function toggleTop(id, cur){
   }catch(e){ toast('Ошибка: ' + e.message); }
 }
 async function deleteProduct(id){
-  if(!confirm('Удалить этот товар?')) return;
+  const ok = await adminConfirm('Удалить этот товар?');
+  if(!ok) return;
   try{
     await adminApi('delete_listing', { id });
     await loadCloud(); renderAdminList();
     toast('Товар удалён');
   }catch(e){ toast('Ошибка: ' + e.message); }
 }
+let editProdId = null;
 async function editProduct(id){
   try{ var r = await adminApi('all_listings'); }catch(e){ toast('Ошибка загрузки'); return; }
   const p = (r.data||[]).find(x=>x.id===id);
   if(!p) return;
-  const nt = prompt('Название товара:', p.title); if(nt===null) return;
-  const np = prompt('Цена (сум):', p.price); if(np===null) return;
-  const nd = prompt('Описание:', p.description||''); if(nd===null) return;
-  const ncity = prompt('Район / город:', p.city||''); if(ncity===null) return;
+  editProdId = id;
+  document.getElementById('editBody').innerHTML = `
+    <div class="secTitle">Изменить товар</div>
+    <div class="aCard">
+      <div class="field"><label>Название</label><input id="eTitle" maxlength="100" value="${esc(p.title)}"></div>
+      <div class="field"><label>Цена (сум)</label><input id="ePrice" type="number" inputmode="numeric" maxlength="12" value="${esc(String(p.price))}"></div>
+      <div class="field"><label>Район / город</label><input id="eCity" maxlength="60" value="${esc(p.city||'')}"></div>
+      <div class="field"><label>Описание</label><textarea id="eDesc" maxlength="1000">${esc(p.description||'')}</textarea></div>
+      <button class="submitBtn" onclick="saveEditProduct()">💾 Сохранить</button>
+    </div>`;
+  openSheet('editSheet');
+}
+async function saveEditProduct(){
+  if(!editProdId) return;
   try{
-    await adminApi('upsert_listing', { id, title:nt.trim(), price:parseInt(np)||0, description:nd.trim(), city:ncity.trim() });
+    await adminApi('upsert_listing', {
+      id: editProdId,
+      title: document.getElementById('eTitle').value.trim(),
+      price: parseInt(document.getElementById('ePrice').value)||0,
+      city: document.getElementById('eCity').value.trim(),
+      description: document.getElementById('eDesc').value.trim()
+    });
+    closeSheet('editSheet'); editProdId = null;
     await loadCloud(); renderAdminList();
     toast('Сохранено ✅');
   }catch(e){ toast('Ошибка: ' + e.message); }
@@ -1418,9 +1465,12 @@ function clearPartnerPhoto(){
   partnerPhoto = null;
   document.getElementById('prPhotos').innerHTML = pickerSlot('pickPartnerPhoto()');
 }
+let partnerPublishing = false;
 async function publishPartner(){
+  if(partnerPublishing) return;
   const title = document.getElementById('prTitle').value.trim();
   if(!title){ toast('Введите название партнёра'); return; }
+  partnerPublishing = true;
   const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
   try{
     await adminApi('upsert_partner', {
@@ -1437,6 +1487,7 @@ async function publishPartner(){
     await loadCloud(); renderAdminPartners();
     toast('Партнёр опубликован — его видят все 🤝'); haptic('medium');
   }catch(e){ toast('Не удалось опубликовать: ' + e.message); }
+  partnerPublishing = false;
   if(btn){ btn.textContent='🤝 Опубликовать партнёра'; }
 }
 async function renderAdminPartners(){
@@ -1464,7 +1515,8 @@ async function renderAdminPartners(){
   : `<div class="empty"><h3>Партнёров пока нет</h3><p>Добавьте первого партнёра в форме выше</p></div>`;
 }
 async function deletePartner(id){
-  if(!confirm('Удалить партнёра?')) return;
+  const ok = await adminConfirm('Удалить партнёра?');
+  if(!ok) return;
   try{
     await adminApi('delete_partner', { id });
     await loadCloud(); renderAdminPartners();
@@ -1707,8 +1759,8 @@ function renderInbox(){
     body.innerHTML = `<div class="chatEmpty"><div style="font-size:40px;margin-bottom:10px">✉️</div>Пока нет сообщений.<br>Откройте чью-то историю и нажмите ✈️,<br>чтобы написать автору лично.</div>`;
     return;
   }
-  body.innerHTML = inboxData.map(c=>`
-    <div class="chatItem" onclick="openThread('${esc(c.peer_id)}','${esc(c.peer_name||'Пользователь')}')">
+  body.innerHTML = inboxData.map((c,i)=>`
+    <div class="chatItem" onclick="openThreadIdx(${i})">
       <div class="chatAva">${esc((c.peer_name||'П').charAt(0).toUpperCase())}</div>
       <div class="chatItemBody">
         <div class="chatItemName">${esc(c.peer_name||'Пользователь')}</div>
@@ -1721,6 +1773,10 @@ function renderInbox(){
     </div>`).join('');
 }
 
+function openThreadIdx(i){
+  const c = inboxData[i]; if(!c) return;
+  openThread(c.peer_id, c.peer_name || 'Пользователь');
+}
 async function openThread(peerId, peerName){
   chatMode = 'thread'; chatPeerId = String(peerId); chatPeerName = peerName||'Пользователь';
   document.getElementById('chatBackBtn').style.display = 'flex';
@@ -1750,16 +1806,20 @@ async function loadThread(peerId, peerName, silent){
   }catch(e){ if(!silent) toast('Не удалось загрузить переписку'); }
 }
 
+let msgSending = false;
 async function sendMsg(){
+  if(msgSending) return;
   const inp = document.getElementById('chatInput');
   const text = inp.value.trim();
   if(!text || !chatPeerId) return;
+  msgSending = true;
   inp.value = '';
   try{
     await chatApi('send', { to_id: chatPeerId, to_name: chatPeerName, text });
     haptic('medium');
     await loadThread(chatPeerId, chatPeerName, true);
   }catch(e){ toast('Сообщение не отправилось'); inp.value = text; }
+  msgSending = false;
 }
 
 function updateChatBadge(){
@@ -1837,6 +1897,7 @@ function deleteMyStory(){
   LS.set('cloud_loaded_once', true);
   refreshChatBadge();
   setInterval(refreshChatBadge, 20000);
+  sbRpc('purge_old_stories', {}).catch(()=>{});  // чистим истории старше 48ч (+ их файлы)
 })();
 </script>
 </body>
