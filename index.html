@@ -83,6 +83,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cmtTime{font-size:10.5px;color:var(--text2);margin-left:6px;font-weight:400}
 .cmtText{font-size:13.5px;line-height:1.45;margin-top:2px;word-break:break-word}
 .cmtDel{margin-left:auto;background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:0 2px}
+.reelFab{position:fixed;right:16px;bottom:84px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;font-weight:400;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);cursor:pointer;z-index:50;line-height:1}
+.reelFab:active{transform:scale(.93)}
+.reelEmptyBtn{margin-top:14px;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:12px 22px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer}
 .rpillRow{display:flex;gap:12px;margin-bottom:8px;pointer-events:auto}
 .rpill{background:rgba(0,0,0,.4);border:none;color:#fff;font-size:19px;cursor:pointer;border-radius:16px;padding:6px 11px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:transform .12s}
 .rpill:active{transform:scale(1.25)}
@@ -226,11 +229,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #storyBars{display:flex;gap:4px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px}
 .sbar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
 .sbar i{display:block;height:100%;width:0;background:#fff;border-radius:2px}
-#storyTop{display:flex;align-items:center;gap:10px;padding:4px 12px 10px}
-#storyTop img{width:36px;height:36px;border-radius:50%;object-fit:cover}
-#storyTop .sname{color:#fff;font-size:14px;font-weight:600}
-#storyTop .stime{color:rgba(255,255,255,.6);font-size:12px}
-#storyClose{margin-left:auto;background:none;border:none;cursor:pointer}
+#storyTop{display:flex;align-items:center;gap:6px;padding:4px 10px 10px}
+#storyTop img{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+#storyTop .sname{color:#fff;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#storyTop .stime{color:rgba(255,255,255,.6);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#storyTop > div:nth-of-type(2){flex:1;min-width:0;overflow:hidden}
+#storyClose{margin-left:2px;background:none;border:none;cursor:pointer;flex:0 0 auto}
 #storyClose svg{width:22px;height:22px;stroke:#fff;stroke-width:2;fill:none}
 #storyMedia{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #storyMedia img,#storyMedia video{max-width:100%;max-height:100%;object-fit:contain}
@@ -358,8 +362,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .chatItemLast{font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .chatUnread{background:#FF2D55;color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 6px;flex:0 0 auto}
 .chatEmpty{padding:60px 20px;text-align:center;color:var(--text2);font-size:14px}
-#storyMsgBtn,#storyDelBtn,#storyRepostBtn,#muteBtn{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:34px;height:34px;display:none;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);flex:0 0 auto}
-#storyMsgBtn svg,#storyDelBtn svg,#storyRepostBtn svg,#muteBtn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#storyMsgBtn,#storyDelBtn,#storyRepostBtn,#muteBtn,#cmtStoryBtn,#storyReportBtn{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:31px;height:31px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);flex:0 0 auto}
+#storyMsgBtn,#storyDelBtn,#storyRepostBtn,#muteBtn,#storyReportBtn{display:none}
+#storyMsgBtn svg,#storyDelBtn svg,#storyRepostBtn svg,#muteBtn svg,#cmtStoryBtn svg,#storyReportBtn svg{width:15.5px;height:15.5px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #storyViews{cursor:pointer}
 .viewerRow{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid var(--border)}
 .viewerAva{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5E5CE6);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
@@ -414,6 +419,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <button class="rMute" id="reelsMute" onclick="toggleReelsMute()" title="Звук">
         <svg viewBox="0 0 24 24" id="reelsMuteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
       </button>
+      <button class="reelFab" id="reelFabBtn" onclick="openReelComposer()" title="Снять рилс">+</button>
     </div>
 
     <!-- FAVORITES -->
@@ -670,6 +676,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <button id="storyDelBtn" onclick="deleteMyStory()" title="Удалить историю"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
     <button id="muteBtn" onclick="toggleMute()" title="Звук" style="display:none"><svg viewBox="0 0 24 24" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
     <button id="storyReportBtn" onclick="svOpenReport()" title="Жалоба" style="display:none"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
+    <button id="cmtStoryBtn" onclick="openStoryPublicComments()" title="Комментарии"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
     <button id="storyClose" onclick="closeStory()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div id="storyMedia">
@@ -683,7 +690,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <button id="storyViews" style="display:none">👁 0</button>
         <div style="flex:1"></div>
         <div id="reactRow"></div>
-        <button id="cmtStoryBtn" onclick="openStoryPublicComments()" title="Комментарии" style="background:rgba(0,0,0,.35);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
       </div>
       <div class="row" id="saRow2" style="display:none">
         <input id="svComment" placeholder="Написать автору..." onfocus="svSetPaused(true)" onblur="svSetPaused(false)" onkeydown="if(event.key==='Enter')sendStoryComment()">
@@ -699,13 +705,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div class="panel">
     <div class="grab"></div>
     <div class="sheetScroll">
-      <div class="secTitle">Новая история</div>
+      <div class="secTitle" id="composerTitle">Новая история</div>
       <div class="aCard">
-        <div class="field"><label data-i18n="Фото или видео (видео — до 60 секунд и 50 МБ)">Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
+        <div class="field"><label data-i18n="Фото или видео (видео — до 60 секунд и 50 МБ)" id="composerPickLabel">Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
         <div class="field"><label data-i18n="Подпись (необязательно)">Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." data-i18n-ph="Текст..." maxlength="300"></div>
         <div class="field"><label data-i18n="Локация (необязательно)">Локация (необязательно)</label><input id="storyLocation" placeholder="Район или город..." data-i18n-ph="Район или город..." maxlength="60"></div>
         <div class="aRow" style="margin-top:4px">
-          <button class="submitBtn" style="flex:1" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
+          <button class="submitBtn" id="publishStoryBtn" style="flex:1" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
           <button class="btnOut" id="publishReelBtn" style="flex:1;padding:13px 10px;border-radius:14px;font-weight:700;font-size:14px" onclick="publishReel()" data-i18n="🎬 В рилс">🎬 В рилс</button>
         </div>
       </div>
@@ -846,7 +852,7 @@ const UZ = {
  'Наши партнёры':'Hamkorlarimiz', 'Розыгрыш':'Yutuq o\'yini', 'Участвовать':'Qatnashish',
  'Главная':'Asosiy', 'Все':'Barchasi', 'Подписки':'Obunalar', 'подписчиков':'obunachi', 'подписок':'obuna',
  'Рилс':'Rils', 'Комментарии':'Izohlar', 'Написать комментарий...':'Izoh yozing...', 'Написать':'Yozish',
- 'Пока нет рилсов':'Hozircha rils yo\'q', 'Загрузка...':'Yuklanmoqda...', 'только что':'hozir', 'мин':'min', 'ч':'soat', 'дн':'kun',
+ 'Пока нет рилсов':'Hozircha rils yo\'q', 'Загрузка...':'Yuklanmoqda...', 'только что':'hozir', 'мин':'min', 'ч':'soat', 'дн':'kun', 'Снимите первый рилс или дождитесь других':'Birinchi rilsni suratga oling yoki boshqalarini kuting', 'Снять рилс':'Rils suratga olish', 'Новый рилс':'Yangi rils', 'Опубликовать рилс':'Rilsni joylash',
  'рилсов':'rils', 'Пока нет контента':'Hozircha kontent yo\'q', 'Комментарии':'Izohlar', 'В рилс':'Rils qilib',
  'Все':'Barchasi','Электроника':'Elektronika','Одежда':'Kiyim','Транспорт':'Transport','Недвижимость':"Ko'chmas mulk",'Услуги':'Xizmatlar','Другое':'Boshqa',
  'в избранном':'sevimlida','историй':'story','просмотров':"ko'rish",
@@ -1236,7 +1242,7 @@ async function loadReels(){
 function renderReels(){
   const feed = document.getElementById('reelsFeed');
   if(!reelsData.length){
-    feed.innerHTML = `<div class="reelEmpty"><div style="font-size:44px">🎬</div><b>${t('Пока нет рилсов')}</b>${t('Загрузите видео в истории — или дождитесь первых рилсов от других')}</div>`;
+    feed.innerHTML = `<div class="reelEmpty"><div style="font-size:44px">🎬</div><b>${t('Пока нет рилсов')}</b>${t('Снимите первый рилс или дождитесь других')}<button class="reelEmptyBtn" onclick="openReelComposer()">🎬 ${t('Снять рилс')}</button></div>`;
     return;
   }
   feed.innerHTML = reelsData.map((r,i)=>`
@@ -2023,10 +2029,31 @@ function toggleMute(){
 
 /* ---------- Добавление истории ---------- */
 let storyFileData = null, storyFileType = 'image', storyFile = null, storyFileDur = null;
+let composerReelOnly = false;
 function openComposer(){
   storyFileData = null; storyFileType = 'image'; storyFile = null; storyFileDur = null;
+  composerReelOnly = false;
+  document.getElementById('hiddenFile').accept = 'image/*,video/*';
+  document.getElementById('composerTitle').textContent = t('Новая история');
+  document.getElementById('publishStoryBtn').style.display = 'block';
+  document.getElementById('publishReelBtn').textContent = '🎬 ' + t('В рилс');
+  document.getElementById('publishReelBtn').style.flex = '1';
   document.getElementById('storyPick').innerHTML = pickerSlot('pickStory()');
   document.getElementById('storyCaption').value = '';
+  openSheet('storyComposer');
+}
+function openReelComposer(){
+  if(!tgUser){ toast(t('Откройте приложение в Telegram')); return; }
+  storyFileData = null; storyFileType = 'image'; storyFile = null; storyFileDur = null;
+  composerReelOnly = true;
+  document.getElementById('hiddenFile').accept = 'video/*';
+  document.getElementById('composerTitle').textContent = '🎬 ' + t('Новый рилс');
+  document.getElementById('publishStoryBtn').style.display = 'none';
+  document.getElementById('publishReelBtn').textContent = '🎬 ' + t('Опубликовать рилс');
+  document.getElementById('publishReelBtn').style.flex = '1 1 100%';
+  document.getElementById('storyPick').innerHTML = pickerSlot('pickStory()');
+  document.getElementById('storyCaption').value = '';
+  haptic('light');
   openSheet('storyComposer');
 }
 function pickerSlot(fn){
@@ -2113,7 +2140,7 @@ async function publishReel(){
     haptic('medium');
   }catch(e){ console.warn('publish reel fail', e); toast(t('Не удалось опубликовать рилс')); }
   reelPublishing = false;
-  if(btn) btn.textContent='🎬 ' + t('В рилс');
+  if(btn) btn.textContent = composerReelOnly ? ('🎬 ' + t('Опубликовать рилс')) : ('🎬 ' + t('В рилс'));
 }
 
 /* ================================================================
