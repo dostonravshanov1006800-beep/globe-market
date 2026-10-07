@@ -21,7 +21,7 @@ a{color:var(--blue);text-decoration:none}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pl 1.6s infinite}
 @keyframes pl{50%{opacity:.35}}
 .tabs{display:flex;gap:6px;margin-top:12px}
-.tab{flex:1;text-align:center;padding:9px 0;border-radius:11px;font-size:14px;font-weight:700;color:var(--mut);background:var(--card2);border:1px solid var(--line)}
+.tab{flex:1;text-align:center;padding:9px 0;border-radius:11px;font-size:13.5px;font-weight:700;color:var(--mut);background:var(--card2);border:1px solid var(--line);white-space:nowrap}
 .tab.on{background:linear-gradient(135deg,#f8b21a,#ff9040);color:#161006;border-color:transparent}
 .sec{display:none;padding:14px 16px}
 .sec.on{display:block}
@@ -30,6 +30,7 @@ a{color:var(--blue);text-decoration:none}
 .st .v{font-size:17px;font-weight:800}
 .st .l{font-size:10.5px;color:var(--mut);margin-top:3px;text-transform:uppercase;letter-spacing:.4px}
 .st .v.g{color:var(--gold)} .st .v.gr{color:var(--green)} .st .v.b{color:var(--blue)}
+.h2{font-size:14px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 10px}
 .feed{display:flex;flex-direction:column;gap:10px}
 .deal{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px 14px;position:relative;overflow:hidden}
 .deal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),#ff9040)}
@@ -37,7 +38,7 @@ a{color:var(--blue);text-decoration:none}
 .d-name{font-weight:800;font-size:15px}
 .d-num{color:var(--mut);font-weight:600;font-size:12px;margin-left:4px}
 .d-disc{font-size:13px;font-weight:800;color:#161006;background:var(--green);padding:3px 9px;border-radius:9px;white-space:nowrap}
-.d-mid{display:flex;align-items:baseline;gap:9px;margin-top:9px}
+.d-mid{display:flex;align-items:baseline;gap:9px;margin-top:9px;flex-wrap:wrap}
 .d-ton{font-size:21px;font-weight:800}
 .d-ton i{font-style:normal;font-size:13px;color:var(--gold)}
 .d-usd{font-size:13px;color:var(--mut)}
@@ -47,18 +48,32 @@ a{color:var(--blue);text-decoration:none}
 .d-time{font-size:11.5px;color:var(--mut)}
 .d-btn{background:linear-gradient(135deg,#f8b21a,#ff9040);color:#161006;font-weight:800;font-size:13px;padding:9px 18px;border-radius:11px;border:none}
 .fl{width:100%;border-collapse:collapse;font-size:13.5px}
-.fl th{position:sticky;top:0;background:var(--card2);color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
+.fl th{position:sticky;top:0;background:var(--card2);color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);z-index:2}
 .fl td{padding:10px 8px;border-bottom:1px solid var(--line)}
 .fl .tn{font-weight:700}
 .fl .tv{font-weight:800;color:var(--gold)}
 .fl .tu{color:var(--mut);font-size:12px}
 .fl .ts{color:var(--mut);font-size:12px}
+.up{color:var(--green);font-weight:800}.dn{color:var(--red);font-weight:800}
+.mv{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:center;gap:12px}
+.mv .info{flex:1;min-width:0}
+.mv .nm{font-weight:800;font-size:14.5px}
+.mv .pr{font-size:12.5px;color:var(--mut);margin-top:2px}
+.mv .dl{font-size:13px;font-weight:800;white-space:nowrap}
+.spark{width:76px;height:34px;flex-shrink:0}
 .upd{text-align:center;color:var(--mut);font-size:11.5px;padding:14px 0 6px}
 .empty{text-align:center;color:var(--mut);padding:40px 20px;font-size:14px}
 .empty .big{font-size:34px;margin-bottom:10px}
 .how{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:14px;font-size:13.5px;line-height:1.55;color:var(--mut)}
 .how b{color:var(--txt)}
 .cmd{display:block;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;margin:6px 0;color:var(--gold);font-family:monospace;font-size:13px}
+.pro{background:linear-gradient(135deg,#1a1430,#241a10);border:1px solid #f8b21a55;border-radius:15px;padding:16px;margin-bottom:14px}
+.pro .t{font-size:17px;font-weight:800}
+.pro .p{color:var(--gold);font-weight:800;font-size:15px;margin-top:2px}
+.pro ul{list-style:none;margin:10px 0 12px}
+.pro li{font-size:13.5px;padding:3px 0;color:var(--txt)}
+.pro li::before{content:"✦ ";color:var(--gold)}
+.bigbtn{display:block;text-align:center;background:linear-gradient(135deg,#f8b21a,#ff9040);color:#161006;font-weight:800;font-size:15px;padding:13px;border-radius:12px}
 </style>
 </head>
 <body>
@@ -70,7 +85,8 @@ a{color:var(--blue);text-decoration:none}
   <div class="tabs">
     <div class="tab on" data-s="feed">⚡ Снайпы</div>
     <div class="tab" data-s="floors">📊 Флоры</div>
-    <div class="tab" data-s="how">❓ Как</div>
+    <div class="tab" data-s="an">📈 Аналитика</div>
+    <div class="tab" data-s="how">⭐ PRO</div>
   </div>
 </div>
 
@@ -85,20 +101,40 @@ a{color:var(--blue);text-decoration:none}
 </section>
 
 <section class="sec" id="floors">
-  <table class="fl"><thead><tr><th>Коллекция</th><th>Флор TON</th><th>~USD</th><th>Лотов</th></tr></thead><tbody id="frows"></tbody></table>
+  <table class="fl"><thead><tr><th>Коллекция</th><th>Флор</th><th>⭐</th><th>Лотов</th><th>Δ</th></tr></thead><tbody id="frows"></tbody></table>
   <div class="upd" id="u2"></div>
 </section>
 
-<section class="sec" id="how">
-  <div class="how">
-    <b>Gift Sniper</b> следит за лотами 109 коллекций NFT-подарков Telegram каждые ~60 секунд. Когда новый лот появляется дешевле флора рынка на 15%+ — он мгновенно попадает сюда и уходит алертом подписчикам бота.
-    <br><br><b>Подключить алерты в Telegram:</b>
-    <code class="cmd">/start</code> в @Global_mrkt_bot — включить алерты
-    <code class="cmd">/threshold 20</code> — писать при скидке 20%+
-    <code class="cmd">/watch PlushPepe, PoolFloat</code> — только выбранные коллекции
-    <code class="cmd">/status</code> — мои настройки
+<section class="sec" id="an">
+  <div class="stats">
+    <div class="st"><div class="v b" id="a-cols">—</div><div class="l">коллекций</div></div>
+    <div class="st"><div class="v" id="a-sales">—</div><div class="l">лотов всего</div></div>
+    <div class="st"><div class="v g" id="a-ton">—</div><div class="l">Σ флоров TON</div></div>
   </div>
-  <div class="how">💎 Лоты покупаются за TON на маркетплейсах (GetGems, Portals). Снайпер показывает цену и ссылку — покупку делаешь сам, успевай первым.</div>
+  <div class="h2">📈 Топ движения цен</div>
+  <div id="movers"></div>
+  <div class="upd" id="u3"></div>
+</section>
+
+<section class="sec" id="how">
+  <div class="pro">
+    <div class="t">⭐ Gift Sniper PRO</div>
+    <div class="p">150⭐ / 30 дней</div>
+    <ul>
+      <li>🎯 Снайп с порогом до −95% (бесплатно −15%)</li>
+      <li>📉 Алерты по цене: «PlushPepe упал ниже 20⭐»</li>
+      <li>♾ Watchlist без лимита</li>
+      <li>⚡ Мгновенные уведомления 24/7</li>
+    </ul>
+    <a class="bigbtn" id="probtn" href="https://t.me/Global_mrkt_bot?start=pro">Подключить PRO в боте ⭐</a>
+  </div>
+  <div class="how">
+    <b>Как работает снайпер</b> — слежу за лотами 109 коллекций NFT-подарков каждые ~60 секунд. Новый лот дешевле флора на 15%+ → мгновенный алерт с кнопкой на лот.
+    <code class="cmd">/start</code> в @Global_mrkt_bot — включить бесплатные алерты
+    <code class="cmd">/threshold 20</code> — порог скидки
+    <code class="cmd">/watch PlushPepe, PoolFloat</code> — только выбранные коллекции
+  </div>
+  <div class="how">💎 Лоты покупаются за TON на маркетплейсах (GetGems, Portals). Цены в ⭐ — пересчёт по курсу TON→USD→Stars. Покупку делаешь сам — успей первым.</div>
 </section>
 
 <script>
@@ -120,6 +156,23 @@ const ago = (ts) => {
 };
 const f = (x) => String(x).replace(".", ",");
 
+function sparkline(pts) {
+  if (!pts || pts.length < 2) return "";
+  const W = 76, H = 34;
+  const vals = pts.map((p) => p[1]);
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const rng = mx - mn || 1;
+  const up = vals[vals.length - 1] >= vals[0];
+  const col = up ? "#2ecc71" : "#ff5c6c";
+  let d = "";
+  pts.forEach((p, i) => {
+    const x = (i / (pts.length - 1)) * (W - 2) + 1;
+    const y = H - 3 - ((p[1] - mn) / rng) * (H - 8);
+    d += (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1);
+  });
+  return '<svg class="spark" viewBox="0 0 ' + W + " " + H + '"><path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
 function render() {
   if (!PUB) return;
   const deals = PUB.deals || [];
@@ -136,17 +189,29 @@ function render() {
       const attrs = [d.model, d.backdrop].filter((x) => x).map((x) => "<span>" + x + "</span>").join("");
       return '<div class="deal"><div class="d-top"><div class="d-name">' + d.n + (d.num ? '<span class="d-num">#' + d.num + "</span>" : "") +
         '</div><div class="d-disc">−' + d.disc + "%</div></div>" +
-        '<div class="d-mid"><div class="d-ton">' + f(d.ton) + " <i>TON</i></div><div class=\"d-usd\">≈ $" + f(d.usd) + ' · флор ' + f(d.floor) + " TON</div></div>" +
+        '<div class="d-mid"><div class="d-ton">' + f(d.ton) + " <i>TON</i></div><div class=\"d-usd\">≈$" + f(d.usd) + " · " + d.stars + "⭐ · флор " + f(d.floor) + " TON</div></div>" +
         (attrs ? '<div class="d-attr">' + attrs + "</div>" : "") +
         '<div class="d-bot"><div class="d-time">' + ago(d.ts) + '</div><a class="d-btn" href="' + d.getgems + '" target="_blank">Открыть лот 💎</a></div></div>';
     }).join("");
   }
   const floors = PUB.floors || [];
-  $("#frows").innerHTML = floors.map((x) =>
-    "<tr><td class=\"tn\">" + x.n + '</td><td class="tv">' + f(x.ton) + '</td><td class="tu">$' + f(x.usd) + '</td><td class="ts">' + x.sales + "</td></tr>"
-  ).join("");
+  $("#frows").innerHTML = floors.map((x) => {
+    const dl = x.d === null || x.d === undefined ? "" : '<span class="' + (x.d >= 0 ? "up" : "dn") + '">' + (x.d >= 0 ? "+" : "") + x.d + "%</span>";
+    return "<tr><td class=\"tn\">" + x.n + '</td><td class="tv">' + f(x.ton) + '</td><td class="tu">' + x.stars + "⭐</td><td class=\"ts\">" + x.sales + "</td><td>" + dl + "</td></tr>";
+  }).join("");
+  const m = PUB.market || {};
+  $("#a-cols").textContent = m.collections || "—";
+  $("#a-sales").textContent = m.totalSales || "—";
+  $("#a-ton").textContent = m.totalTon || "—";
+  const movers = PUB.movers || [];
+  $("#movers").innerHTML = movers.length ? movers.map((x) => {
+    const pts = (PUB.charts || {})[x.n];
+    return '<div class="mv"><div class="info"><div class="nm">' + x.n + '</div><div class="pr">' + f(x.ton) + " TON · " + x.stars + "⭐ · " + x.sales + " лотов</div></div>" +
+      (pts ? sparkline(pts) : "") +
+      '<div class="dl ' + (x.d >= 0 ? "up" : "dn") + '">' + (x.d >= 0 ? "+" : "") + x.d + "%</div></div>";
+  }).join("") : '<div class="empty">Двигающихся цен пока нет — собираю историю 48ч.</div>';
   const u = "обновлено " + new Date(PUB.updated).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  $("#u1").textContent = u; $("#u2").textContent = u; $("#lvt").textContent = u;
+  $("#u1").textContent = u; $("#u2").textContent = u; $("#u3").textContent = u; $("#lvt").textContent = u;
 }
 
 async function load() {
