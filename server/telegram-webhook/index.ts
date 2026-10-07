@@ -12,7 +12,7 @@
 // При каждом релизе APP_VERSION здесь нужно поднимать СИНХРОННО с
 // APP_VERSION в index.html, иначе защита от кэша не работает.
 const BOT_TOKEN = "8667764468:AAHB-99kEw-ONhIVjlWSlERg3BOKhdU61Gc";
-const APP_VERSION = "2.7.2";
+const APP_VERSION = "2.7.3";
 const APP_URL = `https://dostonravshanov1006800-beep.github.io/globe-market/?v=${APP_VERSION}`;
 const BANNER_URL = "https://dostonravshanov1006800-beep.github.io/globe-market/banner.png";
 const WEBHOOK_SECRET = "gm_wh_7f3k9x_2026_secret";

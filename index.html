@@ -981,7 +981,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.7.2';
+const APP_VERSION = 'v2.7.3';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -2110,7 +2110,8 @@ async function publishStory(){
     haptic('medium');
   }catch(e){
     console.warn('publish story fail', e);
-    toast(t('Не удалось опубликовать историю'));
+    reportError('story_publish', e && e.message || String(e));
+    toast(t('Не удалось опубликовать историю') + ': ' + (e && e.message ? e.message.slice(0,120) : ''));
   }
   storyPublishing = false;
   if(btn){ btn.textContent='📸 Опубликовать'; }
@@ -2138,7 +2139,11 @@ async function publishReel(){
     switchTab('reels');
     toast(t('Рилс опубликован! 🎬'));
     haptic('medium');
-  }catch(e){ console.warn('publish reel fail', e); toast(t('Не удалось опубликовать рилс')); }
+  }catch(e){
+    console.warn('publish reel fail', e);
+    reportError('reel_publish', e && e.message || String(e));
+    toast(t('Не удалось опубликовать рилс') + ': ' + (e && e.message ? e.message.slice(0,120) : ''));
+  }
   reelPublishing = false;
   if(btn) btn.textContent = composerReelOnly ? ('🎬 ' + t('Опубликовать рилс')) : ('🎬 ' + t('В рилс'));
 }
