@@ -45,6 +45,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
 .screen{display:none;padding:12px 14px 90px}
 .screen.active{display:block;animation:tabIn .3s ease}
+/* Рилс — полноэкранная лента (как в Instagram): без паддингов, с явной высотой,
+   иначе #reelsFeed{height:100%} не наследует высоту от .screen с height:auto
+   и схлопывается — видео не растягивается, а шапка рилса "вылезает" наверх. */
+#scr-reels{padding:0;height:100%;overflow:hidden}
+#scr-reels.active{display:block}
 @keyframes tabIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
 
 /* ============ SEARCH ============ */
@@ -990,7 +995,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.7.4';
+const APP_VERSION = 'v2.7.5';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
