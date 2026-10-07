@@ -36,7 +36,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 
 /* ============ APP LAYOUT ============ */
 #app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
-#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:10px;background:var(--header);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:relative;z-index:10}
+#appHeader{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);display:flex;align-items:center;padding-left:16px;padding-right:16px;gap:10px;background:var(--header);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:relative;z-index:10;overflow:hidden;transition:height .26s ease,padding .26s ease,opacity .2s ease,transform .26s ease,border-color .26s ease}
+#appHeader.navHidden{height:0;padding-top:0;padding-bottom:0;opacity:0;transform:translateY(-10px);border-bottom-color:transparent;pointer-events:none}
 #appHeader .hbtn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;background:var(--input)}
 #appHeader .hbtn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:6px}
@@ -85,7 +86,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cmtDel{margin-left:auto;background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:0 2px}
 .reelFab{position:fixed;right:16px;bottom:84px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;font-weight:400;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);cursor:pointer;z-index:50;line-height:1}
 .reelFab:active{transform:scale(.93)}
-.reelEmptyBtn{margin-top:14px;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:12px 22px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.reelEmptyBtn{margin-top:14px;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:0 24px;height:48px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
 .rpillRow{display:flex;gap:12px;margin-bottom:8px;pointer-events:auto}
 .rpill{background:rgba(0,0,0,.4);border:none;color:#fff;font-size:19px;cursor:pointer;border-radius:16px;padding:6px 11px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:transform .12s}
 .rpill:active{transform:scale(1.25)}
@@ -212,9 +213,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .pRow span:last-child{font-weight:600}
 .pDesc{font-size:14px;line-height:1.55;color:var(--text2);margin:14px 0}
 .cta{display:flex;gap:10px;margin:18px 0 8px}
-.cta button{flex:1;height:48px;border-radius:13px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+.cta button{flex:1;height:48px;border-radius:14px;font-size:14.5px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
 .btnMain{background:var(--accent);color:#fff;border:none}
 .btnOut{background:var(--card);color:var(--accent);border:1.5px solid var(--accent)}
+.btnOut,.cta button,.repBtn,.aBtn,.reelEmptyBtn{transition:transform .12s ease}
+.btnOut:active,.cta button:active,.repBtn:active,.aBtn:active,.reelEmptyBtn:active{transform:scale(.97)}
 
 /* partner sheet */
 .ptImg{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;background:linear-gradient(135deg,#0A84FF,#5E5CE6)}
@@ -273,7 +276,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .field input,.field textarea,.field select{width:100%;background:var(--input);border:1.5px solid transparent;border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:border .2s}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:var(--card)}
 .field textarea{resize:none;min-height:80px}
-.submitBtn{width:100%;height:50px;border-radius:14px;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.submitBtn{width:100%;height:48px;border-radius:14px;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
 .submitBtn:active{transform:scale(.98)}
 .secTitle{font-size:18px;font-weight:800;margin:6px 0 14px}
 .photoPicker{display:flex;gap:9px;flex-wrap:wrap}
@@ -289,7 +292,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .aCard h4{font-size:14.5px;margin-bottom:4px}
 .aCard .sub{font-size:12.5px;color:var(--text2)}
 .aRow{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
-.aBtn{padding:9px 13px;border-radius:11px;border:1.5px solid var(--border);background:var(--card);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+.aBtn{padding:9px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
 .aBtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .aBtn.danger{color:#FF3B30;border-color:#FF3B30}
 .aBtn.gold{color:#B8860B;border-color:var(--gold)}
@@ -711,8 +714,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="field"><label data-i18n="Подпись (необязательно)">Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." data-i18n-ph="Текст..." maxlength="300"></div>
         <div class="field"><label data-i18n="Локация (необязательно)">Локация (необязательно)</label><input id="storyLocation" placeholder="Район или город..." data-i18n-ph="Район или город..." maxlength="60"></div>
         <div class="aRow" style="margin-top:4px">
-          <button class="submitBtn" id="publishStoryBtn" style="flex:1" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
-          <button class="btnOut" id="publishReelBtn" style="flex:1;padding:13px 10px;border-radius:14px;font-weight:700;font-size:14px" onclick="publishReel()" data-i18n="🎬 В рилс">🎬 В рилс</button>
+          <button class="submitBtn" id="publishStoryBtn" style="flex:1;width:auto" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
+          <button class="btnOut" id="publishReelBtn" style="flex:1;height:48px;padding:0 12px;border-radius:14px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer" onclick="publishReel()" data-i18n="🎬 В рилс">🎬 В рилс</button>
         </div>
       </div>
     </div>
@@ -798,7 +801,9 @@ const SB_KEY = "sb_publishable__zxoIvV9suhyR7BgboVJwg_MectzLZn"; // публич
 /* ---------- TELEGRAM ---------- */
 const tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
-try{ tg.setHeaderColor('#F5F5F7'); tg.setBackgroundColor('#F5F5F7'); }catch(e){}
+/* Цвет шапки/фона Telegram задаётся в applyTheme() — зависит от темы приложения,
+   иначе в тёмной теме сверху остаётся белая полоса («чёлка»). */
+const THEME_TG_BG = { light:'#F5F5F7', dark:'#121212', black:'#000000' };
 const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
 const isAdmin = tgUser ? ADMIN_TG_IDS.includes(Number(tgUser.id)) : false;
 const haptic = (s)=>{ try{ tg.HapticFeedback.impactOccurred(s||'light'); }catch(e){} };
@@ -899,6 +904,10 @@ function applyI18n(){
 }
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', appPrefs.theme || 'light');
+  try{
+    const bg = THEME_TG_BG[appPrefs.theme || 'light'] || THEME_TG_BG.light;
+    tg.setHeaderColor(bg); tg.setBackgroundColor(bg);
+  }catch(e){}
   [['light','thLight'],['dark','thDark'],['black','thBlack']].forEach(([th,id])=>{
     const b = document.getElementById(id); if(b) b.classList.toggle('primary', appPrefs.theme===th);
   });
@@ -981,7 +990,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.7.3';
+const APP_VERSION = 'v2.7.4';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -1172,6 +1181,9 @@ if(isAdmin){
 }
 
 function switchTab(name){
+  const ah = document.getElementById('appHeader');
+  if(ah){ ah.classList.remove('navHidden'); }
+  navLastY = 0;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('scr-'+name).classList.add('active');
   document.querySelectorAll('#tabbar .tab').forEach(t=>t.classList.toggle('on', t.dataset.scr===name));
@@ -1183,6 +1195,23 @@ function switchTab(name){
   if(name==='reels'){ if(!reelsData.length) loadReels(); else document.querySelectorAll('#reelsFeed video').forEach(v=>v.play().catch(()=>{})); }
   else { document.querySelectorAll('#reelsFeed video').forEach(v=>v.pause()); }
 }
+
+/* ---------- Авто-скрытие шапки при скролле вниз (как в Telegram/Instagram) ---------- */
+let navLastY = 0;
+function navScroll(y){
+  const h = document.getElementById('appHeader');
+  if(!h) return;
+  if(y <= 4) h.classList.remove('navHidden');
+  else if(y - navLastY > 10) h.classList.add('navHidden');
+  else if(navLastY - y > 10) h.classList.remove('navHidden');
+  navLastY = y;
+}
+(function(){
+  const m = document.getElementById('main');
+  if(m) m.addEventListener('scroll', ()=>navScroll(m.scrollTop), {passive:true});
+  const rf = document.getElementById('reelsFeed');
+  if(rf) rf.addEventListener('scroll', ()=>navScroll(rf.scrollTop), {passive:true});
+})();
 
 /* ================================================================
    ГЛАВНАЯ: ПАРТНЁРЫ (баннер)
