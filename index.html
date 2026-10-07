@@ -47,7 +47,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 @keyframes tabIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
 
 /* ============ SEARCH ============ */
-#searchRow{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+#searchRow{display:none;gap:10px;align-items:center;margin-bottom:14px}
 .searchbox{flex:1;background:var(--card);border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;padding:0 14px;height:44px}
 .searchbox svg{width:17px;height:17px;stroke:var(--text2);fill:none;stroke-width:2}
 .searchbox input{border:none;outline:none;background:none;flex:1;font-size:15px;font-family:inherit;color:var(--text)}
@@ -58,6 +58,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #partnersSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
 #giveawaysSec{margin-bottom:16px}
 #giveawaysSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.vBadge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#0A84FF;color:#fff;font-size:10px;font-weight:800;margin-left:4px;vertical-align:middle}
 .gwCard{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;border:1.5px solid var(--gold)}
 .gwImg{width:100%;max-height:220px;object-fit:cover;display:block;cursor:pointer}
 .gwPh{width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,#FFB800,#FF8A00);cursor:pointer}
@@ -91,10 +92,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 #chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
 #chips::-webkit-scrollbar{display:none}
 .chip{flex:0 0 auto;padding:8px 15px;border-radius:20px;background:var(--card);font-size:13.5px;font-weight:500;color:var(--text);box-shadow:var(--shadow);border:1.5px solid transparent;cursor:pointer;transition:all .2s}
+#chips{display:none}
 .chip.on{background:var(--accent);color:#fff}
 
 /* ============ PRODUCT GRID ============ */
-#grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#grid{display:none;grid-template-columns:1fr 1fr;gap:12px}
 .card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;opacity:0;transform:translateY(20px);animation:cardUp .4s ease forwards}
 @keyframes cardUp{to{opacity:1;transform:none}}
 .cardImgWrap{position:relative;aspect-ratio:1;background:var(--input)}
@@ -331,6 +333,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
           <input id="searchInput" placeholder="Поиск товаров..." data-i18n-ph="Поиск товаров..." oninput="renderGrid()">
         </div>
       </div>
+      <div id="feedTabs" style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="chip feedTab on" id="ftAll" data-i18n="Все" onclick="setFeed('all')">Все</div>
+        <div class="chip feedTab" id="ftSubs" data-i18n="Подписки" onclick="setFeed('subs')">⭐ Подписки</div>
+      </div>
       <div id="storiesRow"></div>
       <div id="partnersSec"></div>
       <div id="giveawaysSec"></div>
@@ -353,7 +359,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="profName" id="profName">Гость</div>
         <div class="profUser" id="profUsername"></div>
         <div class="profStats">
-          <div class="ps"><b id="stFav">0</b><span data-i18n="в избранном">в избранном</span></div>
+          <div class="ps"><b id="stFollowers">0</b><span data-i18n="подписчиков">подписчиков</span></div>
+          <div class="ps"><b id="stFollowing">0</b><span data-i18n="подписок">подписок</span></div>
           <div class="ps"><b id="stStory">0</b><span data-i18n="историй">историй</span></div>
           <div class="ps"><b id="stViews">0</b><span data-i18n="просмотров">просмотров</span></div>
         </div>
@@ -473,11 +480,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="tabbar">
     <div class="tab on" data-scr="catalog" onclick="switchTab('catalog')">
       <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span data-i18n="Маркет">Маркет</span>
-    </div>
-    <div class="tab" data-scr="favorites" onclick="switchTab('favorites')">
-      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span data-i18n="Избранное">Избранное</span><i class="badge" id="favBadge" style="display:none">0</i>
+      <span data-i18n="Главная">Главная</span>
     </div>
     <div class="tab" data-scr="profile" onclick="switchTab('profile')">
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -657,6 +660,15 @@ const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
 const isAdmin = tgUser ? ADMIN_TG_IDS.includes(Number(tgUser.id)) : false;
 const haptic = (s)=>{ try{ tg.HapticFeedback.impactOccurred(s||'light'); }catch(e){} };
 
+async function botNotifyUser(uid, text){
+  if(!uid || !tgUser || String(uid) === String(tgUser.id)) return;
+  try{
+    await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id: String(uid), parse_mode:'HTML', text })
+    });
+  }catch(e){ /* юзер мог не стартовать бота — молча */ }
+}
 function toast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -695,6 +707,7 @@ const UZ = {
  'Маркет':'Market','Избранное':'Sevimlilar','Профиль':'Profil','Админ':'Admin',
  'Поиск товаров...':'Mahsulot qidirish...',
  'Наши партнёры':'Hamkorlarimiz', 'Розыгрыш':'Yutuq o\'yini', 'Участвовать':'Qatnashish',
+ 'Главная':'Asosiy', 'Все':'Barchasi', 'Подписки':'Obunalar', 'подписчиков':'obunachi', 'подписок':'obuna',
  'Все':'Barchasi','Электроника':'Elektronika','Одежда':'Kiyim','Транспорт':'Transport','Недвижимость':"Ko'chmas mulk",'Услуги':'Xizmatlar','Другое':'Boshqa',
  'в избранном':'sevimlida','историй':'story','просмотров':"ko'rish",
  'О себе':"O'zim haqimda",'Пара слов о себе...':"O'zingiz haqida bir necha so'z...",
@@ -822,7 +835,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.4.5';
+const APP_VERSION = 'v2.5.0';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -1039,7 +1052,7 @@ function renderPartners(){
     return `<div class="pCard" style="animation:cardUp .4s ease ${i*60}ms forwards;opacity:0" onclick="openPartner('${p.id}')">
       ${img}
       <div class="pBody">
-        <div class="pName">${esc(p.title)}</div>
+        <div class="pName">${esc(p.title)}${p.verified?'<span class="vBadge">✓</span>':''}</div>
         <div class="pDesc">${esc(p.description||'Партнёр Globe Market')}</div>
         <div class="pTag">🤝 Партнёр</div>
       </div>
@@ -1055,7 +1068,7 @@ function openPartner(id){
     ${p.image_url
       ? `<img class="ptImg" src="${esc(p.image_url)}" alt="">`
       : `<div class="ptPh">${esc(partnerInitials(p.title))}</div>`}
-    <div class="ptTitle">${esc(p.title)}</div>
+    <div class="ptTitle">${esc(p.title)}${p.verified?'<span class="vBadge" style="width:18px;height:18px;font-size:12px">✓</span>':''}</div>
     <div class="pTag" style="margin-top:8px">🤝 Партнёр Globe Market</div>
     <div class="ptDesc">${esc(p.description||'')}</div>
     ${p.link ? `<div class="cta"><button class="btnMain" onclick="openPartnerLink('${esc(p.link)}')">Открыть 🔗</button></div>` : ''}`;
@@ -1187,7 +1200,7 @@ function toggleFav(id){
   renderGrid();
   if(document.getElementById('scr-favorites').classList.contains('active')) renderFav();
   const b = document.getElementById('favBadge');
-  b.style.display = f.length? 'flex':'none'; b.textContent = f.length;
+  if(b){ b.style.display = f.length? 'flex':'none'; b.textContent = f.length; }
 }
 function renderFav(){
   const favs = LS.get('favorites', []);
@@ -1283,13 +1296,28 @@ async function migrateLocalStories(){
   }catch(e){ console.warn('story migration skipped', e); }
 }
 
+function setFeed(mode){
+  LS.set('stories_feed', mode);
+  document.getElementById('ftAll').classList.toggle('on', mode==='all');
+  document.getElementById('ftSubs').classList.toggle('on', mode==='subs');
+  haptic('light');
+  renderStories();
+}
 async function renderStories(){
   try{
     const ci = await chatApi('inbox');
     const un = (ci.data||[]).filter(c=>c.unread>0);
     if(un.length) items.unshift({icon:'✉️', text:`${un.reduce((a,c)=>a+c.unread,0)} новых сообщений — откройте чаты`, time:'сейчас'});
   }catch(e){}
-  const stories = cloudStories;
+  let stories = cloudStories;
+  if(LS.get('stories_feed','all')==='subs' && Array.isArray(myFollows)){
+    const fset = myFollows.map(f=>String(f.id));
+    stories = stories.filter(s=> fset.includes(String(s.userId)));
+    if(!stories.length){
+      document.getElementById('storiesRow').innerHTML = `<div style="width:100%;text-align:center;color:var(--text2);font-size:13px;padding:16px 4px">${t('Вы ещё ни на кого не подписаны — откройте чужую историю и нажмите ⭐')}</div>`;
+      return;
+    }
+  }
   const viewed = LS.get('viewed_stories', []);
   const groups = {};
   stories.forEach(s=>{ (groups[s.userId] = groups[s.userId]||[]).push(s); });
@@ -1562,7 +1590,11 @@ function saveProfile(){
   toast('Профиль сохранён 💾'); haptic('light');
 }
 async function updateProfileStats(){
-  document.getElementById('stFav').textContent = LS.get('favorites', []).length;
+  try{
+    const r = await sbRpc('my_counts', { init_data: tg.initData });
+    document.getElementById('stFollowers').textContent = r.followers||0;
+    document.getElementById('stFollowing').textContent = r.following||0;
+  }catch(e){}
   const stories = cloudStories;
   const mine = stories.filter(s=> tgUser && String(s.userId)===String(tgUser.id));
   document.getElementById('stStory').textContent = mine.length;
@@ -1864,10 +1896,18 @@ async function renderAdminPartners(){
         </div>
       </div>
       <div class="aRow">
+        <button class="aBtn ${p.verified?'primary':''}" onclick="togglePartnerVerified('${p.id}')">${p.verified?'✓ Проверен':'✓ Галочка'}</button>
         <button class="aBtn danger" onclick="deletePartner('${p.id}')">🗑 Удалить</button>
       </div>
     </div>`).join('')
   : `<div class="empty"><h3>Партнёров пока нет</h3><p>Добавьте первого партнёра в форме выше</p></div>`;
+}
+async function togglePartnerVerified(id){
+  try{
+    await adminApi('toggle_partner_verified', { id });
+    await loadCloud(); renderAdminPartners();
+    toast('Галочка обновлена');
+  }catch(e){ toast('Ошибка: ' + e.message); }
 }
 async function deletePartner(id){
   const ok = await adminConfirm('Удалить партнёра?');
@@ -2117,7 +2157,6 @@ function openMenuSheet(){
     <div class="secTitle">${esc(shopName)}</div>
     <p style="font-size:13.5px;color:var(--text2);margin:-8px 0 16px">${esc(shopDesc)}</p>
     <div class="aCard" style="padding:6px">
-      <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('catalog')">🛍 ${t('Маркет')}</div>
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('favorites')">🤍 ${t('Избранное')}</div>
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');switchTab('profile')">👤 ${t('Профиль')}</div>
       <div class="aBtn" style="width:100%;justify-content:flex-start;border:none;padding:13px 10px" onclick="closeSheet('menuSheet');openFollows()">⭐ ${t('Подписки')}</div>
@@ -2308,6 +2347,7 @@ async function sendMsg(){
   inp.value = '';
   try{
     await chatApi('send', { to_id: chatPeerId, to_name: chatPeerName, text });
+    botNotifyUser(chatPeerId, '✉️ <b>' + esc((tgUser.first_name||'Кто-то')) + '</b>: ' + esc(text.slice(0,80)));
     haptic('medium');
     await loadThread(chatPeerId, chatPeerName, true);
   }catch(e){ toast('Не отправилось: ' + (e.message||'ошибка')); console.warn('send fail', e); inp.value = text; }
@@ -2351,6 +2391,12 @@ function touchUser(){
   if(tg.initData) sbRpc('touch_user', { init_data: tg.initData }).catch(()=>{});
 }
 const isFollowed = id => Array.isArray(myFollows) && myFollows.some(f=>String(f.id)===String(id));
+function syncFeedTabs(){
+  const m = LS.get('stories_feed','all');
+  const a = document.getElementById('ftAll'), s = document.getElementById('ftSubs');
+  if(a) a.classList.toggle('on', m==='all');
+  if(s) s.classList.toggle('on', m==='subs');
+}
 
 async function svToggleFollow(){
   const s = svUser && svUser.items[svIdx];
@@ -2364,6 +2410,7 @@ async function svToggleFollow(){
     btn.classList.toggle('on', r.on);
     btn.textContent = r.on ? t('Вы подписаны') : t('Подписаться');
     toast(r.on ? t('Вы подписаны') : t('Вы отписались'));
+    if(r.on) botNotifyUser(s.userId, '⭐ <b>' + esc((tgUser.first_name||'Кто-то')) + '</b> подписался на ваши истории!');
     renderStories();
   }catch(e){ console.warn('follow fail', e); }
 }
@@ -2394,6 +2441,7 @@ async function svReact(e){
   try{
     const r = await sbRpc('react_story', { p_story_id: s.id, p_emoji: e, p_name: (tgUser&&tgUser.first_name)||'', init_data: tg.initData });
     if(r && r.ok===false) return;
+    botNotifyUser(s.userId, e + ' <b>' + esc((tgUser.first_name||'Кто-то')) + '</b> отреагировал на вашу историю');
     await svLoadReactions(s.id);
   }catch(err){ console.warn('react fail', err); }
 }
@@ -2407,6 +2455,7 @@ async function sendStoryComment(){
   if(!s.userId || s.userId==='0'){ toast(t('Гость не может получать сообщения')); return; }
   try{
     await chatApi('send', { to_id: String(s.userId), to_name: s.userName||'', text: '💬 ' + text });
+    botNotifyUser(s.userId, '💬 <b>' + esc((tgUser.first_name||'Кто-то')) + '</b> написал вам по своей истории');
     inp.value = '';
     svSetPaused(false);
     toast(t('Отправлено автору в личные 💬'));
@@ -2580,6 +2629,7 @@ function deleteMyStory(){
   await migrateLocalToCloud();
   renderChips();
   await refreshMyFollows();
+  syncFeedTabs();
   touchUser();
   setInterval(touchUser, 300000);
   await loadCloudStories();
@@ -2589,7 +2639,7 @@ function deleteMyStory(){
   pullToRefresh();
   const f = LS.get('favorites', []);
   const b = document.getElementById('favBadge');
-  b.style.display = f.length?'flex':'none'; b.textContent = f.length;
+  if(b){ b.style.display = f.length?'flex':'none'; b.textContent = f.length; }
   await loadCloud();
   loadBanner();
   LS.set('cloud_loaded_once', true);
