@@ -441,7 +441,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div class="secTitle" style="margin-top:26px" data-i18n="📢 Реклама в Globe Market">📢 Реклама в Globe Market</div>
       <div class="tariffs">
         <div class="tariff on" data-t="Stories в топе" onclick="pickTariff(this)"><div class="ic">📸</div><div class="nm">Stories</div><div class="pr" data-i18n="топ ленты">топ ленты</div></div>
-        <div class="tariff" data-t="Топ маркетплейса" onclick="pickTariff(this)"><div class="ic">🏆</div><div class="nm" data-i18n="Топ маркет">Топ маркет</div><div class="pr" data-i18n="бейдж ТОП">бейдж ТОП</div></div>
+        <div class="tariff" data-t="Партнёр" onclick="pickTariff(this)"><div class="ic">🤝</div><div class="nm" data-i18n="Партнёр">Партнёр</div><div class="pr" data-i18n="карточка + галочка ✓">карточка + галочка ✓</div></div>
         <div class="tariff" data-t="Пакет Stories+Топ" onclick="pickTariff(this)"><div class="ic">🚀</div><div class="nm" data-i18n="Пакет">Пакет</div><div class="pr" data-i18n="всё сразу">всё сразу</div></div>
       </div>
       <div class="aCard">
@@ -796,7 +796,7 @@ const UZ = {
  'О себе':"O'zim haqimda",'Пара слов о себе...':"O'zingiz haqida bir necha so'z...",
  '💾 Сохранить профиль':'💾 Profilni saqlash',
  '📢 Реклама в Globe Market':"📢 Globe Market'da reklama",
- 'топ ленты':'topda','бейдж ТОП':'TOP belgisi','всё сразу':'hammasi birga','Топ маркет':'TOP market','Пакет':'Paket',
+ 'топ ленты':'topda','бейдж ТОП':'TOP belgisi','всё сразу':'hammasi birga','Топ маркет':'TOP market','Пакет':'Paket','Партнёр':'Hamkor','карточка + галочка ✓':'karta + belgi ✓',
  'Что рекламируем?':'Nima reklama qilamiz?','Например: мой магазин кроссовок':"Masalan: krossovka do'konim",
  'Ссылка':'Havola','Отправить заявку 🚀':'Ariza yuborish 🚀',
  'Подпись (необязательно)':'Yozuv (majburiy emas)','Текст...':'Matn...',
@@ -918,7 +918,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.6.0';
+const APP_VERSION = 'v2.6.1';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
