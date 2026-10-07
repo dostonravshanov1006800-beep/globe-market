@@ -56,6 +56,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 /* ============ PARTNERS (баннер партнёров) ============ */
 #partnersSec{margin-bottom:16px}
 #partnersSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+#giveawaysSec{margin-bottom:16px}
+#giveawaysSec .secTitle{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.gwCard{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;border:1.5px solid var(--gold)}
+.gwImg{width:100%;max-height:220px;object-fit:cover;display:block;cursor:pointer}
+.gwPh{width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,#FFB800,#FF8A00);cursor:pointer}
+.gwBody{padding:14px 16px}
+.gwName{font-size:16px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.gwDesc{font-size:14px;line-height:1.55;color:var(--text2);white-space:pre-wrap;margin-bottom:12px}
 #partnersRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
 #partnersRow::-webkit-scrollbar{display:none}
 .pCard{flex:0 0 auto;width:150px;border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transform:translateY(0);transition:transform .2s}
@@ -325,6 +333,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       </div>
       <div id="storiesRow"></div>
       <div id="partnersSec"></div>
+      <div id="giveawaysSec"></div>
       <div id="bannerBox"></div>
       <div id="chips"></div>
       <div id="grid"></div>
@@ -392,6 +401,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div class="adminNav">
         <div class="chip on" data-a="add" onclick="admTab(this)">➕ Добавить</div>
         <div class="chip" data-a="partners" onclick="admTab(this)">🤝 Партнёры</div>
+        <div class="chip" data-a="giveaways" onclick="admTab(this)">🎁 Розыгрыш</div>
         <div class="chip" data-a="list" onclick="admTab(this)">📦 Товары</div>
         <div class="chip" data-a="reqs" onclick="admTab(this)">📢 Заявки</div>
         <div class="chip" data-a="stats" onclick="admTab(this)">📊 Статистика</div>
@@ -424,6 +434,18 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
           <button class="submitBtn" onclick="publishPartner()">🤝 Опубликовать партнёра</button>
         </div>
         <div id="prList"></div>
+      </div>
+
+      <div id="adm-giveaways" style="display:none">
+        <div class="aCard">
+          <div class="sub" style="margin-bottom:10px">Розыгрыш показывается отдельным блоком в разделе «Маркет» — его видят все пользователи.</div>
+          <div class="field"><label>Фото розыгрыша</label><div class="photoPicker" id="gwPhotos"></div></div>
+          <div class="field"><label>Название розыгрыша</label><input id="gwTitle" maxlength="100" placeholder="Розыгрыш iPhone 15 Pro"></div>
+          <div class="field"><label>Описание и условия (показывается полностью)</label><textarea id="gwDesc" maxlength="2000" placeholder="Кто разыгрывает, что разыгрывается, условия участия, сроки..."></textarea></div>
+          <div class="field"><label>Ссылка на розыгрыш</label><input id="gwLink" maxlength="200" placeholder="https://t.me/..."></div>
+          <button class="submitBtn" onclick="publishGiveaway()">🎁 Опубликовать розыгрыш</button>
+        </div>
+        <div id="gwList"></div>
       </div>
 
       <div id="adm-list" style="display:none"></div>
@@ -478,6 +500,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 </div>
 
 <!-- ===================== PARTNER SHEET ===================== -->
+<div class="sheet" id="giveawaySheet">
+  <div class="backdrop" onclick="closeSheet('giveawaySheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetScroll" id="giveawayBody"></div>
+  </div>
+</div>
+
 <div class="sheet" id="partnerSheet">
   <div class="backdrop" onclick="closeSheet('partnerSheet')"></div>
   <div class="panel">
@@ -663,7 +693,7 @@ document.documentElement.setAttribute('data-theme', appPrefs.theme || 'light');
 const UZ = {
  'Маркет':'Market','Избранное':'Sevimlilar','Профиль':'Profil','Админ':'Admin',
  'Поиск товаров...':'Mahsulot qidirish...',
- 'Наши партнёры':'Hamkorlarimiz',
+ 'Наши партнёры':'Hamkorlarimiz', 'Розыгрыш':'Yutuq o\'yini', 'Участвовать':'Qatnashish',
  'Все':'Barchasi','Электроника':'Elektronika','Одежда':'Kiyim','Транспорт':'Transport','Недвижимость':"Ko'chmas mulk",'Услуги':'Xizmatlar','Другое':'Boshqa',
  'в избранном':'sevimlida','историй':'story','просмотров':"ko'rish",
  'О себе':"O'zim haqimda",'Пара слов о себе...':"O'zingiz haqida bir necha so'z...",
@@ -791,7 +821,7 @@ async function compressImage(file, maxDim=1000, q=0.72){
 /* ================================================================
    ОБЛАКО (Supabase REST)
 ================================================================ */
-const APP_VERSION = 'v2.4.3';
+const APP_VERSION = 'v2.4.4';
 /* ---- Отчёт об ошибках клиента (диагностика) ---- */
 function reportError(kind, message){
   try{
@@ -856,6 +886,7 @@ const userApi  = (action, payload)=> sbRpc('user_api',  { action, payload: paylo
 /* ---------- Кэш каталога и партнёров ---------- */
 let cloudListings = LS.get('cloud_listings', []);
 let cloudPartners = LS.get('cloud_partners', []);
+let cloudGiveaways = LS.get('cloud_giveaways', []);
 let cloudBanner = LS.get('cloud_banner', {});
 let bannerDraft = null; // {url,type} выбранное в форме, но ещё не сохранённое
 let cloudStories = [];
@@ -911,7 +942,7 @@ function mapListing(r){
 }
 
 async function loadCloud(){
-  renderGrid(); renderPartners();      // мгновенно из кэша
+  renderGrid(); renderPartners(); renderGiveaways();      // мгновенно из кэша
   try{
     const rows = await sbGet('listings?select=*&order=is_top.desc,created_at.desc');
     cloudListings = rows.map(mapListing);
@@ -922,7 +953,12 @@ async function loadCloud(){
     cloudPartners = pr || [];
     LS.set('cloud_partners', cloudPartners);
   }catch(e){ console.warn('partners cloud fail', e); }
-  renderGrid(); renderPartners();
+  try{
+    const gw = await sbGet('giveaways?select=*&order=created_at.desc');
+    cloudGiveaways = gw || [];
+    LS.set('cloud_giveaways', cloudGiveaways);
+  }catch(e){ console.warn('giveaways cloud fail', e); }
+  renderGrid(); renderPartners(); renderGiveaways();
 }
 
 /* ---------- Баннер главной (облако, видят ВСЕ посетители) ---------- */
@@ -1025,6 +1061,43 @@ function openPartner(id){
   openSheet('partnerSheet'); haptic('light');
 }
 function openPartnerLink(url){
+  if(url.startsWith('https://t.me/')) tg.openTelegramLink(url);
+  else tg.openLink(url);
+}
+
+/* ================================================================
+   ГЛАВНАЯ: РОЗЫГРЫШ (полный текст условий сразу в карточке)
+================================================================ */
+function renderGiveaways(){
+  const sec = document.getElementById('giveawaysSec');
+  if(!cloudGiveaways.length){ sec.innerHTML=''; return; }
+  const cards = cloudGiveaways.map(g=>{
+    const img = g.image_url
+      ? `<img class="gwImg" src="${esc(g.image_url)}" loading="lazy" alt="" onclick="openGiveaway('${g.id}')">`
+      : `<div class="gwPh" onclick="openGiveaway('${g.id}')">🎁</div>`;
+    return `<div class="gwCard">
+      ${img}
+      <div class="gwBody">
+        <div class="gwName">🎁 ${esc(g.title)}</div>
+        <div class="gwDesc">${esc(g.description||'')}</div>
+        ${g.link ? `<button class="btnMain" style="width:100%" onclick="openGiveawayLink('${esc(g.link)}')">Участвовать 🔗</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  sec.innerHTML = `<div class="secTitle">🎁 ${t('Розыгрыш')}</div>${cards}`;
+}
+function openGiveaway(id){
+  const g = cloudGiveaways.find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('giveawayBody').innerHTML = `
+    <div style="height:8px"></div>
+    ${g.image_url ? `<img class="ptImg" src="${esc(g.image_url)}" alt="">` : `<div class="ptPh">🎁</div>`}
+    <div class="ptTitle">🎁 ${esc(g.title)}</div>
+    <div class="ptDesc">${esc(g.description||'')}</div>
+    ${g.link ? `<div class="cta"><button class="btnMain" onclick="openGiveawayLink('${esc(g.link)}')">Участвовать 🔗</button></div>` : ''}`;
+  openSheet('giveawaySheet'); haptic('light');
+}
+function openGiveawayLink(url){
   if(url.startsWith('https://t.me/')) tg.openTelegramLink(url);
   else tg.openLink(url);
 }
@@ -1570,10 +1643,11 @@ function adminConfirm(msg){
 function admTab(el){
   document.querySelectorAll('.adminNav .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
-  const map = {add:'adm-add', partners:'adm-partners', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
+  const map = {add:'adm-add', partners:'adm-partners', giveaways:'adm-giveaways', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
   Object.values(map).forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(map[el.dataset.a]).style.display='block';
   if(el.dataset.a==='partners') renderAdminPartners();
+  if(el.dataset.a==='giveaways') renderAdminGiveaways();
   if(el.dataset.a==='list') renderAdminList();
   if(el.dataset.a==='reqs') renderAdminReqs();
   if(el.dataset.a==='stats') renderStats();
@@ -1586,6 +1660,8 @@ function renderAdmin(){
   document.getElementById('admPhotos').innerHTML = pickerSlot('pickAdminPhoto()');
   partnerPhoto = null;
   document.getElementById('prPhotos').innerHTML = pickerSlot('pickPartnerPhoto()');
+  giveawayPhoto = null;
+  document.getElementById('gwPhotos').innerHTML = pickerSlot('pickGiveawayPhoto()');
   const s = LS.get('shop_settings', {});
   document.getElementById('setTg').value = s.tg||'';
   document.getElementById('setIg').value = s.ig||'';
@@ -1799,6 +1875,82 @@ async function deletePartner(id){
     await adminApi('delete_partner', { id });
     await loadCloud(); renderAdminPartners();
     toast('Партнёр удалён');
+  }catch(e){ toast('Ошибка: ' + e.message); }
+}
+
+/* ---------- РОЗЫГРЫШ (админ) ---------- */
+let giveawayPhoto = null;
+function pickGiveawayPhoto(){
+  const f = document.getElementById('hiddenFile');
+  f.onchange = async ()=>{
+    const file = f.files[0]; if(!file) return;
+    giveawayPhoto = await compressImage(file, 1000, 0.75);
+    document.getElementById('gwPhotos').innerHTML =
+      `<div class="photoSlot"><img src="${giveawayPhoto}"><button class="rm" onclick="clearGiveawayPhoto()">✕</button></div>`;
+    f.value='';
+  };
+  f.click();
+}
+function clearGiveawayPhoto(){
+  giveawayPhoto = null;
+  document.getElementById('gwPhotos').innerHTML = pickerSlot('pickGiveawayPhoto()');
+}
+let giveawayPublishing = false;
+async function publishGiveaway(){
+  if(giveawayPublishing) return;
+  const title = document.getElementById('gwTitle').value.trim();
+  if(!title){ toast('Введите название розыгрыша'); return; }
+  giveawayPublishing = true;
+  const btn = event && event.target; if(btn){ btn.textContent='Публикую...'; }
+  try{
+    await adminApi('upsert_giveaway', {
+      id:'', title,
+      image_url: giveawayPhoto || null,
+      link: document.getElementById('gwLink').value.trim(),
+      description: document.getElementById('gwDesc').value.trim(),
+      status:'active'
+    });
+    document.getElementById('gwTitle').value = '';
+    document.getElementById('gwLink').value = '';
+    document.getElementById('gwDesc').value = '';
+    clearGiveawayPhoto();
+    await loadGiveaways(); renderAdminGiveaways();
+    toast('Розыгрыш опубликован — его видят все 🎁'); haptic('medium');
+  }catch(e){ toast('Не удалось опубликовать: ' + e.message); }
+  giveawayPublishing = false;
+  if(btn){ btn.textContent='🎁 Опубликовать розыгрыш'; }
+}
+async function renderAdminGiveaways(){
+  const box = document.getElementById('gwList');
+  box.innerHTML = '<div class="empty" style="grid-column:auto"><p>Загружаю...</p></div>';
+  let list = [];
+  try{ const r = await adminApi('all_giveaways'); list = r.data||[]; }
+  catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка загрузки</h3><p>${esc(e.message||'неизвестная ошибка')}</p></div>`; return; }
+  box.innerHTML = list.length ? list.map(g=>`
+    <div class="aCard">
+      <div style="display:flex;gap:12px;align-items:center">
+        ${g.image_url
+          ? `<img src="${esc(g.image_url)}" style="width:58px;height:58px;border-radius:12px;object-fit:cover">`
+          : `<div style="width:58px;height:58px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFB800,#FF8A00);color:#fff;font-weight:800">🎁</div>`}
+        <div style="flex:1">
+          <h4>${esc(g.title)}</h4>
+          <div class="sub">${esc((g.description||'').slice(0,40))}</div>
+          ${g.link?`<div class="sub" style="color:var(--accent);word-break:break-all">${esc(g.link)}</div>`:''}
+        </div>
+      </div>
+      <div class="aRow">
+        <button class="aBtn danger" onclick="deleteGiveaway('${g.id}')">🗑 Удалить</button>
+      </div>
+    </div>`).join('')
+  : `<div class="empty"><h3>Розыгрышей пока нет</h3><p>Добавьте первый розыгрыш в форме выше</p></div>`;
+}
+async function deleteGiveaway(id){
+  const ok = await adminConfirm('Удалить розыгрыш?');
+  if(!ok) return;
+  try{
+    await adminApi('delete_giveaway', { id });
+    await loadGiveaways(); renderAdminGiveaways();
+    toast('Розыгрыш удалён');
   }catch(e){ toast('Ошибка: ' + e.message); }
 }
 
