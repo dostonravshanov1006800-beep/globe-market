@@ -2,48 +2,28 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Globe Market</title>
-<!--
-  ЭТО НЕ САМО ПРИЛОЖЕНИЕ — это тонкий «загрузчик» (bootstrap).
-  Telegram WebView кэширует Mini App очень агрессивно ПО URL. Постоянная
-  Menu Button бота (🛍 рядом с полем ввода) всегда указывает на этот
-  корневой index.html и не меняется между релизами — поэтому раньше
-  пользователь месяцами видел старую версию, даже когда код уже обновлён.
-
-  Решение: этот файл почти никогда не меняется (поэтому даже если он сам
-  закэшировался — не страшно). Его единственная задача при каждом открытии —
-  СНАЧАЛА сходить за version.json с cache:'no-store' (гарантированно живой
-  запрос в сеть, минуя кэш), а затем перейти на настоящее приложение
-  app.html?v=<версия>&t=<таймстемп> — URL каждый раз новый, поэтому
-  WebView не может отдать старый кэш.
--->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Gift Sniper 🎯</title>
 <style>
-  html,body{height:100%;margin:0;background:#121212;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif}
-  .ld{color:#8E8E93;font-size:14px;text-align:center}
-  .sp{width:28px;height:28px;border-radius:50%;border:3px solid #2C2C2E;border-top-color:#0A84FF;animation:spin .8s linear infinite;margin:0 auto 12px}
-  @keyframes spin{to{transform:rotate(360deg)}}
+html,body{margin:0;padding:0;height:100%;background:#0b0f1a;color:#e8ecf4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ld{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.spin{width:38px;height:38px;border-radius:50%;border:3px solid #1c2540;border-top-color:#f8b21a;animation:sp 0.9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+b{color:#f8b21a}
 </style>
 </head>
 <body>
-  <div class="ld"><div class="sp"></div>Globe Market</div>
+<div id="ld"><div class="spin"></div><div><b>Gift Sniper</b> · загрузка…</div></div>
 <script>
-(async function boot(){
-  // КРИТИЧНО: Telegram передаёт данные пользователя (initData) через HASH
-  // в URL (#tgWebAppData=...), который telegram-web-app.js читает из
-  // location.hash. location.replace() на новый путь ОБРЫВАЕТ этот hash,
-  // если не перенести его явно — именно так в v2.7.6 пользователь увидел
-  // "Гость" вместо своего аккаунта. Поэтому hash всегда переносится.
-  var hash = location.hash || '';
-  var fallback = 'app.html?v=boot&t=' + Date.now() + hash;
-  try{
-    var res = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
-    var data = await res.json();
-    var v = (data && data.version) ? data.version : 'boot';
-    location.replace('app.html?v=' + encodeURIComponent(v) + '&t=' + Date.now() + hash);
-  }catch(e){
-    location.replace(fallback);
-  }
+/* Тонкий bootstrap: уникальный URL на каждом открытии — кэш Telegram WebView не мешает */
+(async () => {
+  const fail = () => location.replace("app.html" + (location.hash || ""));
+  try {
+    const r = await fetch("version.json", { cache: "no-store" });
+    const v = (await r.json()).v || "0";
+    location.replace("app.html?v=" + encodeURIComponent(v) + "&t=" + Date.now() + (location.hash || ""));
+  } catch (e) { fail(); }
+  setTimeout(fail, 4000);
 })();
 </script>
 </body>

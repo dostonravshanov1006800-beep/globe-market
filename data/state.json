@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "offset": 0,
+  "seen": {},
+  "floors": {},
+  "deals": [],
+  "usd": 0,
+  "usd_ts": 0,
+  "rl": { "cur": 25, "hi": 80, "last429": 0 },
+  "sent": 0
+}

@@ -1,0 +1,34 @@
+name: Gift Sniper Relay
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "chain = эстафета 24/7"
+        default: "false"
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: gift-sniper-relay
+  cancel-in-progress: false
+
+jobs:
+  sniper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run sniper engine
+        run: node engine/sniper-job.js
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TONAPI_KEY: ${{ secrets.TONAPI_KEY }}
+          CRYPT_KEY: ${{ secrets.CRYPT_KEY }}
+          FORCE: ${{ github.event.inputs.force || '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO_API: dostonravshanov1006800-beep/globe-market
