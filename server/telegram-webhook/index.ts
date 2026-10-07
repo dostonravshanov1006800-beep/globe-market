@@ -4,8 +4,16 @@
 // отдельный бесплатный серверлес-слой Supabase, нужен только для входящих
 // сообщений боту (Telegram требует живой webhook, статический сайт не может
 // его принимать).
+//
+// ВАЖНО (v2.7.2): у web_app-кнопки добавлен ?v=<версия>. Telegram WebView
+// кэширует Mini App по URL очень агрессивно — без этого параметра
+// пользователи месяцами видели старую версию после каждого деплоя
+// (замечено на проде: витал кэш v2.6.1, когда реальный релиз был v2.7.1).
+// При каждом релизе APP_VERSION здесь нужно поднимать СИНХРОННО с
+// APP_VERSION в index.html, иначе защита от кэша не работает.
 const BOT_TOKEN = "8667764468:AAHB-99kEw-ONhIVjlWSlERg3BOKhdU61Gc";
-const APP_URL = "https://dostonravshanov1006800-beep.github.io/globe-market/";
+const APP_VERSION = "2.7.2";
+const APP_URL = `https://dostonravshanov1006800-beep.github.io/globe-market/?v=${APP_VERSION}`;
 const BANNER_URL = "https://dostonravshanov1006800-beep.github.io/globe-market/banner.png";
 const WEBHOOK_SECRET = "gm_wh_7f3k9x_2026_secret";
 
@@ -38,7 +46,7 @@ async function sendWelcome(chatId: number) {
     });
     if (res.ok) return;
   } catch (_e) {
-    // падаем на текстовое сообщение ниже
+    // падаем в текстовый фоллбек ниже
   }
   await tg("sendMessage", {
     chat_id: chatId,
@@ -48,28 +56,25 @@ async function sendWelcome(chatId: number) {
   });
 }
 
-Deno.serve(async (req) => {
-  if (req.method !== "POST") return new Response("ok");
-
-  // Проверка секрета Telegram (устанавливается через setWebhook secret_token)
+Deno.serve(async (req: Request) => {
+  if (req.method !== "POST") {
+    return new Response("ok", { status: 200 });
+  }
   const secret = req.headers.get("x-telegram-bot-api-secret-token");
   if (secret !== WEBHOOK_SECRET) {
     return new Response("forbidden", { status: 403 });
   }
-
-  let update: any;
   try {
-    update = await req.json();
+    const update = await req.json();
+    const chatId =
+      update?.message?.chat?.id ??
+      update?.my_chat_member?.chat?.id ??
+      null;
+    if (chatId) {
+      await sendWelcome(chatId);
+    }
   } catch (_e) {
-    return new Response("ok");
+    // игнорируем битые обновления
   }
-
-  const msg = update?.message;
-  if (msg && msg.chat && msg.chat.id) {
-    // Отвечаем приветствием на /start и на любое другое сообщение в приват-чате —
-    // так кнопка "Start" в Telegram всегда даёт видимый результат.
-    await sendWelcome(msg.chat.id);
-  }
-
-  return new Response("ok");
+  return new Response("ok", { status: 200 });
 });
