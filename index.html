@@ -29,12 +29,18 @@
   <div class="ld"><div class="sp"></div>Globe Market</div>
 <script>
 (async function boot(){
-  var fallback = 'app.html?v=boot&t=' + Date.now();
+  // КРИТИЧНО: Telegram передаёт данные пользователя (initData) через HASH
+  // в URL (#tgWebAppData=...), который telegram-web-app.js читает из
+  // location.hash. location.replace() на новый путь ОБРЫВАЕТ этот hash,
+  // если не перенести его явно — именно так в v2.7.6 пользователь увидел
+  // "Гость" вместо своего аккаунта. Поэтому hash всегда переносится.
+  var hash = location.hash || '';
+  var fallback = 'app.html?v=boot&t=' + Date.now() + hash;
   try{
     var res = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
     var data = await res.json();
     var v = (data && data.version) ? data.version : 'boot';
-    location.replace('app.html?v=' + encodeURIComponent(v) + '&t=' + Date.now());
+    location.replace('app.html?v=' + encodeURIComponent(v) + '&t=' + Date.now() + hash);
   }catch(e){
     location.replace(fallback);
   }
