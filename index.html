@@ -83,6 +83,27 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .cmtTime{font-size:10.5px;color:var(--text2);margin-left:6px;font-weight:400}
 .cmtText{font-size:13.5px;line-height:1.45;margin-top:2px;word-break:break-word}
 .cmtDel{margin-left:auto;background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:0 2px}
+.rpillRow{display:flex;gap:12px;margin-bottom:8px;pointer-events:auto}
+.rpill{background:rgba(0,0,0,.4);border:none;color:#fff;font-size:19px;cursor:pointer;border-radius:16px;padding:6px 11px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:transform .12s}
+.rpill:active{transform:scale(1.25)}
+.rpill.mine{background:rgba(10,132,255,.85)}
+.rpill .cnt{font-size:11.5px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.rLoc{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:#fff;opacity:.92;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-bottom:6px}
+.repBtn{width:100%;padding:13px;background:var(--card);border:none;border-radius:14px;font-size:15px;font-family:inherit;cursor:pointer;color:var(--text);font-weight:600;margin-bottom:8px;text-align:left}
+.repBtn:active{background:var(--input)}
+.statRow{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid var(--border);font-size:14px}
+.statRow b{font-size:16px}
+.dauBar{display:flex;align-items:flex-end;gap:4px;height:90px;margin:10px 0 4px}
+.dauBar .bar{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.dauBar .bar span{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:9px;color:var(--text2);font-weight:700}
+.dauDays{display:flex;gap:4px}.dauDays div{flex:1;text-align:center;font-size:9px;color:var(--text2)}
+.vitGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 10px}
+.vitCard{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer}
+.vitCard img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--input)}
+.vitCard .vi{height:100%;display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--input)}
+.vitInfo{padding:9px 10px}
+.vitInfo .t{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vitInfo .p{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px}
 .cmtInputRow{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--border);position:sticky;bottom:0}
 .cmtInputRow input{flex:1;border:1.5px solid var(--border);background:var(--input);color:var(--text);border-radius:12px;padding:10px 13px;font-size:14px;font-family:inherit;outline:none}
 /* ===== ПРОФИЛЬ ЮЗЕРА ===== */
@@ -416,7 +437,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         </div>
       </div>
       <div class="aCard">
-        <h4>🎨 Оформление</h4>
+        <h4>📊 <span data-i18n="Моя статистика">Моя статистика</span></h4>
+        <div id="myStatsBox" style="margin-top:8px"></div>
+      </div>
+      <div class="aCard">
+        <h4>🎨 ${'${'}t('Оформление')}</h4>
         <div class="aRow" style="margin-top:10px">
           <button class="aBtn" id="thLight" onclick="setTheme('light')">🌞 Светлая</button>
           <button class="aBtn" id="thDark" onclick="setTheme('dark')">🌙 Тёмная</button>
@@ -462,6 +487,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="chip" data-a="list" onclick="admTab(this)">📦 Товары</div>
         <div class="chip" data-a="reqs" onclick="admTab(this)">📢 Заявки</div>
         <div class="chip" data-a="stats" onclick="admTab(this)">📊 Статистика</div>
+        <div class="chip" data-a="mod" onclick="admTab(this)">🛡 Модерация</div>
         <div class="chip" data-a="settings" onclick="admTab(this)">⚙️ Настройки</div>
       </div>
 
@@ -512,6 +538,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
         <div class="statGrid" id="statGrid"></div>
       </div>
 
+      <div id="adm-mod" style="display:none">
+        <div id="modBox"></div>
+      </div>
+
       <div id="adm-settings" style="display:none">
         <div class="aCard">
           <div class="field"><label>Мой Telegram (@ник)</label><input id="setTg" placeholder="@mystore"></div>
@@ -557,6 +587,31 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 </div>
 
 <!-- ===================== PARTNER SHEET ===================== -->
+<div class="sheet" id="reportSheet">
+  <div class="backdrop" onclick="closeSheet('reportSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetHead"><h3>🚩 Пожаловаться</h3><button class="xBtn" onclick="closeSheet('reportSheet')">✕</button></div>
+    <div class="sheetScroll" style="padding:14px 16px">
+      <div style="font-size:13.5px;color:var(--text2);margin-bottom:14px">При 3 жалобах контент скрывается автоматически до решения админа.</div>
+      <button class="repBtn" onclick="sendReport('Спам')">🚫 Спам или реклама</button>
+      <button class="repBtn" onclick="sendReport('Контент 18+')">🔞 Контент для взрослых</button>
+      <button class="repBtn" onclick="sendReport('Мошенничество')">⚠️ Мошенничество</button>
+      <button class="repBtn" onclick="sendReport('Оскорбления')">🗯 Оскорбления, травля</button>
+      <button class="repBtn" onclick="sendReport('Другое')">📝 Другое</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="reactListSheet">
+  <div class="backdrop" onclick="closeSheet('reactListSheet')"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="sheetHead"><h3>Кто отреагировал</h3><button class="xBtn" onclick="closeSheet('reactListSheet')">✕</button></div>
+    <div class="sheetScroll" id="reactListBody" style="padding:8px 16px"></div>
+  </div>
+</div>
+
 <div class="sheet" id="commentsSheet">
   <div class="backdrop" onclick="closeSheet('commentsSheet')"></div>
   <div class="panel">
@@ -609,11 +664,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
   <div id="storyBars"></div>
   <div id="storyTop">
     <div class="svAvaWrap"><img id="svAvatar" alt=""><span id="svOnDot" class="onDot onDotB"></span></div>
-    <div><div class="sname" id="svName"></div><div class="stime" id="svTime"></div></div>
+    <div><div class="sname" id="svName"></div><div class="stime" id="svTime"></div><div class="stime" id="svLoc" style="display:none;color:#fff;opacity:.92"></div></div>
     <button id="storyRepostBtn" onclick="svRepostStory()" title="Поделиться историей"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
     <button id="storyMsgBtn" onclick="msgStoryAuthor()" title="Написать автору"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     <button id="storyDelBtn" onclick="deleteMyStory()" title="Удалить историю"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
     <button id="muteBtn" onclick="toggleMute()" title="Звук" style="display:none"><svg viewBox="0 0 24 24" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+    <button id="storyReportBtn" onclick="svOpenReport()" title="Жалоба" style="display:none"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
     <button id="storyClose" onclick="closeStory()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div id="storyMedia">
@@ -647,6 +703,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
       <div class="aCard">
         <div class="field"><label data-i18n="Фото или видео (видео — до 60 секунд и 50 МБ)">Фото или видео (видео — до 60 секунд и 50 МБ)</label><div class="photoPicker" id="storyPick"></div></div>
         <div class="field"><label data-i18n="Подпись (необязательно)">Подпись (необязательно)</label><input id="storyCaption" placeholder="Текст..." data-i18n-ph="Текст..." maxlength="300"></div>
+        <div class="field"><label data-i18n="Локация (необязательно)">Локация (необязательно)</label><input id="storyLocation" placeholder="Район или город..." data-i18n-ph="Район или город..." maxlength="60"></div>
         <div class="aRow" style="margin-top:4px">
           <button class="submitBtn" style="flex:1" onclick="publishStory()" data-i18n="📸 Опубликовать">📸 Опубликовать</button>
           <button class="btnOut" id="publishReelBtn" style="flex:1;padding:13px 10px;border-radius:14px;font-weight:700;font-size:14px" onclick="publishReel()" data-i18n="🎬 В рилс">🎬 В рилс</button>
@@ -993,13 +1050,13 @@ async function loadCloudStories(){
     // ВАЖНО: "views" (кто посмотрел) не читается публичным ключом — это приватные
     // данные, доступные только автору через серверную функцию get_story_viewers().
     // Поэтому запрашиваем явный список колонок без views.
-    const rows = await sbGet('stories?select=id,user_id,user_name,user_avatar,media_type,media_data,caption,created_at,duration_sec&order=created_at.asc');
+    const rows = await sbGet('stories?select=id,user_id,user_name,user_avatar,media_type,media_data,caption,created_at,duration_sec,location&hidden=eq.false&order=created_at.asc');
     const prevById = {}; cloudStories.forEach(s=>{ prevById[s.id] = s; });
     cloudStories = rows.map(r=>({
       id:r.id, userId:String(r.user_id||'0'), userName:r.user_name||'Гость',
       userAvatar:r.user_avatar || 'https://ui-avatars.com/api/?background=0A84FF&color=fff&bold=true&size=128&name=G',
       mediaType:r.media_type||'image', mediaData:r.media_data||'', caption:r.caption||'',
-      durSec: r.duration_sec||0,
+      location: r.location||'', durSec: r.duration_sec||0,
       views: (prevById[r.id] && prevById[r.id].views) || [], // подтягивается отдельно для своих историй
       createdAt:Date.parse(r.created_at)||0
     })).filter(s => (Date.now() - s.createdAt) < 24*3600*1000);
@@ -1171,7 +1228,7 @@ let reelsData = [], reelsMuted = true, reelsWatched = {};
 
 async function loadReels(){
   try{
-    const r = await sbRpc('reels_feed', {});
+    const r = await sbRpc('reels_feed', { init_data: tg.initData || '' });
     reelsData = Array.isArray(r) ? r : [];
   }catch(e){ console.warn('reels fail', e); }
   renderReels();
@@ -1190,7 +1247,11 @@ function renderReels(){
           ${r.user_avatar ? `<img class="rAva" src="${esc(r.user_avatar)}">` : `<div class="rAvaPh">${esc((r.user_name||'U').charAt(0).toUpperCase())}</div>`}
           <div class="rName">${esc(r.user_name||'Пользователь')}</div>
         </div>
+        ${r.location ? `<div class="rLoc">📍 ${esc(r.location)}</div>` : ''}
         ${r.caption ? `<div class="rCap">${esc(r.caption)}</div>` : ''}
+        <div class="rpillRow" id="rpRow_${r.id}">
+          ${['❤️','🔥','😂','😮'].map(e=>`<button class="rpill ${r.my_emoji===e?'mine':''}" onclick="reelReactToggle('${r.id}','${e}')">${e}<span class="cnt" id="rpc_${r.id}_${emojiKey(e)}">${(r.reactions&&r.reactions[e])||0}</span></button>`).join('')}
+        </div>
       </div>
       <div class="rBtns">
         <button class="rBtn" id="rl_${r.id}" onclick="reelLike('${r.id}',this)">
@@ -1205,6 +1266,8 @@ function renderReels(){
           <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           <span>${t('Написать')}</span>
         </button>
+        ${tgUser && String(r.user_id)!==String(tgUser.id) ? `<button class="rBtn" onclick="openReportSheet('${r.id}','reel')"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span>${t('Жалоба')}</span></button>` : ''}
+        <button class="rBtn" onclick="shareReel('${r.id}')"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>${t('Ссылка')}</span></button>
         ${isAdmin ? `<button class="rBtn" onclick="adminDeleteReel('${r.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>🗑</span></button>` : ''}
       </div>
     </div>`).join('');
@@ -1227,6 +1290,82 @@ function observeReels(){
     });
   }, {root: document.getElementById('reelsFeed'), threshold: [0.7]});
   vids.forEach(v=>io.observe(v));
+}
+function emojiKey(e){ return {'❤️':'h','🔥':'f','😂':'l','😮':'w'}[e] || e; }
+async function reelReactToggle(id, emoji){
+  if(!tg.initData){ toast(t('Откройте приложение в Telegram')); return; }
+  haptic('medium');
+  try{
+    const r = await sbRpc('reel_react', { p_reel_id: id, p_emoji: emoji, p_name: (tgUser&&tgUser.first_name)||'', init_data: tg.initData });
+    if(r && r.ok===false) return;
+    const reel = reelsData.find(x=>x.id===id);
+    // обновляем пилюли
+    ['❤️','🔥','😂','😮'].forEach(e=>{
+      const cnt = document.getElementById('rpc_'+id+'_'+emojiKey(e));
+      if(cnt) cnt.textContent = (r.counts&&r.counts[e])||0;
+      const pills = document.querySelectorAll('#rpRow_'+id+' .rpill');
+      pills.forEach(p=>p.classList.remove('mine'));
+    });
+    if(r.my){
+      const idx = ['❤️','🔥','😂','😮'].indexOf(emoji);
+      const pill = document.querySelectorAll('#rpRow_'+id+' .rpill')[idx];
+      if(pill) pill.classList.add('mine');
+    }
+    if(reel && r.my && reel.user_id !== String(tgUser.id))
+      botNotifyUser(reel.user_id, emoji + ' <b>' + esc((tgUser.first_name||'Кто-то')) + '</b> отреагировал на ваш рилс');
+  }catch(e){ toast('Ошибка реакции'); }
+}
+async function openReelReactList(id){
+  try{
+    const list = await sbRpc('reel_react_list', { p_reel_id: id });
+    const body = document.getElementById('reactListBody');
+    body.innerHTML = (list||[]).map(x=>`
+      <div class="cmtRow">
+        <div class="cmtAva">${esc((x.n||'?').charAt(0).toUpperCase())}</div>
+        <div style="flex:1"><div class="cmtName">${esc(x.n||'Гость')}</div></div>
+        <div style="font-size:20px">${x.e}</div>
+      </div>`).join('') || `<div style="text-align:center;color:var(--text2);padding:22px">Пока никто</div>`;
+    openSheet('reactListSheet');
+  }catch(e){}
+}
+let reportTarget = null, reportKind = 'story';
+function openReportSheet(target, kind){
+  reportTarget = target; reportKind = kind;
+  haptic('light');
+  openSheet('reportSheet');
+}
+async function sendReport(reason){
+  if(!reportTarget || !tg.initData){ toast(t('Откройте приложение в Telegram')); return; }
+  try{
+    closeSheet('reportSheet');
+    const r = await sbRpc('report_content', { init_data: tg.initData, p_target: reportTarget, p_kind: reportKind, p_reason: reason });
+    if(r && r.ok===false){ toast(r.err==='own' ? t('Нельзя жаловаться на свой контент') : t('Ошибка')); return; }
+    toast(r.hidden ? t('Спасибо! Контент скрыт для проверки') : t('Жалоба отправлена'));
+    haptic('medium');
+    if(r.hidden && reportKind==='reel') await loadReels();
+  }catch(e){ toast('Ошибка подачи жалобы'); }
+}
+function shareReel(id){
+  const link = 'https://t.me/Global_mrkt_bot?startapp=reel_' + id;
+  copyLink(link);
+}
+function shareProfile(uid){
+  copyLink('https://t.me/Global_mrkt_bot?startapp=up_' + uid);
+}
+function copyLink(link){
+  haptic('light');
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(()=>toast(t('Ссылка скопирована'))).catch(()=>fallbackCopy(link));
+    } else fallbackCopy(link);
+  }catch(e){ fallbackCopy(link); }
+}
+function fallbackCopy(link){
+  const ta = document.createElement('textarea');
+  ta.value = link; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast(t('Ссылка скопирована')); }catch(e){ toast(link); }
+  ta.remove();
 }
 function toggleReelsMute(){
   reelsMuted = !reelsMuted;
@@ -1330,6 +1469,14 @@ async function sendComment(){
     if(authorId) botNotifyUser(authorId, '💬 <b>' + esc((tgUser.first_name||'Кто-то')) + '</b> прокомментировал: <i>' + esc(text.slice(0,60)) + '</i>');
   }catch(e){ toast('Ошибка: ' + e.message); }
 }
+function svOpenReport(){
+  const s = svUser && svUser.items[svIdx];
+  if(!s) return;
+  svSetPaused(true);
+  const video = document.querySelector('#storyMedia video');
+  if(video) video.pause();
+  openReportSheet(s.id, 'story');
+}
 function openStoryPublicComments(){
   const s = svUser && svUser.items[svIdx];
   if(!s) return;
@@ -1395,7 +1542,26 @@ async function openUserProfile(uid, name, avatar){
       <div class="upCell" onclick="openOneStory('${esc(s.id)}')">
         ${s.media_type==='video' ? `<video src="${esc(s.media_data)}" muted playsinline preload="metadata"></video>` : `<img src="${esc(s.media_data)}" loading="lazy">`}
       </div>`).join('')}</div>` : ''}
-    ${(!reels.length && !stories.length) ? `<div style="text-align:center;color:var(--text2);padding:22px;font-size:13px">${t('Пока нет контента')}</div>` : ''}`;
+    ${(!reels.length && !stories.length) ? `<div style="text-align:center;color:var(--text2);padding:22px;font-size:13px">${t('Пока нет контента')}</div>` : ''}
+    <div id="upVitrina"></div>
+    <div class="aRow" style="justify-content:center;margin:16px 0 8px">
+      <button class="btnOut" onclick="shareProfile('${esc(String(uid))}')">🔗 ${t('Ссылка на профиль')}</button>
+    </div>`;
+  // витрина товаров (если владелец — партнёр с товарами)
+  try{
+    const vit = await sbRpc('partner_listings', { p_owner: String(uid) });
+    if(Array.isArray(vit) && vit.length){
+      document.getElementById('upVitrina').innerHTML = `
+        <div class="secTitle" style="margin:14px 16px 8px">🛍 ${t('Витрина')}</div>
+        <div class="vitGrid" style="padding:0 16px">
+          ${vit.map(p=>`
+            <div class="vitCard" onclick="openProduct('${p.id}')">
+              ${p.photos && p.photos[0] ? `<img src="${esc(p.photos[0])}" loading="lazy">` : `<div class="vi">📦</div>`}
+              <div class="vitInfo"><div class="t">${esc(p.title)}</div><div class="p">${fmtPrice(p.price)}</div></div>
+            </div>`).join('')}
+        </div>`;
+    }
+  }catch(e){}
 }
 async function upToggleFollow(){
   if(!upData || !tg.initData) return;
@@ -1718,6 +1884,7 @@ function openStoryGroup(userId){
   haptic('light');
   showStoryItem();
 }
+function isMineAtStart(s){ return !!(tgUser && s && String(s.userId)===String(tgUser.id)); }
 async function showStoryItem(){
   clearInterval(svTimer);
   const s = svUser.items[svIdx];
@@ -1726,6 +1893,10 @@ async function showStoryItem(){
   document.getElementById('svAvatar').src = s.userAvatar;
   document.getElementById('svName').textContent = s.userName || t('Пользователь');
   document.getElementById('svTime').textContent = timeAgo(s.createdAt);
+  const locEl = document.getElementById('svLoc');
+  if(locEl){ locEl.textContent = s.location ? '📍 ' + s.location : ''; locEl.style.display = s.location ? 'inline-flex' : 'none'; }
+  const repB = document.getElementById('storyReportBtn');
+  if(repB) repB.style.display = (!isMineAtStart(s) && s.userId && s.userId!=='0') ? 'flex' : 'none';
 
   const bars = document.getElementById('storyBars');
   bars.innerHTML = svUser.items.map((_,i)=>`<div class="sbar"><i style="width:${i<svIdx?100:0}%"></i></div>`).join('');
@@ -1900,9 +2071,11 @@ async function publishStory(){
     await sbRpc('publish_story', {
       p_media_type: mediaType, p_media_data: mediaData,
       p_caption: document.getElementById('storyCaption').value || '',
+      p_location: document.getElementById('storyLocation').value || '',
       p_avatar: avatarUrl(me), init_data: tg.initData || '',
       p_duration: storyFileDur
     });
+    document.getElementById('storyLocation').value = '';
     closeSheet('storyComposer');
     await loadCloudStories();
     renderStories();
@@ -1929,8 +2102,10 @@ async function publishReel(){
     await sbRpc('post_reel', {
       p_video: url,
       p_caption: document.getElementById('storyCaption').value || '',
+      p_location: document.getElementById('storyLocation').value || '',
       init_data: tg.initData || ''
     });
+    document.getElementById('storyLocation').value = '';
     closeSheet('storyComposer');
     await loadReels();
     switchTab('reels');
@@ -1944,8 +2119,28 @@ async function publishReel(){
 /* ================================================================
    ПРОФИЛЬ
 ================================================================ */
+async function renderMyStats(){
+  const box = document.getElementById('myStatsBox');
+  if(!box) return;
+  if(!tgUser || !tg.initData){ box.innerHTML = `<div style="color:var(--text2);font-size:13px">${t('Откройте приложение в Telegram, чтобы видеть статистику')}</div>`; return; }
+  box.innerHTML = `<div style="color:var(--text2);font-size:13px">${t('Загрузка...')}</div>`;
+  try{
+    const s = await sbRpc('my_stats', { init_data: tg.initData });
+    if(!s || s.ok===false) throw new Error('err');
+    const reacts = (s.story_reacts||0) + (s.reel_likes||0);
+    box.innerHTML = `
+      <div class="statRow"><span>👀 ${t('Просмотры историй (7 дней)')}</span><b>${s.story_views_7d||0}</b></div>
+      <div class="statRow"><span>🎬 ${t('Просмотры рилсов (7 дней)')}</span><b>${s.reel_views_7d||0}</b></div>
+      <div class="statRow"><span>❤️ ${t('Лайки и реакции всего')}</span><b>${reacts}</b></div>
+      <div class="statRow"><span>💬 ${t('Комментариев на ваш контент')}</span><b>${s.comments_got||0}</b></div>
+      <div class="statRow"><span>👥 ${t('Подписчиков')}</span><b>${s.followers||0}</b></div>
+      ${s.top_reel && s.top_reel.views ? `<div class="statRow"><span>🏆 ${t('Топ-рилс')}</span><b>👁 ${s.top_reel.views}</b></div>` : ''}
+      ${s.top_story && s.top_story.views ? `<div class="statRow" style="border-bottom:none"><span>🏆 ${t('Топ-история')}</span><b>👁 ${s.top_story.views}</b></div>` : ''}`;
+  }catch(e){ box.innerHTML = `<div style="color:var(--text2);font-size:13px">${t('Статистика пока недоступна')}</div>`; }
+}
 function renderProfile(){
   const me = tgUser;
+  renderMyStats();
   document.getElementById('profAvatar').src = avatarUrl(me);
   const vt = document.getElementById('verTag'); if(vt) vt.textContent = 'Globe Market ' + APP_VERSION + ' · 07.10.2026';
   document.getElementById('profName').textContent = me ? [me.first_name, me.last_name].filter(Boolean).join(' ') : t('Гость');
@@ -1962,6 +2157,11 @@ function saveProfile(){
     bio: document.getElementById('profBio').value.trim()
   });
   toast('Профиль сохранён 💾'); haptic('light');
+}
+function inviteFriend(){
+  const myId = tgUser ? tgUser.id : '';
+  copyLink('https://t.me/Global_mrkt_bot?startapp=ref_' + myId);
+  toast(t('Ссылка-приглашение скопирована') + ' 🚀');
 }
 async function updateProfileStats(){
   try{
@@ -2050,7 +2250,7 @@ function adminConfirm(msg){
 function admTab(el){
   document.querySelectorAll('.adminNav .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
-  const map = {add:'adm-add', partners:'adm-partners', giveaways:'adm-giveaways', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', settings:'adm-settings'};
+  const map = {add:'adm-add', partners:'adm-partners', giveaways:'adm-giveaways', list:'adm-list', reqs:'adm-reqs', stats:'adm-stats', mod:'adm-mod', settings:'adm-settings'};
   Object.values(map).forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(map[el.dataset.a]).style.display='block';
   if(el.dataset.a==='partners') renderAdminPartners();
@@ -2058,6 +2258,7 @@ function admTab(el){
   if(el.dataset.a==='list') renderAdminList();
   if(el.dataset.a==='reqs') renderAdminReqs();
   if(el.dataset.a==='stats') renderStats();
+  if(el.dataset.a==='mod') renderModeration();
   haptic('light');
 }
 function renderAdmin(){
@@ -2331,6 +2532,23 @@ async function publishGiveaway(){
     clearGiveawayPhoto();
     await loadGiveaways(); renderAdminGiveaways();
     toast('Розыгрыш опубликован — его видят все 🎁'); haptic('medium');
+    // уведомляем всех активных юзеров через бота
+    try{
+      const r = await adminApi('active_uids');
+      const uids = (r && r.data) || [];
+      const msg = '🎁 <b>Новый розыгрыш!</b>\n<b>' + esc(title) + '</b>\n\nОткрой Globe Market и участвуй 🎉';
+      let sent = 0;
+      for(const uid of uids){
+        if(String(uid) === String(OWNER_TG_ID)) continue;
+        setTimeout(()=>{ try{
+          fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ chat_id: String(uid), parse_mode:'HTML', text: msg })
+          }).catch(()=>{});
+        }catch(e){} }, sent * 120);
+        sent++;
+      }
+    }catch(e){ console.warn('notify all fail', e); }
   }catch(e){ toast('Не удалось опубликовать: ' + e.message); }
   giveawayPublishing = false;
   if(btn){ btn.textContent='🎁 Опубликовать розыгрыш'; }
@@ -2416,17 +2634,83 @@ async function setReq(id, status){
 async function renderStats(){
   const box = document.getElementById('statGrid');
   box.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Загружаю...</p></div>';
-  let listings=[], ads=[], partners=[];
+  let listings=[], ads=[], partners=[], st=null;
   try{ listings = (await adminApi('all_listings')).data||[]; }catch(e){}
   try{ ads = (await adminApi('list_ads')).data||[]; }catch(e){}
   try{ partners = (await adminApi('all_partners')).data||[]; }catch(e){}
+  try{ st = await adminApi('admin_stats'); }catch(e){}
   const views = listings.reduce((a,p)=>a+(p.views||0),0);
   const newAds = ads.filter(r=>r.status==='wait').length;
-  box.innerHTML = `
-    <div class="statCard"><div class="num">${listings.length}</div><div class="lbl">📦 товаров в каталоге</div></div>
-    <div class="statCard"><div class="num">${views}</div><div class="lbl">👁 просмотров товаров</div></div>
-    <div class="statCard"><div class="num">${partners.length}</div><div class="lbl">🤝 партнёров</div></div>
-    <div class="statCard"><div class="num">${newAds}</div><div class="lbl">📢 новых заявок</div></div>`;
+  if(st && st.ok){
+    const dau = st.dau||[];
+    const max = Math.max(1, ...dau.map(d=>d.count));
+    const dauChart = `
+      <div class="aCard" style="grid-column:1/-1">
+        <h4>📈 DAU — активные за день (${st.users_today||0} сегодня)</h4>
+        ${dau.length ? `
+          <div class="dauBar">${dau.map(d=>`<div class="bar" style="height:${Math.max(4, d.count/max*84)}px"><span>${d.count}</span></div>`).join('')}</div>
+          <div class="dauDays">${dau.map(d=>`<div>${d.day.slice(8)}</div>`).join('')}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:8px">👥 Всего юзеров: <b>${st.users_total||0}</b> · 🎬 рилсов: <b>${st.reels_total||0}</b> · 📸 историй: <b>${st.stories_total||0}</b> · 💬 комментариев: <b>${st.comments_total||0}</b> · ⭐ подписок: <b>${st.follows_total||0}</b></div>`
+        : `<div style="color:var(--text2);font-size:13px;padding:8px 0">График появится, когда юзеры начнут заходить.</div>`}
+      </div>
+      ${(st.top_reels||[]).length || (st.top_stories||[]).length ? `
+      <div class="aCard" style="grid-column:1/-1">
+        <h4>🏆 Топ-контент</h4>
+        ${(st.top_reels||[]).map(r=>`<div class="statRow"><span>🎬 ${esc((r.user_name||''))}: ${esc((r.caption||'').slice(0,40))}</span><b>👁 ${r.views}</b></div>`).join('')}
+        ${(st.top_stories||[]).map(r=>`<div class="statRow" style="border-bottom:none"><span>📸 ${esc((r.user_name||''))}: ${esc((r.caption||'').slice(0,40))}</span><b>👁 ${r.views}</b></div>`).join('')}
+      </div>` : ''}`;
+    box.innerHTML = dauChart + `
+      <div class="statCard"><div class="num">${listings.length}</div><div class="lbl">📦 товаров в каталоге</div></div>
+      <div class="statCard"><div class="num">${views}</div><div class="lbl">👁 просмотров товаров</div></div>
+      <div class="statCard"><div class="num">${partners.length}</div><div class="lbl">🤝 партнёров</div></div>
+      <div class="statCard"><div class="num">${newAds}</div><div class="lbl">📢 новых заявок</div></div>
+      <div class="statCard"><div class="num">${st.reports_open||0}</div><div class="lbl">🚩 открытых жалоб</div></div>
+      <div class="statCard"><div class="num">${st.stories_hidden||0}</div><div class="lbl">🚫 скрыто модерацией</div></div>`;
+  } else {
+    box.innerHTML = `
+      <div class="statCard"><div class="num">${listings.length}</div><div class="lbl">📦 товаров в каталоге</div></div>
+      <div class="statCard"><div class="num">${views}</div><div class="lbl">👁 просмотров товаров</div></div>
+      <div class="statCard"><div class="num">${partners.length}</div><div class="lbl">🤝 партнёров</div></div>
+      <div class="statCard"><div class="num">${newAds}</div><div class="lbl">📢 новых заявок</div></div>`;
+  }
+}
+async function renderModeration(){
+  const box = document.getElementById('modBox');
+  box.innerHTML = '<div class="empty"><p>Загружаю...</p></div>';
+  let reps = [];
+  try{ const r = await adminApi('reports_list'); reps = r.data||[]; }catch(e){ box.innerHTML = `<div class="empty"><h3>Ошибка</h3><p>${esc(e.message)}</p></div>`; return; }
+  if(!reps.length){ box.innerHTML = '<div class="empty"><h3>🛡 Жалоб нет</h3><p>Всё чисто. Скрытый контент появлятся здесь, когда поступят жалобы.</p></div>'; return; }
+  box.innerHTML = reps.map(r=>`
+    <div class="aCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div>
+          <b>${r.target_kind==='reel'?'🎬 Рилс':'📸 История'}</b> · ${r.hidden?'<span style="color:#e5484d">🚫 скрыт</span>':'<span style="color:#30a46c">виден</span>'}
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">👤 ${esc(r.owner||'—')} · жалоб: <b>${r.reports_count}</b> · от ${esc(r.reporter)}</div>
+          <div style="font-size:12.5px;margin-top:4px">«${esc(r.reason||'—')}»</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btnOut" style="flex:1;padding:9px 8px;font-size:13px" onclick="modToggleHide('${r.target_id}','${r.target_kind}',${!r.hidden})">${r.hidden?'👁 Показать':'🚫 Скрыть'}</button>
+        <button class="btnOut" style="flex:1;padding:9px 8px;font-size:13px;color:#e5484d" onclick="modDeleteContent('${r.target_id}','${r.target_kind}')">🗑 Удалить</button>
+        <button class="btnOut" style="flex:1;padding:9px 8px;font-size:13px" onclick="modDismissReport('${r.id}')">✅ Отклонить</button>
+      </div>
+    </div>`).join('');
+}
+async function modToggleHide(id, kind, hide){
+  try{ await adminApi('hide_content', { kind, id, hidden: hide }); renderModeration(); toast(hide?'Контент скрыт':'Контент снова виден'); haptic('medium'); }
+  catch(e){ toast('Ошибка: ' + e.message); }
+}
+async function modDeleteContent(id, kind){
+  if(!confirm('Удалить контент навсегда?')) return;
+  try{
+    await adminApi(kind==='reel' ? 'delete_reel' : 'delete_story', { id });
+    await adminApi('report_dismiss', { target_id:id });
+    renderModeration(); toast('Удалено'); haptic('medium');
+  }catch(e){ toast('Ошибка: ' + e.message); }
+}
+async function modDismissReport(rid){
+  try{ await adminApi('report_dismiss', { id: rid }); renderModeration(); toast('Жалоба отклонена'); }
+  catch(e){ toast('Ошибка: ' + e.message); }
 }
 
 /* ---------- Настройки (локальные) ---------- */
@@ -2765,6 +3049,33 @@ function touchUser(){
   if(tg.initData) sbRpc('touch_user', { init_data: tg.initData }).catch(()=>{});
 }
 const isFollowed = id => Array.isArray(myFollows) && myFollows.some(f=>String(f.id)===String(id));
+function handleStartParam(){
+  try{
+    const sp = tg.initDataUnsafe && tg.initDataUnsafe.start_param;
+    if(!sp) return;
+    if(sp.startsWith('up_')){
+      const uid = sp.slice(3);
+      setTimeout(()=>openUserProfile(uid, '', ''), 800);
+    } else if(sp.startsWith('reel_')){
+      const rid = sp.slice(5);
+      loadReels().then(()=>{
+        const r = reelsData.find(x=>x.id===rid);
+        if(r){
+          switchTab('reels');
+          const box = document.createElement('div');
+          box.style.cssText = 'position:fixed;inset:0;background:#000;z-index:999;display:flex;align-items:center;justify-content:center';
+          box.innerHTML = `<video src="${esc(r.video_url)}" autoplay playsinline loop style="max-width:100%;max-height:100%"></video>`;
+          box.onclick = ()=>box.remove();
+          document.body.appendChild(box);
+          const v = box.querySelector('video');
+          v.muted = true; v.play().catch(()=>{});
+        }
+      });
+    } else if(sp.startsWith('ref_')){
+      toast('👋 ' + t('Добро пожаловать!'));
+    }
+  }catch(e){}
+}
 function syncFeedTabs(){
   const m = LS.get('stories_feed','all');
   const a = document.getElementById('ftAll'), s = document.getElementById('ftSubs');
@@ -3005,6 +3316,7 @@ function deleteMyStory(){
   await refreshMyFollows();
   syncFeedTabs();
   touchUser();
+  handleStartParam();
   setInterval(touchUser, 300000);
   await loadCloudStories();
   loadReels();
